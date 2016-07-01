@@ -1,0 +1,8 @@
+<h1>Feedback</h1>
+<ul>
+{% for obj in object_list %}
+    <li>{{ obj.course_id }}/{{ obj.group_path }} avg {{obj.avg}}</li>
+{% empty %}
+    <li>No feedback yet.</li>
+{% endfor %}
+</ul>
