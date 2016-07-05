@@ -7,6 +7,9 @@ from lib.helpers import freeze
 
 
 class LabelWidget(forms.Widget):
+    """
+    Widget for LabelField
+    """
     def render(self, name, value, attrs):
         attrs = self.build_attrs(attrs, name=name)
         if hasattr(self, 'initial'):
@@ -15,6 +18,10 @@ class LabelWidget(forms.Widget):
 
 
 class LabelField(forms.Field):
+    """
+    Simple field that shows only 'value' text
+    Used with dynamic forms to show text between fields
+    """
     widget = LabelWidget
 
     def __init__(self, *args, **kwargs):
@@ -54,8 +61,8 @@ class DynamicFormMetaClass(forms.forms.DeclarativeFieldsMetaclass):
         return "<class '%s.%s' with '%s'>" % (cls.__module__, cls.__name__, cls.__generated_from__)
 
 
-def auto_type_for_enums(default):
-    def selector(prop):
+def auto_type_for_enums(default: str):
+    def selector(prop: dict):
         if any(w in prop for w in ('enum', 'titleMap')):
             vals = prop.get('enum')
             if vals is None:
@@ -70,9 +77,15 @@ def auto_type_for_enums(default):
 
 class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
     """
-    Class to set correct metaclass and to provide factory classmethods.
+    Provides way to build django form objects from plain data structures
+    (once loaded from json for example).
 
-    all supported parameters for a field:
+    Design of data structure is based on JSON schema standard and
+    https://github.com/json-schema-form/angular-schema-form
+
+    This class should support common cases of above specs.
+
+    All supported parameters for a field object:
     {
       'key': 'field unique identifier', # name and id is also mapped to this
       'type': valid_type,
@@ -90,6 +103,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
        'c': 'C',
       },
     }
+
     """
 
     FORM_CACHE = {}
@@ -146,10 +160,10 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
 
 
     @classmethod
-    def create_form_class_from(cls, data):
+    def create_form_class_from(cls, data: "list of field structs"):
         """
-        Construct dynamic form based on serialized string that is submittable
-        trough http query parameters
+        Construct dynamic form based on data.
+        Data is list of field structs (see class doc)
         """
         def get_fields(properties):
             """Returns list of django form fields for iterable of properties"""
