@@ -1,6 +1,5 @@
 from collections import OrderedDict
 from copy import copy
-
 from django import forms
 from django.forms.utils import flatatt
 
@@ -55,6 +54,20 @@ class DynamicFormMetaClass(forms.forms.DeclarativeFieldsMetaclass):
         return "<class '%s.%s' with '%s'>" % (cls.__module__, cls.__name__, cls.__generated_from__)
 
 
+def auto_type_for_enums(default):
+    def selector(prop):
+        if any(w in prop for w in ('enum', 'titleMap')):
+            vals = prop.get('enum')
+            if vals is None:
+                vals = prop.get('titleMap').values()
+            if len(vals) < 6:
+                if max(len(str(x)) for x in vals) < 6:
+                    return 'radios-inline'
+                return 'radios'
+            return 'select'
+        return default
+    return selector
+
 class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
     """
     Class to set correct metaclass and to provide factory classmethods.
@@ -81,19 +94,14 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
 
     FORM_CACHE = {}
     DATA_TO_TYPE_MAP = {
-        'string': 'text',
-        'integer': 'number',
+        'string': auto_type_for_enums('text'),
+        'integer': auto_type_for_enums('number'),
         'boolean': 'checkbox',
         #'object': 'fieldset',
         'array': 'array',
         'static': 'help',
     }
     TYPE_MAP = {
-        #'': fp(forms.MultipleChoiceField, widget=forms.CheckboxSelectMultiple),
-        #'one': fp(forms.ChoiceField, widget=forms.RadioSelect),
-        #'email': forms.EmailField,
-        #'bool': forms.BooleanField,
-        #'int': forms.IntegerField,
         # form types
         'fieldset': (None, None), # a fieldset with legend
         'section': (None, None), # just a div
@@ -103,7 +111,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
         'password': (forms.CharField, forms.PasswordInput), # input type password
         'checkbox': (forms.BooleanField, None), # a checkbox
         'checkboxes': (forms.MultipleChoiceField, forms.CheckboxSelectMultiple), # list of checkboxes
-        'select': (forms.ChoiceField, forms.RadioSelect), # a select (single value)
+        'select': (forms.ChoiceField, None), # a select (single value)
         'radios': (forms.ChoiceField, forms.RadioSelect), # radio buttons
         'radios-inline': (forms.ChoiceField, forms.RadioSelect), # radio buttons in one line
         'radiobuttons': (forms.ChoiceField, forms.RadioSelect), # radio buttons with bootstrap buttons
@@ -130,6 +138,10 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
     WIDGET_ATTR_MAP = {
         # input key: django widget key
         'placeholder': 'placeholder',
+    }
+    COERCE_FIELD_MAP = {
+        forms.ChoiceField: forms.TypedChoiceField,
+        forms.MultipleChoiceField: forms.TypedMultipleChoiceField,
     }
 
 
@@ -159,23 +171,21 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                     name, prop = row
 
                 # get type
-                try:
-                    type_ = prop.get('type', 'string')
-                except:
-                    print("WTFFFF!!!!... ", i, row, prop)
-                    raise
+                type_ = prop.get('type', 'string')
 
-                # traverse objects
+                # handle special type object: flatten it
                 if type_ == 'object':
                     childs = prop.get('properties', None)
                     child_fields = get_fields(childs) if childs else {}
                     for k, v in child_fields.items():
-                        fields["%s.%s" % (name, k)] = v
+                        fields["%s_%s" % (name, k)] = v
                     continue
 
-                # get classes
-                type_ = cls.DATA_TO_TYPE_MAP.get(type_, type_)
-                field_class, widget_class = cls.TYPE_MAP.get(type_, None)
+                # resolve correct type and classes
+                field_type = cls.DATA_TO_TYPE_MAP.get(type_, type_)
+                if callable(field_type):
+                    field_type = field_type(prop)
+                field_class, widget_class = cls.TYPE_MAP.get(field_type, (None, None))
                 if not widget_class:
                     widget_class = field_class.widget
 
@@ -184,16 +194,25 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                 widget_attrs = {k: prop[l] for l, k in cls.WIDGET_ATTR_MAP.items() if l in prop}
 
                 # enums
-                if 'titleMap' in prop:
-                    choices = prop['titleMap']
-                    if type(choices) is list:
-                        choices = {v['value']: v['name'] for v in choices}
-                    if 'enum' in prop:
-                        choices = {k: choices.get(k, k) for k in prop['enum']}
+                enum = prop.get('enum', None)
+                title_map = prop.get('titleMap', {})
+                if type(title_map) is list:
+                    title_map = {v['value']: v['name'] for v in title_map}
+                if title_map and not enum:
+                    enum = title_map.keys()
+                if enum:
+                    choices = tuple((k, title_map.get(k, k)) for k in enum)
                     field_args['choices'] = choices
 
                 if 'disabled' in field_args:
                     field_args.setdefault('required', not field_args['disabled'])
+
+                # add type check for integer choices
+                if type_ == 'integer' and field_class in cls.COERCE_FIELD_MAP:
+                    field_class = cls.COERCE_FIELD_MAP[field_class]
+                    field_args['coerce'] = int
+                    if not all(isinstance(x[0], int) for x in field_args.get('choices')):
+                        raise ValueError("Not all enums are integers for integer type")
 
 
                 # initialize classes and add fields

@@ -13,6 +13,16 @@ TEST_FORM = [
     dict(type='help', value='You should think your answer a bit'),
     dict(disabled=True, title="Not everything is editable"),
     dict(type='number', key='timespent', title='Time Spent', description='Time spent writing this feedback', value=10),
+    dict(key='select1', type='string', value='foo', title="Dropdown",
+         enum=['bar', 'fooba', 'foo', 'baz'],
+         titleMap={'foo': 'FOO', 'bar': 'BAR', 'baz': 'BAZ', 'fooba': 3}),
+    dict(key='select2', type='radios', value='foo', title="Radioselect",
+         enum=['bar', 'fooba', 'foo', 'baz'],
+         titleMap={'foo': 'FOO', 'bar': 'BAR', 'baz': 'BAZ', 'fooba': 3}),
+    dict(key='select3', type='integer', value='2', title="Few numbers",
+         enum=range(4)),
+    dict(key='select4', type='integer', value='2', title="Nany numbers",
+         enum=range(20)),
 ]
 
 
