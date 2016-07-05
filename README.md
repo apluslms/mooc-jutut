@@ -10,8 +10,8 @@ Service expects that A-Plus is configured with correct form layout and layout is
 Requirements
 ------------
 
-Python 3.4+
-Django 1.9+
+* Python 3.4+
+* Django 1.9+
 
 
 Installation
