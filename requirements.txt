@@ -1,3 +1,7 @@
 # Usage: pip install -r requirements.txt
 Django==1.9.7
 psycopg2>=2.5.4
+
+# aplus_client
+cachetools==1.1.6
+requests==2.10.0

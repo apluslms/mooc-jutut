@@ -2,6 +2,7 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.views.generic import FormView, ListView
 
+from aplus_client.views import AplusGraderMixin
 from lib.postgres import PgAvg
 
 from .models import Feedback
@@ -26,6 +27,17 @@ TEST_FORM = [
 ]
 
 
+def model_as_string(model):
+    from django.forms.models import model_to_dict
+    import json
+    class SimpleEncoder(json.JSONEncoder):
+        def default(self, o):
+            return str(o)
+    dict_ = model_to_dict(model)
+    str_ = json.dumps(dict_, sort_keys=True, indent=4, cls=SimpleEncoder)
+    return str_
+
+
 class FeedbackList(ListView):
     model = Feedback
 
@@ -35,52 +47,59 @@ class FeedbackList(ListView):
             'course_id',
             'group_path',
         ).filter(
-            form_data__has_key='timespent'
+            superseded_by=None,
+            form_data__has_key='timespent',
         ).annotate(
             avg=PgAvg('form_data', 'timespent')
         )
 
 
-class FeedbackSubmission(FormView):
+class FeedbackSubmission(AplusGraderMixin, FormView):
     template_name = 'feedback/feedback_form.html'
     success_url = '/feedback/'
 
     def get_form_class(self):
-        data = self.request.GET.get('form', None)
+        data = self.grading_data._get_item('form_spec') if self.grading_data else None
         if not data and settings.DEBUG:
             data = TEST_FORM
+
         if data:
             return DynamicForm.get_form_class_by(data)
-
-        if not self.request.method.lower() in ("get", "head"):
+        elif not self.request.method.lower() in ("get", "head"):
             return DymmyForm
-        raise Http404
+        else:
+            raise Http404
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
         context['course'] = self.kwargs.get('course_id', '-')
-        context['key'] = self.kwargs.get('exercise_path', '-')
+        context['key'] = self.kwargs.get('group_path', '-')
         return context
 
     def form_valid(self, form):
-        feedback = form.cleaned_data
+        students = self.grading_data.students
+        if len(students) != 1:
+            return HttpResponseBadRequest('this grading service supports only single user submissions')
 
-        print(feedback)
-        return HttpResponse('<pre>%s</pre>' % (feedback,))
+        ident = {
+            'course_id': self.kwargs['course_id'],
+            'group_path': self.kwargs['group_path'],
+            'user_id': students[0].user_id,
+        }
+
+        prevs = list(Feedback.objects.all().filter(superseded_by=None, **ident))
+        new = Feedback(**ident)
+        new.form_data = form.cleaned_data
+        new.save()
+        for prev in prevs:
+            prev.superseded_by = new
+            prev.save()
+
+        #s = model_as_string(new)
+        #print(" -- NEW FEEDBACK: ", s)
+        #return HttpResponse('<pre>%s</pre>' % (s,))
+        return super().form_valid(form)
 
     def form_invalid(self, form):
         # update cached form definition and reparse input
         return super().form_invalid(form)
-
-    def post(self, request, *args, **kwargs):
-        user_id = self.request.GET.get('uid', None)
-        if not user_id:
-            return HttpResponseBadRequest('this grading service requires uid parameter')
-        if '-' in user_id:
-            return HttpResponseBadRequest('this grading service supports only single user submissions')
-        try:
-            user_id = int(user_id)
-        except ValueError:
-            return HttpResponseBadRequest('this grading service requires int type uid parameter')
-
-        return super().post(request, *args, **kwargs)

@@ -9,7 +9,7 @@ class Feedback(models.Model):
     group_path = models.CharField(max_length=255, db_index=True)
     user_id = models.IntegerField(db_index=True)
     form_data = pg_fields.JSONField(blank=True)
-    superseded_by = models.OneToOneField('self', null=True)
+    superseded_by = models.OneToOneField('self', null=True, db_index=True)
     response = models.TextField(blank=True)
 
 
