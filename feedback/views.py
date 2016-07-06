@@ -81,19 +81,14 @@ class FeedbackSubmission(AplusGraderMixin, FormView):
         if len(students) != 1:
             return HttpResponseBadRequest('this grading service supports only single user submissions')
 
-        ident = {
-            'course_id': self.kwargs['course_id'],
-            'group_path': self.kwargs['group_path'],
-            'user_id': students[0].user_id,
-        }
-
-        prevs = list(Feedback.objects.all().filter(superseded_by=None, **ident))
-        new = Feedback(**ident)
-        new.form_data = form.cleaned_data
-        new.save()
-        for prev in prevs:
-            prev.superseded_by = new
-            prev.save()
+        # will create and save new feedback
+        # will also take care of marking old feedbacks
+        new = Feedback.create_new_version(
+            course_id = self.kwargs['course_id'],
+            group_path = self.kwargs['group_path'],
+            user_id = students[0].user_id,
+            form_data = form.cleaned_data,
+        )
 
         #s = model_as_string(new)
         #print(" -- NEW FEEDBACK: ", s)
