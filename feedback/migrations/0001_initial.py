@@ -25,8 +25,10 @@ class Migration(migrations.Migration):
                 ('group_path', models.CharField(db_index=True, max_length=255)),
                 ('user_id', models.IntegerField(db_index=True)),
                 ('form_data', django.contrib.postgres.fields.jsonb.JSONField(blank=True)),
+                ('submission_url', models.URLField(blank=True)),
                 ('response', models.TextField(blank=True)),
-                ('superseded_by', models.OneToOneField(null=True, on_delete=django.db.models.deletion.CASCADE, to='feedback.Feedback')),
+                ('response_time', models.DateTimeField(null=True)),
+                ('superseded_by', models.ForeignKey(null=True, on_delete=django.db.models.deletion.CASCADE, related_name='supersedes', to='feedback.Feedback')),
             ],
         ),
     ]

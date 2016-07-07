@@ -1,13 +1,19 @@
+<html>
+<head>
+	<meta name="status" value="{{status|default:'error'}}" />
+</head>
+<body>
+
 <h1>New submission</h1>
 <p>Submitting for course {{course}} with key {{key}}</p>
 
-<form action="" method="post">
-    {% csrf_token %}
-    <table>
+<form action="{{post_url}}" method="post">
+	<table>
 		{{ form }}
 		<tr>
 			<th></th>
 			<td><input type="submit" value="Submit" /></td>
 		</tr>
-    </table>
+	</table>
 </form>
+</body>

@@ -1,0 +1,13 @@
+<table style="width: 100%;"><tr><td>
+<table>
+{% for k, v in feedback.form_data.items|dictsort:"0.lower" %}
+	<tr>
+		<th>{{ k }}</th>
+		<td>{{ v }}</td>
+	</tr>
+{% endfor %}
+</table>
+</td><td>
+{% include "feedback/_response_form.html" %}
+</td></tr></table>
+<p>posted {{ feedback.timestamp }}</p>

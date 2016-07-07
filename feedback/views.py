@@ -1,12 +1,24 @@
+from urllib.parse import urljoin, urlencode
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest
-from django.views.generic import FormView, ListView
+from django.views.generic import FormView, UpdateView, ListView, TemplateView
+from django.core.urlresolvers import reverse
 
 from aplus_client.views import AplusGraderMixin
 from lib.postgres import PgAvg
+from lib.mixins import CSRFExemptMixin
 
 from .models import Feedback
-from .forms import DummyForm, DynamicForm
+from .forms import (
+    DummyForm,
+    DynamicForm,
+    ResponseForm,
+)
+
+
+
+# Feedback a-plus interface
+# -------------------------
 
 
 TEST_FORM = [
@@ -27,19 +39,10 @@ TEST_FORM = [
 ]
 
 
-def model_as_string(model):
-    from django.forms.models import model_to_dict
-    import json
-    class SimpleEncoder(json.JSONEncoder):
-        def default(self, o):
-            return str(o)
-    dict_ = model_to_dict(model)
-    str_ = json.dumps(dict_, sort_keys=True, indent=4, cls=SimpleEncoder)
-    return str_
-
-
-class FeedbackList(ListView):
+class FeedbackAverageView(ListView):
+    """Example of postgresql json aggregation. Remove when used in analysis"""
     model = Feedback
+    template_name = 'feedback_avglist.html'
 
     def get_queryset(self):
         return Feedback.objects.all(
@@ -54,7 +57,10 @@ class FeedbackList(ListView):
         )
 
 
-class FeedbackSubmission(AplusGraderMixin, FormView):
+class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
+    """
+    This is view implements A-Plus interfaces to get feedback submissions
+    """
     template_name = 'feedback/feedback_form.html'
     success_url = '/feedback/'
 
@@ -74,6 +80,7 @@ class FeedbackSubmission(AplusGraderMixin, FormView):
         context = super().get_context_data(*args, **kwargs)
         context['course'] = self.kwargs.get('course_id', '-')
         context['key'] = self.kwargs.get('group_path', '-')
+        context['post_url'] = self.post_url or ''
         return context
 
     def form_valid(self, form):
@@ -88,13 +95,107 @@ class FeedbackSubmission(AplusGraderMixin, FormView):
             group_path = self.kwargs['group_path'],
             user_id = students[0].user_id,
             form_data = form.cleaned_data,
+            submission_url = self.submission_url,
         )
 
-        #s = model_as_string(new)
-        #print(" -- NEW FEEDBACK: ", s)
-        #return HttpResponse('<pre>%s</pre>' % (s,))
-        return super().form_valid(form)
+        return self.render_to_response(self.get_context_data(status='accepted'))
 
     def form_invalid(self, form):
         # update cached form definition and reparse input
         return super().form_invalid(form)
+
+
+
+# Feedback management (admin)
+# ---------------------------
+
+class UnRespondedFeedbackListView(ListView):
+    model = Feedback
+    form_class = ResponseForm
+
+    def get_queryset(self):
+        course_id = self.kwargs.get('course_id')
+        group_filter = self.kwargs.get('group_filter', '').rstrip('/')
+        qs = Feedback.objects.all().filter(
+            course_id=course_id,
+            superseded_by=None,
+            response='',
+        ).exclude(
+            submission_url='',
+        )
+        if group_filter:
+            qs = qs.filter(group_path__startswith=group_filter)
+        return qs.order_by('timestamp')
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        params = '?' + urlencode({"success_url": self.request.path})
+        context['feedbacks'] = (
+            {
+                'form': self.form_class(instance=obj),
+                'feedback': obj,
+                'post_url': urljoin(
+                    reverse('feedback:respond', kwargs={'feedback_id': obj.id}),
+                    params),
+                'older_url': reverse('feedback:byuser', kwargs={
+                    'user_id': obj.user_id,
+                    'course_id': obj.course_id,
+                    'group_path': obj.group_path,
+                })
+            } for obj in context['object_list']
+        )
+        return context
+
+
+class UserFeedbackView(TemplateView):
+    model = Feedback
+    form_class = ResponseForm
+    template_name = "feedback/feedback.html"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+
+        id_ = {
+            'user_id': self.kwargs['user_id'],
+            'course_id': self.kwargs['course_id'],
+            'group_path': self.kwargs['group_path'],
+        }
+
+        feedbacks = list(self.model.objects.all().filter(**id_).order_by('timestamp'))
+        params = '?' + urlencode({"success_url": self.request.path})
+        context['feedbacks'] = (
+            {
+                'form': self.form_class(instance=obj),
+                'feedback': obj,
+                'post_url': urljoin(
+                    reverse('feedback:respond', kwargs={'feedback_id': obj.id}),
+                    params),
+            } for obj in feedbacks
+        )
+        return context
+
+
+class RespondFeedbackView(UpdateView):
+    model = Feedback
+    form_class = ResponseForm
+    template_name = "feedback/response_form.html"
+    context_object_name = 'feedback'
+    pk_url_kwarg = 'feedback_id'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        success_url = self.request.GET.get('success_url')
+        if success_url:
+            me = self.request.path
+            params = '?' + urlencode({"success_url": success_url})
+            context['post_url'] = urljoin(me, params)
+        return context
+
+    def get_success_url(self):
+        url = self.request.GET.get('success_url')
+        if not url:
+            url = reverse('feedback:notresponded', kwargs={
+                'course_id': self.object.course_id,
+                'group_filter': self.object.group_path,
+            })
+        return url

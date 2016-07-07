@@ -5,6 +5,8 @@ from django.forms.utils import flatatt
 
 from lib.helpers import freeze
 
+from .models import Feedback
+
 
 class LabelWidget(forms.Widget):
     """
@@ -260,3 +262,26 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
         cleaned_data = super().clean()
         # drop fields with none value (LabelField for example)
         return dict((k, v) for k, v in cleaned_data.items() if v is not None)
+
+
+class ResponseForm(forms.ModelForm):
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.disabled = not self.instance.can_be_responded
+        if self.disabled:
+            for field in self.fields.values():
+                field.disabled = True
+
+    class Meta:
+        model = Feedback
+        fields = ['response']
+        widgets = {
+            'response': forms.Textarea(attrs={'placeholder': 'Response'}),
+        }
+
+    def save(self, commit=True):
+        print("Saving form: ", self.cleaned_data)
+        instance = super().save(commit=False)
+        if commit:
+            instance.save(update_fields=self.fields.keys())
+        return instance

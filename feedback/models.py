@@ -1,6 +1,7 @@
 import datetime
 from django.db import models, transaction
 from django.contrib.postgres import fields as pg_fields
+from django.utils.functional import cached_property
 
 
 class Feedback(models.Model):
@@ -9,8 +10,13 @@ class Feedback(models.Model):
     group_path = models.CharField(max_length=255, db_index=True)
     user_id = models.IntegerField(db_index=True)
     form_data = pg_fields.JSONField(blank=True)
-    superseded_by = models.OneToOneField('self', null=True, db_index=True)
+    superseded_by = models.ForeignKey('self',
+                                      related_name="supersedes",
+                                      null=True,
+                                      db_index=True)
+    submission_url = models.URLField(blank=True)
     response = models.TextField(blank=True)
+    response_time = models.DateTimeField(null=True)
 
     @classmethod
     @transaction.atomic
@@ -35,6 +41,26 @@ class Feedback(models.Model):
             old.superseded_by = new
             old.save()
         return new
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.__response = self.response
+
+    def save(self, update_fields=None, **kwargs):
+        if self.__response != self.response:
+            self.response_time = datetime.datetime.now()
+            if update_fields and 'response' in update_fields:
+                update_fields = list(update_fields)
+                update_fields.append('response_time')
+        return super().save(update_fields=update_fields, **kwargs)
+
+    @property
+    def can_be_responded(self):
+        return self.submission_url and not self.superseded_by_id
+
+    @cached_property
+    def has_older_versions(self):
+        return self.supersedes.exists()
 
     def __getitem__(self, key):
         return self.feedback[key]

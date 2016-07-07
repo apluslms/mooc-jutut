@@ -1,8 +1,14 @@
 <h1>Feedback</h1>
-<ul>
-{% for obj in object_list %}
-    <li>{{ obj.course_id }}/{{ obj.group_path }} avg {{obj.avg}}</li>
+{% for data in feedbacks %}
+	<div style="display: block; border: 1px solid black;">
+		<h3>
+		Feedback from {{ data.feedback.user_id }} to {{ data.feedback.group_path }}
+		{% if data.feedback.has_older_versions %}
+			[<a href="{{ data.older_url }}">older comments</a>]
+		{% endif %}
+		</h3>
+		{% include "feedback/_feedback_response.html" with form=data.form feedback=data.feedback post_url=data.post_url %}
+	</div>
 {% empty %}
-    <li>No feedback yet.</li>
+	<p>No unresponded feedback yet.</p>
 {% endfor %}
-</ul>
