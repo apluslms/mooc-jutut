@@ -1,6 +1,7 @@
 from urllib.parse import urljoin, urlencode
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest
+from django.shortcuts import get_object_or_404
 from django.views.generic import FormView, UpdateView, ListView, TemplateView
 from django.core.urlresolvers import reverse
 
@@ -8,7 +9,7 @@ from aplus_client.views import AplusGraderMixin
 from lib.postgres import PgAvg
 from lib.mixins import CSRFExemptMixin
 
-from .models import Feedback
+from .models import Feedback, Student
 from .forms import (
     DummyForm,
     DynamicForm,
@@ -90,10 +91,11 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 
         # will create and save new feedback
         # will also take care of marking old feedbacks
+        student = Student.create_or_update(students[0])
         new = Feedback.create_new_version(
             course_id = self.kwargs['course_id'],
             group_path = self.kwargs['group_path'],
-            user_id = students[0].user_id,
+            student = student,
             form_data = form.cleaned_data,
             submission_url = self.submission_url,
         )
@@ -138,7 +140,7 @@ class UnRespondedFeedbackListView(ListView):
                     reverse('feedback:respond', kwargs={'feedback_id': obj.id}),
                     params),
                 'older_url': reverse('feedback:byuser', kwargs={
-                    'user_id': obj.user_id,
+                    'user_id': obj.student.user_id,
                     'course_id': obj.course_id,
                     'group_path': obj.group_path,
                 })
@@ -147,21 +149,41 @@ class UnRespondedFeedbackListView(ListView):
         return context
 
 
+class UserListView(ListView):
+    model = Student
+    queryset = model.objects.all()
+    template_name = "feedback/user_list.html"
+    context_object_name = "students"
+
+
+class UserFeedbackListView(ListView):
+    model = Feedback
+    template_name = "feedback/user_feedback_list.html"
+    context_object_name = "feedbacks"
+
+    def get_queryset(self):
+        self.student = get_object_or_404(Student, user_id=self.kwargs['user_id'])
+        return self.model.objects.feedback_groups_for(self.student)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['student'] = self.student
+        return context
+
+
 class UserFeedbackView(TemplateView):
     model = Feedback
     form_class = ResponseForm
-    template_name = "feedback/feedback.html"
+    template_name = "feedback/user_feedback.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
-        id_ = {
-            'user_id': self.kwargs['user_id'],
-            'course_id': self.kwargs['course_id'],
-            'group_path': self.kwargs['group_path'],
-        }
-
-        feedbacks = list(self.model.objects.all().filter(**id_).order_by('timestamp'))
+        feedbacks = self.model.objects.all().filter(
+            course_id = self.kwargs['course_id'],
+            student_id = self.kwargs['user_id'],
+            group_path = self.kwargs['group_path'],
+        ).order_by('timestamp')
         params = '?' + urlencode({"success_url": self.request.path})
         context['feedbacks'] = (
             {

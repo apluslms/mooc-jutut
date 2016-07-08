@@ -1,8 +1,8 @@
-<h1>Feedback</h1>
+<h1>Unresponded Feedback</h1>
 {% for data in feedbacks %}
 	<div style="display: block; border: 1px solid black;">
 		<h3>
-		Feedback from {{ data.feedback.user_id }} to {{ data.feedback.group_path }}
+		Feedback from {{ data.feedback.student }} to {{ data.feedback.group_path }}
 		{% if data.feedback.has_older_versions %}
 			[<a href="{{ data.older_url }}">older comments</a>]
 		{% endif %}
