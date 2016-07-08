@@ -65,7 +65,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
     success_url = '/feedback/'
 
     def get_form_class(self):
-        data = self.grading_data.exercise._get_item('form_spec') if self.grading_data else None
+        data = self.grading_data.exercise.exercise_info._get_item('form_spec') if self.grading_data else None
         if not data and settings.DEBUG:
             data = TEST_FORM
 
