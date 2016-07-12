@@ -37,11 +37,3 @@ You can change it here or in local_settings.py
 """
 SECRET_KEY = '%s'
 ''' % (key))
-
-
-def freeze(data):
-    if isinstance(data, dict):
-        return tuple(((k, freeze(v)) for k, v in sorted(data.items())))
-    elif isinstance(data, list):
-        return tuple((freeze(v) for v in data))
-    return data

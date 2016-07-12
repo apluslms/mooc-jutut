@@ -7,13 +7,8 @@
 <h1>New submission</h1>
 <p>Submitting for course {{course}} with key {{key}}</p>
 
-<form action="{{post_url}}" method="post">
-	<table>
-		{{ form }}
-		<tr>
-			<th></th>
-			<td><input type="submit" value="Submit" /></td>
-		</tr>
-	</table>
-</form>
+<div id="exercise">
+	{% include 'feedback/_feedback_form.html' %}
+</div>
+
 </body>

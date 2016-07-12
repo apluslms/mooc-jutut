@@ -4,17 +4,15 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.views.generic import FormView, UpdateView, ListView, TemplateView
 from django.core.urlresolvers import reverse
+from django.core.exceptions import SuspiciousOperation
 
 from aplus_client.views import AplusGraderMixin
+from dynamic_forms.forms import DummyForm, DynamicForm
 from lib.postgres import PgAvg
 from lib.mixins import CSRFExemptMixin
 
-from .models import Feedback, Student
-from .forms import (
-    DummyForm,
-    DynamicForm,
-    ResponseForm,
-)
+from .models import Feedback, Student, Form
+from .forms import ResponseForm
 
 
 
@@ -38,6 +36,10 @@ TEST_FORM = [
     dict(key='select4', type='integer', value='2', title="Nany numbers",
          enum=range(20)),
 ]
+
+
+class SuspiciousStudent(SuspiciousOperation):
+    pass
 
 
 class FeedbackAverageView(ListView):
@@ -65,45 +67,96 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
     template_name = 'feedback/feedback_form.html'
     success_url = '/feedback/'
 
-    def get_form_class(self):
-        data = self.grading_data.exercise.exercise_info._get_item('form_spec') if self.grading_data else None
-        if not data and settings.DEBUG:
-            data = TEST_FORM
+    def load_form_spec_from_grading_data(self):
+        if self.grading_data:
+            return self.grading_data.exercise.exercise_info.get_item('form_spec')
 
-        if data:
-            return DynamicForm.get_form_class_by(data)
+    def get_form_class(self):
+        self.course_id = course_id = self.kwargs['course_id']
+        self.group_path = group_path = self.kwargs['group_path']
+
+        # load form_spec from database
+        form_obj = Form.objects.latest_for(course_id=course_id, group_path=group_path)
+        form_spec = form_obj.form_spec if form_obj else None
+
+        # if there is nm form_spec in db load from exercise_info
+        if not form_spec and self.grading_data:
+            form_spec = self.load_form_spec_from_grading_data()
+            if form_spec:
+                form_obj = Form.objects.create(course_id=course_id,
+                                               group_path=group_path,
+                                               form_spec=form_spec)
+
+        # if there still is no form_spec and we are in DEBUG use TEST_FORM
+        if not form_spec and settings.DEBUG:
+            form_spec = TEST_FORM
+
+        self.form_spec = form_spec
+        self.form_obj = form_obj
+
+        if form_spec:
+            return DynamicForm.get_form_class_by(form_spec)
         elif not self.request.method.lower() in ("get", "head"):
             return DymmyForm
         else:
             raise Http404
 
+    def get_student(self):
+        student = None
+
+        # Try to resolve student using uid from query parameters
+        uids = self.request.GET.get('uid', '').split('-')
+        if len(uids) > 1:
+            raise SuspiciousStudent("Multiple uids in query uid field")
+        if len(uids) == 1:
+            try:
+                student = Student.objects.get(user_id=uids[0])
+            except (Student.DoesNotExist, ValueError):
+                pass
+
+        # Fallback to resolve student from grading_data
+        if not student:
+            students = self.grading_data.students
+            if len(students) != 1:
+                raise SuspiciousStudent("Multiple students in grading_data")
+            student = Student.create_or_update(students[0])
+
+        return student
+
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['course'] = self.kwargs.get('course_id', '-')
-        context['key'] = self.kwargs.get('group_path', '-')
         context['post_url'] = self.post_url or ''
         return context
 
     def form_valid(self, form):
-        students = self.grading_data.students
-        if len(students) != 1:
-            return HttpResponseBadRequest('this grading service supports only single user submissions')
+        student = self.get_student()
 
         # will create and save new feedback
         # will also take care of marking old feedbacks
-        student = Student.create_or_update(students[0])
         new = Feedback.create_new_version(
-            course_id = self.kwargs['course_id'],
-            group_path = self.kwargs['group_path'],
+            course_id = self.course_id,
+            group_path = self.group_path,
             student = student,
+            form = self.form_obj,
             form_data = form.cleaned_data,
-            submission_url = self.submission_url,
+            post_url = self.post_url or '',
+            submission_url = self.submission_url or '',
         )
 
-        return self.render_to_response(self.get_context_data(status='accepted'))
+        return self.render_to_response(self.get_context_data(
+                status='accepted',
+                feedback=new,
+        ))
 
     def form_invalid(self, form):
         # update cached form definition and reparse input
+        if self.form_obj.could_be_updated:
+            form_spec = self.load_form_spec_from_grading_data()
+            form_obj = self.form_obj.update(form_spec)
+            if form_obj == self.form_obj:
+                # FIXME: trigger validate again
+                pass
+
         return super().form_invalid(form)
 
 
@@ -121,7 +174,7 @@ class UnRespondedFeedbackListView(ListView):
         qs = Feedback.objects.all().filter(
             course_id=course_id,
             superseded_by=None,
-            response='',
+            response_msg='',
         ).exclude(
             submission_url='',
         )
