@@ -17,6 +17,7 @@ class FormManager(models.Manager):
             form = self.create(form_spec=form_spec, **filters)
         return form
 
+
 class FormBase(models.Model):
     objects = FormManager()
 
@@ -34,7 +35,7 @@ class FormBase(models.Model):
         age = timezone.now() - self.updated
         return age > self.TTL
 
-    def update(self, form_spec, **extra):
+    def get_updated(self, form_spec, **extra):
         if not form_spec:
             return self
 
@@ -43,4 +44,6 @@ class FormBase(models.Model):
             self.save()
             return self
 
-        return self.objects.create(form_spec=form_spec, **extra)
+        new = self.__class__(form_spec=form_spec, **extra)
+        new.save()
+        return new

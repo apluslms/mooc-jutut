@@ -69,7 +69,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 
     def load_form_spec_from_grading_data(self):
         if self.grading_data:
-            return self.grading_data.exercise.exercise_info.get_item('form_spec')
+            return self.grading_data.form_spec
 
     def get_form_class(self):
         self.course_id = course_id = self.kwargs['course_id']
@@ -80,7 +80,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
         form_spec = form_obj.form_spec if form_obj else None
 
         # if there is nm form_spec in db load from exercise_info
-        if not form_spec and self.grading_data:
+        if not form_spec:
             form_spec = self.load_form_spec_from_grading_data()
             if form_spec:
                 form_obj = Form.objects.create(course_id=course_id,
@@ -116,7 +116,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 
         # Fallback to resolve student from grading_data
         if not student:
-            students = self.grading_data.students
+            students = self.grading_data.submitters
             if len(students) != 1:
                 raise SuspiciousStudent("Multiple students in grading_data")
             student = Student.create_or_update(students[0])
@@ -152,7 +152,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
         # update cached form definition and reparse input
         if self.form_obj.could_be_updated:
             form_spec = self.load_form_spec_from_grading_data()
-            form_obj = self.form_obj.update(form_spec)
+            form_obj = self.form_obj.get_updated(form_spec)
             if form_obj == self.form_obj:
                 # FIXME: trigger validate again
                 pass
@@ -171,16 +171,7 @@ class UnRespondedFeedbackListView(ListView):
     def get_queryset(self):
         course_id = self.kwargs.get('course_id')
         group_filter = self.kwargs.get('group_filter', '').rstrip('/')
-        qs = Feedback.objects.all().filter(
-            course_id=course_id,
-            superseded_by=None,
-            response_msg='',
-        ).exclude(
-            submission_url='',
-        )
-        if group_filter:
-            qs = qs.filter(group_path__startswith=group_filter)
-        return qs.order_by('timestamp')
+        return Feedback.objects.get_unresponded(course_id, group_filter)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

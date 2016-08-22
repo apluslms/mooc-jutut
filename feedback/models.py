@@ -14,8 +14,8 @@ class Form(FormBase):
 
     TTL = datetime.timedelta(minutes=10)
 
-    def update(self, form_spec):
-        return super().update(
+    def get_updated(self, form_spec):
+        return super().get_updated(
             form_spec=form_spec,
             course_id=self.course_id,
             group_path=self.group_path,
@@ -30,6 +30,19 @@ class FeedbackManager(models.Manager):
                   .annotate(count=models.Count('form_data'))
                   .order_by('group_path') )
         return q
+
+    def get_unresponded(self, course_id, group_filter=None):
+        Q = models.Q
+        qs = self.all().filter(
+            Q(response_msg='') | Q(response_msg=None),
+            course_id=course_id,
+            superseded_by=None,
+        ).exclude(
+            submission_url='',
+        )
+        if group_filter:
+            qs = qs.filter(group_path__startswith=group_filter)
+        return qs.order_by('timestamp')
 
 
 ResponseUploaded = namedtuple('ResponseUploaded',
@@ -197,7 +210,7 @@ class Student(models.Model):
 
     @classmethod
     def create_or_update(cls, user):
-        obj, created = cls.objects.get_or_create(user_id=user.user_id)
+        obj, created = cls.objects.get_or_create(user_id=user.id)
         if created or obj.should_be_updated:
             obj.update_with(user)
         return obj
