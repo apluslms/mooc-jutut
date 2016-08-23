@@ -6,7 +6,7 @@ from django.views.generic import FormView, UpdateView, ListView, TemplateView
 from django.core.urlresolvers import reverse
 from django.core.exceptions import SuspiciousOperation
 
-from aplus_client.views import AplusGraderMixin
+from aplus_client.django.views import AplusGraderMixin
 from dynamic_forms.forms import DummyForm, DynamicForm
 from lib.postgres import PgAvg
 from lib.mixins import CSRFExemptMixin
