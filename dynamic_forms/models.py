@@ -3,6 +3,9 @@ from django.db import models
 from django.contrib.postgres import fields as pg_fields
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
+from django.utils.functional import cached_property
+
+from .forms import DynamicForm
 
 class FormManager(models.Manager):
     def latest_for(self, **filters):
@@ -29,6 +32,10 @@ class FormBase(models.Model):
 
     form_spec = pg_fields.JSONField()
     updated = models.DateTimeField(default=timezone.now)
+
+    @cached_property
+    def form_class(self):
+        return DynamicForm.get_form_class_by(self.form_spec)
 
     @property
     def could_be_updated(self):

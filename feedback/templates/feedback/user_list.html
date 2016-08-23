@@ -2,7 +2,7 @@
 <ul>
 	{% for student in students %}
 		<li>
-			<a href="{% url 'feedback:user' user_id=student.user_id %}">
+			<a href="{% url 'feedback:user' user_id=student.id %}">
 			{{ student }}
 			</a>
 		</li>

@@ -1,16 +1,68 @@
 import datetime
 from collections import namedtuple
 from django.db import models, transaction
+from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.postgres import fields as pg_fields
 from django.utils import timezone
 from django.utils.functional import cached_property
 
+from aplus_client.django.models import CachedApiObject
 from dynamic_forms.models import FormBase
+
+
+class Student(CachedApiObject):
+    username = models.CharField(max_length=128)
+    full_name = models.CharField(max_length=128)
+
+    def __str__(self):
+        return "{s.full_name:s} ({s.username:s})".format(s=self)
+
+
+class Course(CachedApiObject):
+    code = models.CharField(max_length=128)
+    name = models.CharField(max_length=128)
+
+    def __str__(self):
+        return "{s.code:s} - {s.name:s}".format(s=self)
+
+
+class ExerciseManager(models.Manager):
+    def with_course(self):
+        return super().get_queryset().select_related('course')
+
+
+class Exercise(CachedApiObject):
+    objects = ExerciseManager()
+
+    display_name = models.CharField(max_length=255)
+    course = models.ForeignKey(Course,
+                               related_name='exercises',
+                               on_delete=models.PROTECT)
+
+    @property
+    def feedbacks(self):
+        return Feedback.objects.filter(form__exercise=self)
+
+    @property
+    def unresponded_feedback(self):
+        return Feedback.objects.get_unresponded(exercise_id=self.id)
+
+    @cached_property
+    def latest_form(self):
+        try:
+            return self.forms.latest()
+        except ObjectDoesNotExist:
+            return None
+
+    def __str__(self):
+        return self.display_name
+
 
 class Form(FormBase):
     # our grouping in top of base form storage
-    course_id = models.IntegerField(db_index=True)
-    group_path = models.CharField(max_length=255, db_index=True)
+    exercise = models.ForeignKey(Exercise,
+                                related_name='forms',
+                                on_delete=models.PROTECT)
 
     TTL = datetime.timedelta(minutes=10)
 
@@ -18,30 +70,47 @@ class Form(FormBase):
         return super().get_updated(
             form_spec=form_spec,
             course_id=self.course_id,
-            group_path=self.group_path,
+            exercise_id=self.exercise_id,
         )
 
 
 class FeedbackManager(models.Manager):
-    def feedback_groups_for(self, student):
+    def feedback_exercises_for(self, student):
+        F = models.F
         key = 'student_id' if type(student) is int else 'student'
-        q = ( self.values('course_id', 'group_path')
-                  .filter(**{key: student})
-                  .annotate(count=models.Count('form_data'))
-                  .order_by('group_path') )
+        q = self.values(
+                'path_key',
+            ).filter(
+                **{key: student}
+            ).annotate(
+                course_id=F('form__exercise__course__id'),
+                exercise_id=F('form__exercise__id'),
+                count=models.Count('form_data'),
+            ).order_by(
+                'course_id', 'exercise_id', 'path_key'
+            )
         return q
 
-    def get_unresponded(self, course_id, group_filter=None):
+    def get_unresponded(self, exercise_id=None, course_id=None, path_filter=None):
         Q = models.Q
-        qs = self.all().filter(
+        qs = self.get_queryset().select_related(
+            'form',
+            'form__exercise',
+            #'form__exercise__course',
+        ).all().filter(
             Q(response_msg='') | Q(response_msg=None),
-            course_id=course_id,
             superseded_by=None,
         ).exclude(
             submission_url='',
         )
-        if group_filter:
-            qs = qs.filter(group_path__startswith=group_filter)
+        if exercise_id is not None:
+            qs = qs.filter(form__exercise__id=exercise_id)
+        elif course_id is not None:
+            qs = qs.filter(form__exercise__course__id=course_id)
+            if path_filter:
+                qs = qs.filter(path_key__startswith=path_filter)
+        else:
+            raise ValueError("exercise_id or course_id is required")
         return qs.order_by('timestamp')
 
 
@@ -62,10 +131,9 @@ class Feedback(models.Model):
     }
     MAX_GRADE = ACCEPTED_GOOD
 
+    path_key = models.CharField(max_length=255, db_index=True)
     timestamp = models.DateTimeField(default=timezone.now)
-    course_id = models.IntegerField(db_index=True)
-    group_path = models.CharField(max_length=255, db_index=True)
-    student = models.ForeignKey('Student',
+    student = models.ForeignKey(Student,
                                 related_name='feedbacks',
                                 on_delete=models.CASCADE,
                                 db_index=True)
@@ -108,6 +176,22 @@ class Feedback(models.Model):
         '_response_upl_at',
     )
 
+    @cached_property
+    def exercise(self):
+        return self.form.exercise
+
+    @cached_property
+    def course(self):
+        return self.exercise.course
+
+    @cached_property
+    def exercise_path(self):
+        return "{}{}{}".format(
+            self.exercise,
+            "/" if self.path_key else "",
+            self.path_key or '',
+        )
+
     @property
     def response_time(self):
         return self._response_time
@@ -141,21 +225,18 @@ class Feedback(models.Model):
         Creates new feedback object and marks it as parent for all
         old feedbacks by same user to defined resource
         """
-        # there should be only single current version, but
-        # to be sure we presume there might be multiple
-        current_versions = list(cls.objects.all().filter(
+        # create new item
+        new = cls.objects.create(**kwargs)
+        assert new.pk is not None, "New feedback doesn't have primary key"
+
+        # mark all old versions to be superseded_by this new
+        current_versions = cls.objects.all().filter(
+            ~models.Q(pk=new.pk),
             superseded_by = None,
-            course_id = kwargs['course_id'],
-            group_path = kwargs['group_path'],
-            student = kwargs['student'],
-        ))
-        new = cls(**kwargs)
-        # save new feedback, so it will have id
-        new.save()
-        # mark new one as top version for other version
-        for old in current_versions:
-            old.superseded_by = new
-            old.save()
+            form = new.form,
+            student = new.student,
+        ).update(superseded_by=new)
+
         return new
 
     def __init__(self, *args, **kwargs):
@@ -197,36 +278,3 @@ class Feedback(models.Model):
 
     def __setitem__(self, key, value):
         self.feedback[key] = value
-
-
-class Student(models.Model):
-    user_id = models.IntegerField(primary_key=True)
-    url = models.URLField()
-    updated = models.DateTimeField(auto_now=True)
-
-    username = models.CharField(max_length=64)
-    full_name = models.CharField(max_length=64)
-
-
-    @classmethod
-    def create_or_update(cls, user):
-        obj, created = cls.objects.get_or_create(user_id=user.id)
-        if created or obj.should_be_updated:
-            obj.update_with(user)
-        return obj
-
-    @property
-    def should_be_updated(self):
-        age = timezone.now() - self.updated
-        return age > datetime.timedelta(hours=1)
-
-    def update_with(self, data):
-        print("Updating user with data:", data)
-        if not self.url:
-            self.url = data.url
-        self.username = data.username
-        self.full_name = data.full_name
-        self.save()
-
-    def __str__(self):
-        return "%s (%d)" % (self.full_name, self.user_id)

@@ -2,8 +2,9 @@
 <ul>
 	{% for feedback in feedbacks %}
 		<li>
-			<a href="{% url 'feedback:byuser' user_id=student.user_id course_id=feedback.course_id group_path=feedback.group_path %}">
-			{{ feedback.course_id }}/{{ feedback.group_path }} ({{ feedback.count }})
+			<a href="{% url 'feedback:byuser' user_id=student.id exercise_id=feedback.exercise_id %}">
+			{{ feedback.course_id }}.{{ feedback.exercise_id }}/{{ feedback.path_key }}
+			({{ feedback.count }})
 			</a>
 		</li>
 	{% empty %}

@@ -18,3 +18,10 @@ Installation
 ------------
 
 TODO
+
+
+Test it
+-------
+
+Run `./manage.py runserver`.
+Go to `http://localhost:8000/feedback/test1/`.

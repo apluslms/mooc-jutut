@@ -7,35 +7,23 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import SuspiciousOperation
 
 from aplus_client.django.views import AplusGraderMixin
-from dynamic_forms.forms import DummyForm, DynamicForm
 from lib.postgres import PgAvg
 from lib.mixins import CSRFExemptMixin
 
-from .models import Feedback, Student, Form
+from .models import (
+    Course,
+    Exercise,
+    Student,
+    Form,
+    Feedback,
+)
+
 from .forms import ResponseForm
 
 
 
 # Feedback a-plus interface
 # -------------------------
-
-
-TEST_FORM = [
-    dict(type='textarea', key='message', title='Feedback message', placeholder='Write your feedback here'),
-    dict(type='help', value='You should think your answer a bit'),
-    dict(disabled=True, title="Not everything is editable"),
-    dict(type='number', key='timespent', title='Time Spent', description='Time spent writing this feedback', value=10),
-    dict(key='select1', type='string', value='foo', title="Dropdown",
-         enum=['bar', 'fooba', 'foo', 'baz'],
-         titleMap={'foo': 'FOO', 'bar': 'BAR', 'baz': 'BAZ', 'fooba': 3}),
-    dict(key='select2', type='radios', value='foo', title="Radioselect",
-         enum=['bar', 'fooba', 'foo', 'baz'],
-         titleMap={'foo': 'FOO', 'bar': 'BAR', 'baz': 'BAZ', 'fooba': 3}),
-    dict(key='select3', type='integer', value='2', title="Few numbers",
-         enum=range(4)),
-    dict(key='select4', type='integer', value='2', title="Nany numbers",
-         enum=range(20)),
-]
 
 
 class SuspiciousStudent(SuspiciousOperation):
@@ -51,7 +39,8 @@ class FeedbackAverageView(ListView):
         return Feedback.objects.all(
         ).values(
             'course_id',
-            'group_path',
+            'exercise_id',
+            'path',
         ).filter(
             superseded_by=None,
             form_data__has_key='timespent',
@@ -67,39 +56,26 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
     template_name = 'feedback/feedback_form.html'
     success_url = '/feedback/'
 
-    def load_form_spec_from_grading_data(self):
-        if self.grading_data:
-            return self.grading_data.form_spec
-
     def get_form_class(self):
-        self.course_id = course_id = self.kwargs['course_id']
-        self.group_path = group_path = self.kwargs['group_path']
+        gd = self.grading_data
+        exercise_id = gd.exercise.id
 
         # load form_spec from database
-        form_obj = Form.objects.latest_for(course_id=course_id, group_path=group_path)
-        form_spec = form_obj.form_spec if form_obj else None
+        form_obj = Form.objects.latest_for(exercise_id=exercise_id)
 
         # if there is nm form_spec in db load from exercise_info
-        if not form_spec:
-            form_spec = self.load_form_spec_from_grading_data()
+        if not form_obj:
+            form_spec = gd.form_spec
             if form_spec:
-                form_obj = Form.objects.create(course_id=course_id,
-                                               group_path=group_path,
+                exercise = Exercise.objects.create_or_update(gd.exercise)
+                form_obj = Form.objects.create(exercise=exercise,
                                                form_spec=form_spec)
 
-        # if there still is no form_spec and we are in DEBUG use TEST_FORM
-        if not form_spec and settings.DEBUG:
-            form_spec = TEST_FORM
-
-        self.form_spec = form_spec
-        self.form_obj = form_obj
-
-        if form_spec:
-            return DynamicForm.get_form_class_by(form_spec)
-        elif not self.request.method.lower() in ("get", "head"):
-            return DymmyForm
+        if form_obj:
+            self.form_obj = form_obj
+            return form_obj.form_class
         else:
-            raise Http404
+            raise Http404("form_spec not found from provided submission_url")
 
     def get_student(self):
         student = None
@@ -110,7 +86,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
             raise SuspiciousStudent("Multiple uids in query uid field")
         if len(uids) == 1:
             try:
-                student = Student.objects.get(user_id=uids[0])
+                student = Student.objects.get(id=uids[0])
             except (Student.DoesNotExist, ValueError):
                 pass
 
@@ -130,12 +106,12 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 
     def form_valid(self, form):
         student = self.get_student()
+        path_key = self.kwargs['path_key'].strip('/')
 
         # will create and save new feedback
         # will also take care of marking old feedbacks
         new = Feedback.create_new_version(
-            course_id = self.course_id,
-            group_path = self.group_path,
+            path_key = path_key,
             student = student,
             form = self.form_obj,
             form_data = form.cleaned_data,
@@ -144,14 +120,14 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
         )
 
         return self.render_to_response(self.get_context_data(
-                status='accepted',
-                feedback=new,
+            status='accepted',
+            feedback=new,
         ))
 
     def form_invalid(self, form):
         # update cached form definition and reparse input
         if self.form_obj.could_be_updated:
-            form_spec = self.load_form_spec_from_grading_data()
+            form_spec = self.grading_data.form_spec
             form_obj = self.form_obj.get_updated(form_spec)
             if form_obj == self.form_obj:
                 # FIXME: trigger validate again
@@ -164,18 +140,41 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 # Feedback management (admin)
 # ---------------------------
 
+
+class UnRespondedCourseListView(ListView):
+    model = Course
+    #queryset = model.objects.all()
+    template_name = "feedback/course_list.html"
+    context_object_name = "courses"
+
+
 class UnRespondedFeedbackListView(ListView):
     model = Feedback
     form_class = ResponseForm
 
     def get_queryset(self):
         course_id = self.kwargs.get('course_id')
-        group_filter = self.kwargs.get('group_filter', '').rstrip('/')
-        return Feedback.objects.get_unresponded(course_id, group_filter)
+        if course_id is not None:
+            self._exercise = None
+            self._course = get_object_or_404(Course, pk=course_id)
+            self._path_filter = path_filter = self.kwargs.get('path_filter', '').strip('/')
+            return Feedback.objects.get_unresponded(course_id=course_id, path_filter=path_filter)
+
+        exercise_id = self.kwargs.get('exercise_id')
+        if exercise_id is not None:
+            self._exercise = get_object_or_404(Exercise.objects.with_course(), pk=exercise_id)
+            self._course = self._exercise.course
+            self._path_filter = ''
+            return Feedback.objects.get_unresponded(exercise_id)
+
+        raise Http404
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         params = '?' + urlencode({"success_url": self.request.path})
+        context['course'] = self._course
+        context['exercise'] = self._exercise
+        context['path_filter'] = self._path_filter
         context['feedbacks'] = (
             {
                 'form': self.form_class(instance=obj),
@@ -184,9 +183,8 @@ class UnRespondedFeedbackListView(ListView):
                     reverse('feedback:respond', kwargs={'feedback_id': obj.id}),
                     params),
                 'older_url': reverse('feedback:byuser', kwargs={
-                    'user_id': obj.student.user_id,
-                    'course_id': obj.course_id,
-                    'group_path': obj.group_path,
+                    'user_id': obj.student.id,
+                    'exercise_id': obj.exercise.id,
                 })
             } for obj in context['object_list']
         )
@@ -206,8 +204,8 @@ class UserFeedbackListView(ListView):
     context_object_name = "feedbacks"
 
     def get_queryset(self):
-        self.student = get_object_or_404(Student, user_id=self.kwargs['user_id'])
-        return self.model.objects.feedback_groups_for(self.student)
+        self.student = get_object_or_404(Student, pk=self.kwargs['user_id'])
+        return self.model.objects.feedback_exercises_for(self.student)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -224,9 +222,7 @@ class UserFeedbackView(TemplateView):
         context = super().get_context_data(**kwargs)
 
         feedbacks = self.model.objects.all().filter(
-            course_id = self.kwargs['course_id'],
-            student_id = self.kwargs['user_id'],
-            group_path = self.kwargs['group_path'],
+            form__exercise__id = self.kwargs['exercise_id'],
         ).order_by('timestamp')
         params = '?' + urlencode({"success_url": self.request.path})
         context['feedbacks'] = (
@@ -260,8 +256,7 @@ class RespondFeedbackView(UpdateView):
     def get_success_url(self):
         url = self.request.GET.get('success_url')
         if not url:
-            url = reverse('feedback:notresponded', kwargs={
-                'course_id': self.object.course_id,
-                'group_filter': self.object.group_path,
+            url = reverse('feedback:notresponded-exercise', kwargs={
+                'exercise_id': self.object.form.exercise.id,
             })
         return url
