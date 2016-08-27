@@ -1,56 +1,52 @@
-import datetime
 from django.db import models
 from django.contrib.postgres import fields as pg_fields
-from django.core.exceptions import ObjectDoesNotExist
-from django.utils import timezone
 from django.utils.functional import cached_property
+from django.utils.translation import ugettext_lazy as _
 
 from .forms import DynamicForm
+from .utils import freeze, hashsum
 
 class FormManager(models.Manager):
-    def latest_for(self, **filters):
-        try:
-            return self.all().filter(**filters).latest()
-        except ObjectDoesNotExist:
-            return None
+    def get_or_create(self, form_spec):
+        frozen = freeze(form_spec)
+        sha1 = hashsum(frozen).hexdigest()
+        obj = None
 
-    def get_or_create(self, form_spec, **filters):
-        form = self.latest_for(**filters)
-        if not form or form.form_spec != form_spec:
-            form = self.create(form_spec=form_spec, **filters)
-        return form
+        # find if this form_spec exists already
+        for possible in self.filter(sha1=sha1):
+            if possible.form_spec == form_spec:
+                obj = possible
+                break
+
+        # create new database object and save it
+        if not obj:
+            obj = self.create(form_spec=form_spec, sha1=sha1)
+
+        # store already calculated frozen_spec
+        obj.frozen_spec = frozen
+        return obj
 
 
-class FormBase(models.Model):
+class Form(models.Model):
     objects = FormManager()
 
-    TTL = datetime.timedelta(hours=1)
+    sha1 = models.CharField(max_length=40, db_index=True)
+    form_spec = pg_fields.JSONField()
 
     class Meta:
-        abstract = True
-        get_latest_by = 'updated'
+        verbose_name = _("Form")
+        verbose_name_plural = _("Forms")
 
-    form_spec = pg_fields.JSONField()
-    updated = models.DateTimeField(default=timezone.now)
+    @cached_property
+    def frozen_spec(self):
+        return freeze(self.form_spec)
 
     @cached_property
     def form_class(self):
-        return DynamicForm.get_form_class_by(self.form_spec)
+        return DynamicForm.get_form_class_by(self.form_spec, frozen=self.frozen_spec)
 
-    @property
-    def could_be_updated(self):
-        age = timezone.now() - self.updated
-        return age > self.TTL
+    def save(self, **kwargs):
+        if not self.sha1:
+            self.sha1 = hashsum(freeze(self.form_spec)).hexdigest()
+        return super().save(**kwargs)
 
-    def get_updated(self, form_spec, **extra):
-        if not form_spec:
-            return self
-
-        if self.form_spec == form_spec:
-            self.updated = timezone.now()
-            self.save()
-            return self
-
-        new = self.__class__(form_spec=form_spec, **extra)
-        new.save()
-        return new

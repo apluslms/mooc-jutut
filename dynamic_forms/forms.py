@@ -1,16 +1,11 @@
 from collections import OrderedDict
 from django import forms
-from django.forms.utils import flatatt, pretty_name
+from django.forms.utils import pretty_name
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 
-
-def freeze(data):
-    if isinstance(data, dict):
-        return tuple(((k, freeze(v)) for k, v in sorted(data.items())))
-    elif isinstance(data, list):
-        return tuple((freeze(v) for v in data))
-    return data
+from .fields import LabelField
+from .utils import freeze
 
 
 def auto_type_for_enums(default: str):
@@ -26,34 +21,6 @@ def auto_type_for_enums(default: str):
             return 'select'
         return default
     return selector
-
-
-class LabelWidget(forms.Widget):
-    """
-    Widget for LabelField
-    """
-    def render(self, name, value, attrs):
-        attrs = self.build_attrs(attrs, name=name)
-        if hasattr(self, 'initial'):
-            value = self.initial
-        return '<p %s>%s</p>' % (flatatt(attrs), value or '')
-
-
-class LabelField(forms.Field):
-    """
-    Simple field that shows only 'value' text
-    Used with dynamic forms to show text between fields
-    """
-    widget = LabelWidget
-
-    def __init__(self, *args, **kwargs):
-        kwargs.setdefault('label', '')
-        kwargs['required'] = False
-        super().__init__(*args, **kwargs)
-
-    def clean(self, value):
-        self.widget.initial = self.initial
-        return None
 
 
 class DynamicFormMetaClass(forms.forms.DeclarativeFieldsMetaclass):
@@ -231,13 +198,14 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
 
 
     @classmethod
-    def get_form_class_by(cls, data):
+    def get_form_class_by(cls, data, frozen=None):
         """
         will cache created forms with normalized params as key
         if params are found from cache, then cached form class is returned
         else new form class is created and cached
         """
-        frozen = freeze(data)
+        if frozen is None:
+            frozen = freeze(data)
         if frozen in cls.FORM_CACHE:
             return cls.FORM_CACHE[frozen]
         form = cls.create_form_class_from(data)
