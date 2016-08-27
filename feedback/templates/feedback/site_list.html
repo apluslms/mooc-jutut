@@ -1,0 +1,11 @@
+<h1>List of known sites in feedback management</h1>
+<ul>
+	{% for site in sites %}
+		<li>
+			{{ site }}
+			[ <a href="{% url 'feedback:course-list' site_id=site.id %}">see courses and exercises</a> ]
+		</li>
+	{% empty %}
+		<li>No known sites yet.</li>
+	{% endfor %}
+</ul>

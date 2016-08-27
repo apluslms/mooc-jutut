@@ -6,11 +6,15 @@ from django.contrib.postgres import fields as pg_fields
 from django.utils import timezone
 from django.utils.functional import cached_property
 
-from aplus_client.django.models import CachedApiObject
-from dynamic_forms.models import FormBase
+from aplus_client.django.models import (
+    ApiNamespace as Site, # mooc-jutut refers api namespaces as sites
+    NamespacedApiObject,
+    NestedApiObject,
+)
+from dynamic_forms.models import Form
 
 
-class Student(CachedApiObject):
+class Student(NamespacedApiObject):
     username = models.CharField(max_length=128)
     full_name = models.CharField(max_length=128)
 
@@ -18,20 +22,22 @@ class Student(CachedApiObject):
         return "{s.full_name:s} ({s.username:s})".format(s=self)
 
 
-class Course(CachedApiObject):
+class Course(NamespacedApiObject):
     code = models.CharField(max_length=128)
     name = models.CharField(max_length=128)
 
     def __str__(self):
-        return "{s.code:s} - {s.name:s}".format(s=self)
+        return "{} - {}".format(self.code, self.name)
 
 
-class ExerciseManager(models.Manager):
+class ExerciseManager(NestedApiObject.Manager):
     def with_course(self):
-        return super().get_queryset().select_related('course')
+        return self.get_queryset().select_related('course')
 
 
-class Exercise(CachedApiObject):
+class Exercise(NestedApiObject):
+    NAMESPACE_FILTER = 'course__namespace'
+
     objects = ExerciseManager()
 
     display_name = models.CharField(max_length=255)
@@ -40,63 +46,52 @@ class Exercise(CachedApiObject):
                                on_delete=models.PROTECT)
 
     @property
-    def feedbacks(self):
-        return Feedback.objects.filter(form__exercise=self)
+    def namespace(self):
+        return self.course.namespace
+
+    def get_forms(self, path_key):
+        return Form.objects.all().filter(
+            feedbacks__exercise=self,
+            feedbacks__path_key__startswith=path_key,
+        )
+
+    def get_latest_form(self, path_key):
+        forms = self.get_forms(path_key)
+        try:
+            return forms.latest('feedbacks__timestamp')
+        except Form.DoesNotExist:
+            return None
 
     @property
     def unresponded_feedback(self):
-        return Feedback.objects.get_unresponded(exercise_id=self.id)
-
-    @cached_property
-    def latest_form(self):
-        try:
-            return self.forms.latest()
-        except ObjectDoesNotExist:
-            return None
+        return Feedback.objects.get_notresponded(exercise_id=self.id)
 
     def __str__(self):
         return self.display_name
 
 
-class Form(FormBase):
-    # our grouping in top of base form storage
-    exercise = models.ForeignKey(Exercise,
-                                related_name='forms',
-                                on_delete=models.PROTECT)
-
-    TTL = datetime.timedelta(minutes=10)
-
-    def get_updated(self, form_spec):
-        return super().get_updated(
-            form_spec=form_spec,
-            course_id=self.course_id,
-            exercise_id=self.exercise_id,
-        )
-
-
 class FeedbackManager(models.Manager):
     def feedback_exercises_for(self, student):
         F = models.F
-        key = 'student_id' if type(student) is int else 'student'
+        key = 'student' if isinstance(student, Student) else 'student_id'
         q = self.values(
                 'path_key',
+                'exercise_id',
             ).filter(
                 **{key: student}
             ).annotate(
-                course_id=F('form__exercise__course__id'),
-                exercise_id=F('form__exercise__id'),
+                course_id=F('exercise__course__id'),
                 count=models.Count('form_data'),
             ).order_by(
                 'course_id', 'exercise_id', 'path_key'
             )
         return q
 
-    def get_unresponded(self, exercise_id=None, course_id=None, path_filter=None):
+    def get_notresponded(self, exercise_id=None, course_id=None, path_filter=None):
         Q = models.Q
         qs = self.get_queryset().select_related(
             'form',
-            'form__exercise',
-            #'form__exercise__course',
+            'exercise',
         ).all().filter(
             Q(response_msg='') | Q(response_msg=None),
             superseded_by=None,
@@ -104,9 +99,9 @@ class FeedbackManager(models.Manager):
             submission_url='',
         )
         if exercise_id is not None:
-            qs = qs.filter(form__exercise__id=exercise_id)
+            qs = qs.filter(exercise__id=exercise_id)
         elif course_id is not None:
-            qs = qs.filter(form__exercise__course__id=course_id)
+            qs = qs.filter(exercise__course__id=course_id)
             if path_filter:
                 qs = qs.filter(path_key__startswith=path_filter)
         else:
@@ -131,6 +126,9 @@ class Feedback(models.Model):
     }
     MAX_GRADE = ACCEPTED_GOOD
 
+    exercise = models.ForeignKey(Exercise,
+                                 related_name='feedbacks',
+                                 on_delete=models.PROTECT)
     path_key = models.CharField(max_length=255, db_index=True)
     timestamp = models.DateTimeField(default=timezone.now)
     student = models.ForeignKey(Student,
@@ -175,10 +173,6 @@ class Feedback(models.Model):
         '_response_upl_attempt',
         '_response_upl_at',
     )
-
-    @cached_property
-    def exercise(self):
-        return self.form.exercise
 
     @cached_property
     def course(self):
