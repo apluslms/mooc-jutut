@@ -13,3 +13,19 @@ DATABASES = {
         # and add passwd&hostname etc for remote
     }
 }
+
+# For debugging purposes
+#from .settings import LOGGING
+#LOGGING['loggers'] = {
+#    '': {
+#        'level': 'INFO',
+#        'handlers': ['debug_console'],
+#        'propagate': True,
+#    },
+#    'aplus_client.client': {
+#        'level': 'DEBUG',
+#    },
+#    'django.db.backends': {
+#        'level': 'DEBUG',
+#    },
+#}

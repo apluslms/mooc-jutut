@@ -144,10 +144,30 @@ LOGGING = {
     'verbose': {
       'format': '[%(asctime)s: %(levelname)s/%(module)s] %(message)s'
     },
+    'colored': {
+      '()': 'lib.logging.SourceColorizeFormatter',
+      'format': '[%(asctime)s: %(levelname)s/%(module)s] %(message)s',
+      'colors': {
+        'aplus_client.client': {'fg': 'red', 'opts': ('bold',)},
+        'django.db.backends': {'fg': 'cyan'},
+      },
+    },
+  },
+  'filters': {
+    'require_debug_true': {
+      '()': 'django.utils.log.RequireDebugTrue',
+    }
   },
   'handlers': {
-    'console': {
+    'debug_console': {
       'level': 'DEBUG',
+      'filters': ['require_debug_true'],
+      'class': 'logging.StreamHandler',
+      'stream': 'ext://sys.stdout',
+      'formatter': 'colored',
+    },
+    'console': {
+      'level': 'INFO',
       'class': 'logging.StreamHandler',
       'stream': 'ext://sys.stdout',
       'formatter': 'verbose',
