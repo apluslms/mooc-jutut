@@ -5,6 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.postgres import fields as pg_fields
 from django.utils import timezone
 from django.utils.functional import cached_property
+from django.utils.translation import get_language, ugettext_lazy as _
 
 from aplus_client.django.models import (
     ApiNamespace as Site, # mooc-jutut refers api namespaces as sites
@@ -25,6 +26,7 @@ class Student(NamespacedApiObject):
 class Course(NamespacedApiObject):
     code = models.CharField(max_length=128)
     name = models.CharField(max_length=128)
+    language = models.CharField(max_length=5)
 
     def __str__(self):
         return "{} - {}".format(self.code, self.name)
@@ -120,9 +122,9 @@ class Feedback(models.Model):
     ACCEPTED = 1
     ACCEPTED_GOOD = 2
     GRADES = {
-        REJECTED: 'Rejected',
-        ACCEPTED: 'Accepted',
-        ACCEPTED_GOOD: 'Accepted and Good',
+        REJECTED: _('Rejected'),
+        ACCEPTED: _('Accepted'),
+        ACCEPTED_GOOD: _('Accepted and Good'),
     }
     MAX_GRADE = ACCEPTED_GOOD
 
@@ -131,6 +133,7 @@ class Feedback(models.Model):
                                  on_delete=models.PROTECT)
     path_key = models.CharField(max_length=255, db_index=True)
     timestamp = models.DateTimeField(default=timezone.now)
+    language = models.CharField(max_length=5, default=get_language, null=True)
     student = models.ForeignKey(Student,
                                 related_name='feedbacks',
                                 on_delete=models.CASCADE,

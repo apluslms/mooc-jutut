@@ -18,16 +18,14 @@
 	</form>
 
 	{# Response #}
-	{% if feedback %}
-		{% if not feedback.responded %}
-			<p>waiting for response to this Feedback</p>
-		{% else %}
-			<h4>Staff response</h4>
-			{% if feedback.response_msg %}
-				<p>{{ feedback.response_msg }}</p>
-			{% endif %}
-			<p>Feedback is {{ feedback.response_grade_text }}</p>
+	{% if feedback and feedback.responded %}
+		<h4>{% trans "Staff response" %}</h4>
+		{% if feedback.response_msg %}
+			<p>{{ feedback.response_msg }}</p>
 		{% endif %}
+		<p>{% blocktrans with status=feedback.response_grade_text.lower %}
+			Feedback is {{ status }}
+		{% endblocktrans%}</p>
 	{% endif %}
 </div>
 

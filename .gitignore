@@ -10,6 +10,7 @@
 *.sublime-project
 *.sublime-workspace
 *.orig
+django.mo
 
 *.db
 *.db.*

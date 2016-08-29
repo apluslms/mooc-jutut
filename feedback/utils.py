@@ -1,5 +1,6 @@
 from django.template import Context
 from django.template.loader import get_template
+from django.utils import translation
 
 from aplus_client.client import AplusGraderClient
 from dynamic_forms.forms import DummyForm, DynamicForm
@@ -16,7 +17,8 @@ def update_response_to_aplus(feedback):
         'exercise': feedback.exercise,
         'form': feedback.form_obj,
     })
-    html = template.render(context)
+    with translation.override(feedback.language):
+        html = template.render(context)
 
     update_data = {
         # A-Plus API doc:
