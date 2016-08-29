@@ -10,7 +10,6 @@
 *.sublime-project
 *.sublime-workspace
 *.orig
-django.mo
 
 *.db
 *.db.*
@@ -24,5 +23,9 @@ venv/
 static/
 media/
 selenium_test/
+test_*
 
-
+*.mo
+*.lokalize
+lokalize-*/
+main.lqa
