@@ -40,6 +40,7 @@ class Exercise(NestedApiObject):
 
     objects = ExerciseManager()
 
+    name = models.CharField(max_length=255)
     display_name = models.CharField(max_length=255)
     course = models.ForeignKey(Course,
                                related_name='exercises',
@@ -75,7 +76,6 @@ class FeedbackManager(models.Manager):
         F = models.F
         key = 'student' if isinstance(student, Student) else 'student_id'
         q = self.values(
-                'path_key',
                 'exercise_id',
             ).filter(
                 **{key: student}
@@ -83,7 +83,7 @@ class FeedbackManager(models.Manager):
                 course_id=F('exercise__course__id'),
                 count=models.Count('form_data'),
             ).order_by(
-                'course_id', 'exercise_id', 'path_key'
+                'course_id', 'exercise_id'
             )
         return q
 
@@ -185,6 +185,14 @@ class Feedback(models.Model):
             "/" if self.path_key else "",
             self.path_key or '',
         )
+
+    @property
+    def form_class(self):
+        return self.form.form_class
+
+    @property
+    def form_obj(self):
+        return self.form_class(data=self.form_data)
 
     @property
     def response_time(self):

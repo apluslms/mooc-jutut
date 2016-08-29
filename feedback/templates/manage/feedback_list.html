@@ -10,7 +10,7 @@
 			[<a href="{{ data.older_url }}">older comments</a>]
 		{% endif %}
 		</h3>
-		{% include "feedback/_feedback_response.html" with form=data.form feedback=data.feedback post_url=data.post_url %}
+		{% include "manage/_feedback_response.html" with form=data.form feedback=data.feedback post_url=data.post_url %}
 	</div>
 {% empty %}
 	<p>No unresponded feedback yet.</p>

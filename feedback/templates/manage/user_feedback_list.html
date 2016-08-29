@@ -1,0 +1,18 @@
+<h1>Feedbacks by {{ student }}</h1>
+
+{% for feedback in feedbacks %}
+	{% ifchanged feedback.course_id %}
+		{% if not forloop.first %}</ul>{% endif %}
+		<h3>{{ feedback.course }}</h3>
+		<ul>
+	{% endifchanged %}
+	<li>
+		{{ feedback.exercise }}
+		[ <a href="{% url 'feedback:byuser' user_id=student.id exercise_id=feedback.exercise.id %}"
+		>{{ feedback.count }} feedback versions</a> ]
+	</li>
+{% empty %}
+	<ul>
+	<li>No feedback by this user yet.</li>
+{% endfor %}
+</ul>

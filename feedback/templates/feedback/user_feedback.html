@@ -1,8 +1,0 @@
-<h1>Feedback for {{ user_id }}</h1>
-{% for data in feedbacks %}
-	<div style="display: block; border: 1px solid black;">
-		{% include "feedback/_feedback_response.html" with form=data.form feedback=data.feedback post_url=data.post_url %}
-	</div>
-{% empty %}
-	<p>No feedback yet.</p>
-{% endfor %}

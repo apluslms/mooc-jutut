@@ -35,7 +35,7 @@ class SuspiciousStudent(SuspiciousOperation):
 class FeedbackAverageView(ListView):
     """Example of postgresql json aggregation. Remove when used in analysis"""
     model = Feedback
-    template_name = 'feedback_avglist.html'
+    template_name = 'feedback/avglist.html'
 
     def get_queryset(self):
         return Feedback.objects.all(
@@ -55,7 +55,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
     """
     This is view implements A-Plus interfaces to get feedback submissions
     """
-    template_name = 'feedback/feedback_form.html'
+    template_name = 'feedback/new.html'
     success_url = '/feedback/'
 
     def get_form_class(self):
@@ -105,6 +105,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
+        context['exercise'] = self.exercise
         context['post_url'] = self.post_url or ''
         return context
 
@@ -148,13 +149,13 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 
 class ManageSiteListView(ListView):
     model = Site
-    template_name = "feedback/site_list.html"
+    template_name = "manage/site_list.html"
     context_object_name = "sites"
 
 
 class ManageCourseListView(ListView):
     model = Course
-    template_name = "feedback/course_list.html"
+    template_name = "manage/course_list.html"
     context_object_name = "courses"
 
     def get_queryset(self):
@@ -168,6 +169,7 @@ class ManageCourseListView(ListView):
 
 class ManageNotRespondedListView(ListView):
     model = Feedback
+    template_name = "manage/feedback_list.html"
     form_class = ResponseForm
 
     def get_queryset(self):
@@ -214,13 +216,13 @@ class ManageNotRespondedListView(ListView):
 class UserListView(ListView):
     model = Student
     queryset = model.objects.all()
-    template_name = "feedback/user_list.html"
+    template_name = "manage/user_list.html"
     context_object_name = "students"
 
 
 class UserFeedbackListView(ListView):
     model = Feedback
-    template_name = "feedback/user_feedback_list.html"
+    template_name = "manage/user_feedback_list.html"
     context_object_name = "feedbacks"
 
     def get_queryset(self):
@@ -229,6 +231,22 @@ class UserFeedbackListView(ListView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        course_cache = {}
+        def get_course(id):
+            c = course_cache.get(id)
+            if c is None:
+                c = Course.objects.get(pk=id)
+                course_cache[id] = c
+            return c
+        feedbacks = list(context['feedbacks'])
+        exercises = [f['exercise_id'] for f in feedbacks]
+        exercises = Exercise.objects.filter(pk__in=exercises)
+        exercises = {e.id: e for e in exercises}
+        def get_feedback(f):
+            f['exercise'] = exercises[f['exercise_id']]
+            f['course'] = lambda: get_course(f['course_id'])
+            return f
+        context['feedbacks'] = (get_feedback(feedback) for feedback in feedbacks)
         context['student'] = self.student
         return context
 
@@ -236,13 +254,18 @@ class UserFeedbackListView(ListView):
 class UserFeedbackView(TemplateView):
     model = Feedback
     form_class = ResponseForm
-    template_name = "feedback/user_feedback.html"
+    template_name = "manage/user_feedback.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
 
+        student_id = self.kwargs['user_id']
+        exercise_id = self.kwargs['exercise_id']
+        context['student'] = get_object_or_404(Student, pk=student_id)
+        context['exercise'] = get_object_or_404(Exercise.objects.with_course(), pk=exercise_id)
         feedbacks = self.model.objects.all().filter(
-            exercise__id = self.kwargs['exercise_id'],
+            student__id = student_id,
+            exercise__id = exercise_id,
         ).order_by('timestamp')
         params = '?' + urlencode({"success_url": self.request.path})
         context['feedbacks'] = (
@@ -260,7 +283,7 @@ class UserFeedbackView(TemplateView):
 class RespondFeedbackView(UpdateView):
     model = Feedback
     form_class = ResponseForm
-    template_name = "feedback/response_form.html"
+    template_name = "manage/response_form.html"
     context_object_name = 'feedback'
     pk_url_kwarg = 'feedback_id'
 

@@ -9,16 +9,12 @@ def update_response_to_aplus(feedback):
     submission_url = feedback.submission_url
     client = AplusGraderClient(submission_url)
 
-    form_obj = feedback.form
-    form_spec = form_obj.form_spec if form_obj else None
-    form_class = DynamicForm.get_form_class_by(form_spec) if form_spec else DummyForm
-    form = form_class(data=feedback.form_data)
-
-    template = get_template('feedback/_feedback_form.html')
+    template = get_template('feedback/_form.html')
     context = Context({
         'feedback': feedback,
         'post_url': feedback.post_url,
-        'form': form,
+        'exercise': feedback.exercise,
+        'form': feedback.form_obj,
     })
     html = template.render(context)
 

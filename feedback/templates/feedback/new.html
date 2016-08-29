@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+
+{% block title %}{{ block.super }}-Feedback: {{ exercise.name }}{% endblock %}
+
+{% block meta %}
+	{{ block.super }}
+	{% if status %}
+		<meta name="status" value="{{ status }}" />
+	{% endif %}
+{% endblock %}
+
+{% block body %}
+	<!--
+	 course: {{ exercise.course.api_id }}, '{{ exercise.course }}'
+	 exercise: {{ exercise.api_id}}, '{{ exercise }}'
+	-->
+	{% include "feedback/_form.html" %}
+{% endblock %}

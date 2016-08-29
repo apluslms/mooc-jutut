@@ -8,17 +8,20 @@
 	{% endifchanged %}
 	<li>
 		{{ course }}
-		[ <a href="{% url 'feedback:notresponded-course' course_id=course.id path_filter='' %}">see all not responded</a> ]
+		[ <a href="{% url 'feedback:notresponded-course' course_id=course.id path_filter='' %}"
+		>see all not responded</a> ]
 		<ul>
 		{% for exercise in course.exercises.all %}
 			<li>
 				{{ exercise }}
-				[ <a href="{% url 'feedback:notresponded-exercise' exercise_id=exercise.id %}">{{ exercise.unresponded_feedback.count }} not responded</a> ]
+				[ <a href="{% url 'feedback:notresponded-exercise' exercise_id=exercise.id %}"
+				>{{ exercise.unresponded_feedback.count }} not responded</a> ]
 			</li>
 		{% endfor %}
 		</ul>
 	</li>
 {% empty %}
+	<ul>
 	<li>No courses known yet.</li>
 {% endfor %}
 </ul>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+	{% load i18n %}
+	{% load staticfiles %}
+
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	{% block meta %}
+		{# Put all additional meta rows inside this block. #}
+	{% endblock %}
+
+	<title>{% block title %}Jutut{% endblock %}</title>
+
+	{% block scripts %}
+		{# Put all additional scripts inside this block. #}
+	{% endblock %}
+</head>
+<body>
+	{% block body  %}
+		{# Body area... #}
+	{% endblock %}
+</body>
+</html>

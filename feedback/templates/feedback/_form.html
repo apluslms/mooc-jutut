@@ -1,0 +1,33 @@
+{% load i18n %}
+
+<div id="exercise">
+	<h3 class="exercise-title">{{ exercise.name }}</h3>
+
+	{# Form #}
+	<form action="{{post_url}}" method="post">
+
+		{{ form.as_p }}
+
+		{# <div class="form-group"> #}
+		<p>
+		<input type="submit"
+		       value="{% if not feedback %}{% trans 'Submit' %}{% else %}{% trans 'Submit update' %}{% endif %}"
+		       class="btn btn-primary" />
+		</p>
+		{# </div> #}
+	</form>
+
+	{# Response #}
+	{% if feedback %}
+		{% if not feedback.responded %}
+			<p>waiting for response to this Feedback</p>
+		{% else %}
+			<h4>Staff response</h4>
+			{% if feedback.response_msg %}
+				<p>{{ feedback.response_msg }}</p>
+			{% endif %}
+			<p>Feedback is {{ feedback.response_grade_text }}</p>
+		{% endif %}
+	{% endif %}
+</div>
+
