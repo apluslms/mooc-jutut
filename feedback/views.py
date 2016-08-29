@@ -34,6 +34,7 @@ class SuspiciousStudent(SuspiciousOperation):
 
 class FeedbackAverageView(ListView):
     """Example of postgresql json aggregation. Remove when used in analysis"""
+    # NOTE: not linked in urls.py. exists to remind how annotates work
     model = Feedback
     template_name = 'feedback/avglist.html'
 
@@ -60,7 +61,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 
     def get_form_class(self):
         gd = self.grading_data
-        self.path_key = path_key = self.kwargs['path_key'].strip('/')
+        self.path_key = path_key = self.kwargs.get('path_key', '').strip('/')
 
         # get or create exercise for this request that has correct namespace
         # (gotten from exercise api_obj url field)

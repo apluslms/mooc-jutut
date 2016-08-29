@@ -50,13 +50,13 @@ class Exercise(NestedApiObject):
     def namespace(self):
         return self.course.namespace
 
-    def get_forms(self, path_key):
-        return Form.objects.all().filter(
-            feedbacks__exercise=self,
-            feedbacks__path_key__startswith=path_key,
-        )
+    def get_forms(self, path_key=None):
+        filters = dict(feedbacks__exercise=self)
+        if path_key:
+            filters['feedbacks__path_key__startswith'] = path_key
+        return Form.objects.all().filter(**filters)
 
-    def get_latest_form(self, path_key):
+    def get_latest_form(self, path_key=None):
         forms = self.get_forms(path_key)
         try:
             return forms.latest('feedbacks__timestamp')

@@ -23,8 +23,8 @@ MANAGE_SITE = MANAGE + r'(?P<site_id>\d+)/'
 urlpatterns = [
     # Aplus feedback submission
     url(r'^feedback/$',
-        FeedbackAverageView.as_view(),
-        name='list'),
+        FeedbackSubmissionView.as_view(),
+        name='submission'),
     url(r'^feedback/(?P<path_key>{path_regex}+)/$'.format(path_regex=PATH_REGEX),
         FeedbackSubmissionView.as_view(),
         name='submission'),
