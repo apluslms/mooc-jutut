@@ -40,8 +40,12 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.postgres',
 
+    # libs
+    'django_lti_login',
     'aplus_client',
     'dynamic_forms',
+    # project apps
+    'accounts',
     'feedback',
 ]
 
@@ -54,6 +58,11 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.auth.middleware.SessionAuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+]
+
+AUTHENTICATION_BACKENDS = [
+    'django_lti_login.backends.LTIAuthBackend',
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 TEMPLATES = [
@@ -80,6 +89,7 @@ TEMPLATES = [
 
 ROOT_URLCONF = 'jutut.urls'
 WSGI_APPLICATION = 'jutut.wsgi.application'
+LOGIN_REDIRECT_URL = '/manage/'
 
 
 # Database (override in local_settings.py)
@@ -98,6 +108,7 @@ DATABASES = {
 
 # Password validation
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
+AUTH_USER_MODEL = 'accounts.JututUser'
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -112,6 +123,11 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+
+# LTI login parameters: our site allows only course staff to enter using lti login
+LTI_ACCEPTED_ROLES = ('Instructor', 'TeachingAssistant')
+LTI_STAFF_ROLES = ('Instructor')
 
 
 # Internationalization

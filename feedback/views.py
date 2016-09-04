@@ -3,6 +3,7 @@ from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import get_object_or_404
 from django.views.generic import FormView, UpdateView, ListView, TemplateView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse
 from django.core.exceptions import SuspiciousOperation
 
@@ -148,13 +149,13 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 # ---------------------------
 
 
-class ManageSiteListView(ListView):
+class ManageSiteListView(LoginRequiredMixin, ListView):
     model = Site
     template_name = "manage/site_list.html"
     context_object_name = "sites"
 
 
-class ManageCourseListView(ListView):
+class ManageCourseListView(LoginRequiredMixin, ListView):
     model = Course
     template_name = "manage/course_list.html"
     context_object_name = "courses"
@@ -162,13 +163,13 @@ class ManageCourseListView(ListView):
     def get_queryset(self):
         site_id = self.kwargs.get('site_id', None)
         if site_id is not None:
-            qs = self.model.objects.by_namespace_id(site_id)
+            qs = self.model.objects.using_namespace_id(site_id)
         else:
             qs = self.model.objects
         return qs.all().order_by('namespace', 'api_id')
 
 
-class ManageNotRespondedListView(ListView):
+class ManageNotRespondedListView(LoginRequiredMixin, ListView):
     model = Feedback
     template_name = "manage/feedback_list.html"
     form_class = ResponseForm
@@ -214,14 +215,14 @@ class ManageNotRespondedListView(ListView):
         return context
 
 
-class UserListView(ListView):
+class UserListView(LoginRequiredMixin, ListView):
     model = Student
     queryset = model.objects.all()
     template_name = "manage/user_list.html"
     context_object_name = "students"
 
 
-class UserFeedbackListView(ListView):
+class UserFeedbackListView(LoginRequiredMixin, ListView):
     model = Feedback
     template_name = "manage/user_feedback_list.html"
     context_object_name = "feedbacks"
@@ -252,7 +253,7 @@ class UserFeedbackListView(ListView):
         return context
 
 
-class UserFeedbackView(TemplateView):
+class UserFeedbackView(LoginRequiredMixin, TemplateView):
     model = Feedback
     form_class = ResponseForm
     template_name = "manage/user_feedback.html"
@@ -281,7 +282,7 @@ class UserFeedbackView(TemplateView):
         return context
 
 
-class RespondFeedbackView(UpdateView):
+class RespondFeedbackView(LoginRequiredMixin, UpdateView):
     model = Feedback
     form_class = ResponseForm
     template_name = "manage/response_form.html"
