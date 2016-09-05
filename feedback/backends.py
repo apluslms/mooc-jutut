@@ -21,10 +21,11 @@ def add_course_permissions(sender, **kwargs):
         course_api = getattr(oauth, 'custom_context_api', None)
         if api_token is None or course_id is None or course_api is None:
             # Invalid lti login to mooc jutut service. Missing stuff
-            logger.error("LTI login request doesn't contain all require "
-                         "fields for course membership update. Update shipped."
-                         "Usaer in question: {}".format(user))
-            raise PermissionDenied("LTI params is missing some fields required by lti launch")
+            logger.error("LTI login request doesn't contain all required "
+                         "fields (custom_user_api_token, custom_context_api_id, "
+                         "custom_context_api) for course membership update."
+                         "User in question is {}".format(user))
+            raise PermissionDenied("LTI request is missing some fields to allow login")
 
         site = Site.get_by_url(course_api)
         user.add_api_token(api_token, site) # will not add duplicates
