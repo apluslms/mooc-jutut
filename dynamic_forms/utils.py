@@ -20,6 +20,6 @@ def hashsum(data, hash_func=None):
             for v in data:
                 recurse(v)
         else:
-            hash_func.update(bytes(data, 'utf-8'))
+            hash_func.update(str(data).encode('utf-8'))
     recurse(data)
     return hash_func
