@@ -98,7 +98,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
         'NAME': 'mooc_jutut_prod',
-        'USER': 'mooc_jutut_user',
+        #'USER': 'username',
         #'PASSWORD': 'mypassword',
         #'HOST': '127.0.0.1',
         #'PORT': '5432',
@@ -188,7 +188,7 @@ LOGGING = {
       'stream': 'ext://sys.stdout',
       'formatter': 'verbose',
     },
-    'email': {
+    'mail': {
       'level': 'ERROR',
       'class': 'django.utils.log.AdminEmailHandler',
     },
@@ -196,7 +196,7 @@ LOGGING = {
   'loggers': {
     '': {
       'level': 'INFO',
-      'handlers': ['email', 'console'],
+      'handlers': ['console'],
       'propagate': True
     },
   },
