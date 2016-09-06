@@ -40,7 +40,7 @@ sudo -H -u $user virtualenv --python=python3 $venv
 # link system psycopg2 and certifi (you need to rerun this for pip to work if system package version updates)
 sudo -H -u $user sh -c "
   for p in certifi psycopg2; do
-    for d in $home/venv/lib/python3*; do
+    for d in $venv/lib/python3*; do
       rm \$d/site-packages/\$p-*.egg-info
       psrc=\$(python3 -c \"import \$p; print(\$p.__file__)\")
       ln -s -t \$d/site-packages/ \${psrc%/*}*
