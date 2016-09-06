@@ -26,6 +26,28 @@ For development,
 follow production installation guide,
 but you can install server with your user in development folder and skip nginx and systemd parts.
 
+
+LTI login
+---------
+
+Create lti login parameters for a-plus in this kind of way:
+
+```sh
+sudo -H -u jutut sh -c "cd /opt/jutut/mooc-jutut && ../venv/bin/python manage.py add_lti_key -d 'Key for aplus.cs.hut.fi'"
+```
+
+Outputs something like:
+
+```
+Successfully created new lti login key and secret
+   key: <128 chars of key>
+secret: <128 chars of key>
+  desc: Key for aplus.cs.hut.fi
+```
+
+Input above parameters in lti service form in a-plus admin.
+Service url is something in format of `https://jutut.cs.hut.fi/accounts/lti_login`.
+
 Test it
 -------
 
