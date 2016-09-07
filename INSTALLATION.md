@@ -160,12 +160,15 @@ Description=MOOC Jutut Gunicorn
 PartOf=nginx.service
 
 [Service]
-WorkingDirectory=$src/
 User=$user
 Group=nogroup
-PIDFile=/run/www-jutut/gunicorn.pid
+SyslogIdentifier=www-jutut
+StandardOutput=syslog
+StandardError=syslog
+WorkingDirectory=$src/
 Environment="PATH=$venv/bin/x"
 ExecStart=$venv/bin/gunicorn --workers=3 --pid /run/www-jutut/gunicorn.pid --bind unix:/run/www-jutut/gunicorn.sock jutut.wsgi:application
+PIDFile=/run/www-jutut/gunicorn.pid
 ExecReload=/bin/kill -s HUP $MAINPID
 ExecStop=/bin/kill -s TERM $MAINPID
 RestartSec=15
@@ -185,3 +188,5 @@ Check status using:
 ```sh
 systemctl status nginx www-jutut-*
 ```
+
+You can read server logs using `journalctl -t www-jutut` or follow with `journalctl -t www-jutut -f`.
