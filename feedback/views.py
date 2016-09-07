@@ -1,6 +1,6 @@
 from urllib.parse import urljoin, urlencode
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, Http404
 from django.shortcuts import get_object_or_404
 from django.views.generic import FormView, UpdateView, ListView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
