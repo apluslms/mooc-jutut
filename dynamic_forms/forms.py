@@ -37,6 +37,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
     (once loaded from json for example).
 
     Design of data structure is based on JSON schema standard and
+    https://github.com/json-schema-form/json-schema-form
     https://github.com/json-schema-form/angular-schema-form
 
     This class should support common cases of above specs.
