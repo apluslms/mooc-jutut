@@ -199,6 +199,7 @@ LOGGING = {
       'handlers': ['console'],
       'propagate': True
     },
+    'requests': { 'level': 'WARNING' },
   },
 }
 
