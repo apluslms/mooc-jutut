@@ -1,5 +1,6 @@
 from collections import OrderedDict
 from django import forms
+from django.core.validators import RegexValidator
 from django.forms.utils import pretty_name
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
@@ -21,6 +22,46 @@ def auto_type_for_enums(default: str):
             return 'select'
         return default
     return selector
+
+
+DJANGO_ERROR_KEYS = (
+    'required', 'invalid', 'invalid_choice',
+    'max_length', 'min_length',
+    'max_value', 'min_value', 'max_digits', 'max_decimal_places', 'max_whole_digits',
+    'missing', 'empty',
+    'invalid_image',
+    'invalid_list',
+    'incomplete',
+    'invalid_date', 'invalid_time',
+    'list', 'invalid_pk_value',
+)
+
+def build_error_messages(messages):
+    """
+    Build error_messages parameter for field from validationMessage
+    """
+    if isinstance(messages, dict):
+        default = None
+        for k in ['', '__default__', 'default']:
+            if k in messages:
+                default = messages.get(k)
+                break
+        if default is None:
+            return messages
+        return {k: messages.get(k, default) for k in DJANGO_ERROR_KEYS}
+    return {k: messages for k in DJANGO_ERROR_KEYS}
+
+
+def dynamic_post_clean(self):
+    """
+    Remove duplicate error messages from fields.
+    This is basically required with build_error_messages
+    """
+    super(DynamicForm, self)._post_clean()
+    for name, errors in self._errors.items():
+        seen = set()
+        seen_add = seen.add
+        self._errors[name] = [x for x in errors if not (x in seen or seen_add(x))]
 
 
 class DynamicFormMetaClass(forms.forms.DeclarativeFieldsMetaclass):
@@ -104,8 +145,12 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
         'value': 'initial',
         'helpvalue': 'initial', # value when type is help
         'description': 'help_text',
-        'validationMessage': 'error_message',
-        'error_message': 'error_message',
+        'maxLength': 'max_length',
+        'minLength': 'min_length',
+        'minimum': 'min_value', # specifies a minimum numeric value.
+        # exclusiveMinimum is a boolean. When true, it indicates that the range excludes the minimum value, i.e., x > min. When false (or not included) x >= min
+        'maximum': 'max_value', # specifies a maximum numeric value.
+        # exclusiveMaximum is a boolean. When true, it indicates that the range excludes the maximum value, i.e., x < max. When false (or not included) x <= max.
     }
     WIDGET_ATTR_MAP = {
         # input key: django widget key
@@ -166,6 +211,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                 # copy direct options
                 field_args = {k: prop[l] for l, k in cls.ARG_MAP.items() if l in prop}
                 widget_attrs = {k: prop[l] for l, k in cls.WIDGET_ATTR_MAP.items() if l in prop}
+                extra_validators = []
 
                 # enums
                 enum = prop.get('enum', None)
@@ -178,6 +224,25 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                     choices = tuple((k, title_map.get(k, k)) for k in enum)
                     field_args['choices'] = choices
 
+                # integer validation
+                if prop.get('exclusiveMinimum') and 'min_value' in field_args:
+                    field_args['min_value'] += 1
+                if prop.get('exclusiveMaximum') and 'max_value' in field_args:
+                    field_args['max_value'] -= 1
+
+                # reexp validator
+                pattern = prop.get('pattern')
+                if pattern:
+                    extra_validators.append(RegexValidator(
+                        pattern, "Field doesn't pass regex pattern '{}'.".format(pattern)
+                    ))
+
+                # error messages
+                error_message = prop.get('validationMessage')
+                if error_message:
+                    field_args['error_messages'] = build_error_messages(error_message)
+
+                # make sure required is false for disabled fields FIXME: this is probably bad idea
                 if 'disabled' in field_args:
                     field_args.setdefault('required', not field_args['disabled'])
 
@@ -185,9 +250,12 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                 if type_ == 'integer' and field_class in cls.COERCE_FIELD_MAP:
                     field_class = cls.COERCE_FIELD_MAP[field_class]
                     field_args['coerce'] = int
-                    if not all(isinstance(x[0], int) for x in field_args.get('choices')):
+                    if not all(isinstance(x[0], int) for x in field_args.get('choices', ())):
                         raise ValueError("Not all enums are integers for integer type")
 
+                # if any validators, add them to args
+                if extra_validators:
+                    field_args['validators'] = extra_validators
 
                 # initialize classes and add fields
                 widget = widget_class(attrs=widget_attrs)
@@ -198,6 +266,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
         fields = get_fields(data)
         fields['__generated_from__'] = data
         fields['__module__'] = __name__
+        fields['_post_clean'] = dynamic_post_clean
         return type(cls.__name__, (cls,), fields)
 
 
