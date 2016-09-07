@@ -1,3 +1,4 @@
+import logging
 from urllib.parse import urljoin, urlencode
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest, Http404
@@ -22,6 +23,9 @@ from .models import (
 )
 
 from .forms import ResponseForm
+
+
+logger = logging.getLogger('jutut.feedback')
 
 
 
@@ -61,12 +65,17 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
     success_url = '/feedback/'
 
     def get_form_class(self):
-        gd = self.grading_data
         self.path_key = path_key = self.kwargs.get('path_key', '').strip('/')
+        gd = self.grading_data
+        exercise = gd.exercise
+
+        if not exercise:
+            logger.critical("exercise not resolved from submission_url '%s'", self.submission_url)
+            raise Http404("exercise not found from provided submission_url")
 
         # get or create exercise for this request that has correct namespace
         # (gotten from exercise api_obj url field)
-        exercise, created = Exercise.objects.get_or_create(gd.exercise)
+        exercise, created = Exercise.objects.get_or_create(exercise)
         self.exercise = exercise
 
 
@@ -81,6 +90,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
             self.form_obj = form_obj
             return form_obj.form_class
         else:
+            logger.critical("form_spec not resolved from submission_url '%s'", self.submission_url)
             raise Http404("form_spec not found from provided submission_url")
 
     def get_student(self):

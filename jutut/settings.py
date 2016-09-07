@@ -162,7 +162,7 @@ LOGGING = {
     },
     'colored': {
       '()': 'lib.logging.SourceColorizeFormatter',
-      'format': '[%(asctime)s: %(levelname)s/%(module)s] %(message)s',
+      'format': '[%(asctime)s: %(levelname)8s %(name)s] %(message)s',
       'colors': {
         'aplus_client.client': {'fg': 'red', 'opts': ('bold',)},
         'django.db.backends': {'fg': 'cyan'},
