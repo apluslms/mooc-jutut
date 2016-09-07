@@ -25,7 +25,7 @@ urlpatterns = [
     url(r'^feedback/$',
         FeedbackSubmissionView.as_view(),
         name='submission'),
-    url(r'^feedback/(?P<path_key>{path_regex}+)/$'.format(path_regex=PATH_REGEX),
+    url(r'^feedback/(?P<path_key>{path_regex}+)$'.format(path_regex=PATH_REGEX),
         FeedbackSubmissionView.as_view(),
         name='submission'),
 
