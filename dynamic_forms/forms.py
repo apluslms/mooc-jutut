@@ -308,6 +308,15 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
         # drop fields with none value (LabelField for example)
         return dict((k, v) for k, v in cleaned_data.items() if v is not None)
 
+    def as_div(self):
+        "Returns this form rendered as HTML <div>s."
+        return self._html_output(
+            normal_row='<div%(html_class_attr)s>%(help_text)s %(label)s %(field)s</div>',
+            error_row='%s',
+            row_ender='</div>',
+            help_text_html=' <span class="helptext">%s</span>',
+            errors_on_separate_row=True)
+
 
 class DummyForm:
     """
