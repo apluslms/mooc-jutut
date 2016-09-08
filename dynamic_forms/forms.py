@@ -109,6 +109,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
     DATA_TO_TYPE_MAP = {
         'string': auto_type_for_enums('text'),
         'integer': auto_type_for_enums('number'),
+        'int': auto_type_for_enums('number'), # support alias 'int' for 'integer'
         'boolean': 'checkbox',
         #'object': 'fieldset',
         'array': 'array',
