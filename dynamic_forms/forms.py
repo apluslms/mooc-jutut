@@ -204,7 +204,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                     field_type = field_type(prop)
                 field_class, widget_class = cls.TYPE_MAP.get(field_type, (None, None))
                 if not field_class:
-                    raise AttributeError("Invalid field with tyoe {}".format(type_))
+                    raise AttributeError("Invalid field with type {}".format(type_))
                 if not widget_class:
                     widget_class = field_class.widget
 

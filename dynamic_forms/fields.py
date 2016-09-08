@@ -10,7 +10,7 @@ class LabelWidget(Widget):
         attrs = self.build_attrs(attrs, name=name)
         if hasattr(self, 'initial'):
             value = self.initial
-        return '<p %s>%s</p>' % (flatatt(attrs), value or '')
+        return '<span %s>%s</span>' % (flatatt(attrs), value or '')
 
 
 class LabelField(Field):

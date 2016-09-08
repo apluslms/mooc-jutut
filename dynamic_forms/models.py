@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.contrib.postgres import fields as pg_fields
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
@@ -34,6 +35,7 @@ class Form(models.Model):
     form_spec = pg_fields.JSONField()
 
     class Meta:
+        abstract = 'dynamic_forms' not in settings.INSTALLED_APPS
         verbose_name = _("Form")
         verbose_name_plural = _("Forms")
 
