@@ -1,4 +1,6 @@
 import logging
+from datetime import timedelta
+from functools import partial
 from urllib.parse import urljoin, urlencode
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseBadRequest, Http404
@@ -80,7 +82,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 
 
         # get latest form object or create new
-        form_obj = exercise.get_latest_form(path_key)
+        form_obj = exercise.get_latest_form(path_key, max_age=timedelta(minutes=5))
         if form_obj is None:
             form_spec = gd.form_spec
             if form_spec:
