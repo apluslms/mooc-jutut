@@ -88,7 +88,8 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 
         if form_obj:
             self.form_obj = form_obj
-            return form_obj.form_class
+            auto_id = "jutut_ex{}_%s".format(exercise.api_id)
+            return partial(form_obj.form_class, auto_id=auto_id)
         else:
             logger.critical("form_spec not resolved from submission_url '%s'", self.submission_url)
             raise Http404("form_spec not found from provided submission_url")
