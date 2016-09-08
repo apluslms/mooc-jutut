@@ -1,11 +1,12 @@
 from collections import OrderedDict
+from itertools import chain as iterchain
 from django import forms
 from django.core.validators import RegexValidator
 from django.forms.utils import pretty_name
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 
-from .fields import LabelField
+from .fields import LabelField, get_enchanted_field
 from .utils import freeze
 
 
@@ -155,6 +156,8 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
     WIDGET_ATTR_MAP = {
         # input key: django widget key
         'placeholder': 'placeholder',
+        'fieldHtmlClass': 'class',
+        # labelHtmlClass - not supported, css selectors should be enough
     }
     COERCE_FIELD_MAP = {
         forms.ChoiceField: forms.TypedChoiceField,
@@ -212,6 +215,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                 field_args = {k: prop[l] for l, k in cls.ARG_MAP.items() if l in prop}
                 widget_attrs = {k: prop[l] for l, k in cls.WIDGET_ATTR_MAP.items() if l in prop}
                 extra_validators = []
+                extra_vars = {}
 
                 # enums
                 enum = prop.get('enum', None)
@@ -242,9 +246,22 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                 if error_message:
                     field_args['error_messages'] = build_error_messages(error_message)
 
+                # css classes
+                css_classes = prop.get('htmlClass')
+                if css_classes:
+                    extra_vars['extra_css_classes'] = list(
+                        iterchain.from_iterable(x.split(' ') for x in css_classes.split(','))
+                    )
+
                 # make sure required is false for disabled fields FIXME: this is probably bad idea
                 if 'disabled' in field_args:
                     field_args.setdefault('required', not field_args['disabled'])
+
+                # if any validators, add them to args
+                if extra_validators:
+                    field_args['validators'] = extra_validators
+
+                ## final field_class manipulation
 
                 # add type check for integer choices
                 if type_ == 'integer' and field_class in cls.COERCE_FIELD_MAP:
@@ -253,9 +270,8 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                     if not all(isinstance(x[0], int) for x in field_args.get('choices', ())):
                         raise ValueError("Not all enums are integers for integer type")
 
-                # if any validators, add them to args
-                if extra_validators:
-                    field_args['validators'] = extra_validators
+                # enchant field so we can suppoer features otherwise unavailable
+                field_class = get_enchanted_field(field_class, extra=freeze(extra_vars))
 
                 # initialize classes and add fields
                 widget = widget_class(attrs=widget_attrs)

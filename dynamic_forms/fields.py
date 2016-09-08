@@ -1,5 +1,7 @@
+from functools import lru_cache
 from django.forms import Widget, Field
 from django.forms.utils import flatatt
+from django.forms.boundfield import BoundField
 
 
 class LabelWidget(Widget):
@@ -29,3 +31,26 @@ class LabelField(Field):
         self.widget.initial = self.initial
         return None
 
+
+class EnchantedBoundField(BoundField):
+    def css_classes(self, extra_classes=None):
+        extra_css_classes = getattr(self.field, 'extra_css_classes', None)
+        if extra_css_classes:
+            if not extra_classes:
+                extra_classes = []
+            elif hasattr(extra_classes, 'split'):
+                extra_classes = extra_classes.split()
+            extra_classes.extend(extra_css_classes)
+        return super().css_classes(extra_classes=extra_classes)
+
+
+def _get_bound_field(self, form, field_name):
+    return EnchantedBoundField(form, self, field_name)
+
+
+@lru_cache(maxsize=None)
+def get_enchanted_field(field_class, extra=None):
+    member_dict = {}
+    member_dict.update(extra)
+    member_dict['get_bound_field'] = _get_bound_field
+    return type(field_class.__name__, (field_class,), member_dict)
