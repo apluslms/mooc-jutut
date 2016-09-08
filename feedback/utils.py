@@ -1,4 +1,3 @@
-from django.template import Context
 from django.template.loader import get_template
 from django.utils import translation
 
@@ -11,12 +10,12 @@ def update_response_to_aplus(feedback):
     client = AplusGraderClient(submission_url)
 
     template = get_template('feedback/_form.html')
-    context = Context({
+    context = {
         'feedback': feedback,
         'post_url': feedback.post_url,
         'exercise': feedback.exercise,
         'form': feedback.form_obj,
-    })
+    }
     with translation.override(feedback.language):
         html = template.render(context)
 
