@@ -7,6 +7,7 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import get_language, ugettext_lazy as _
 
+from lib.helpers import Enum
 from aplus_client.django.models import (
     ApiNamespace as Site, # mooc-jutut refers api namespaces as sites
     NamespacedApiObject,
@@ -120,15 +121,14 @@ ResponseUploaded = namedtuple('ResponseUploaded',
 class Feedback(models.Model):
     objects = FeedbackManager()
 
-    REJECTED = 0
-    ACCEPTED = 1
-    ACCEPTED_GOOD = 2
-    GRADES = {
-        REJECTED: _('Rejected'),
-        ACCEPTED: _('Accepted'),
-        ACCEPTED_GOOD: _('Accepted and Good'),
-    }
-    MAX_GRADE = ACCEPTED_GOOD
+    GRADES = Enum(
+        ('NONE', -1, _('No response')), # can't be stored in db (positive integers only)
+        ('REJECTED', 0, _('Rejected')),
+        ('ACCEPTED', 1, _('Accepted')),
+        ('ACCEPTED_GOOD', 2, _('Good')),
+    )
+    MAX_GRADE = GRADES.ACCEPTED_GOOD
+    OK_GRADES = (GRADES.ACCEPTED, GRADES.ACCEPTED_GOOD)
 
     exercise = models.ForeignKey(Exercise,
                                  related_name='feedbacks',
@@ -156,8 +156,8 @@ class Feedback(models.Model):
                                     null=True,
                                     default=None,
                                     verbose_name="Response")
-    response_grade = models.PositiveSmallIntegerField(default=REJECTED,
-                                                      choices=GRADES.items(),
+    response_grade = models.PositiveSmallIntegerField(default=GRADES.REJECTED,
+                                                      choices=[x for x in GRADES.choices if x[0] >= 0],
                                                       verbose_name="Grade")
     _response_time = models.DateTimeField(null=True,
                                           db_column='response_time')
@@ -223,7 +223,15 @@ class Feedback(models.Model):
 
     @property
     def response_grade_text(self):
-        return self.GRADES.get(self.response_grade)
+        if not self.responded:
+            return self.GRADES[self.GRADES.NONE]
+        return self.GRADES[self.response_grade]
+
+    @property
+    def valid_response_grade(self):
+        if not self.responded:
+            return None
+        return self.response_grade
 
     @classmethod
     @transaction.atomic

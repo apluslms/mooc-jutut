@@ -214,7 +214,7 @@ class ManageNotRespondedListView(LoginRequiredMixin, ListView):
         context['path_filter'] = self._path_filter
         context['feedbacks'] = (
             {
-                'form': self.form_class(instance=obj),
+                'form': self.form_class(instance=obj, auto_id="resp{}_%s".format(obj.id)),
                 'feedback': obj,
                 'post_url': urljoin(
                     reverse('feedback:respond', kwargs={'feedback_id': obj.id}),
@@ -222,7 +222,7 @@ class ManageNotRespondedListView(LoginRequiredMixin, ListView):
                 'older_url': reverse('feedback:byuser', kwargs={
                     'user_id': obj.student.id,
                     'exercise_id': obj.exercise.id,
-                })
+                }) if obj.has_older_versions else None,
             } for obj in context['object_list']
         )
         return context

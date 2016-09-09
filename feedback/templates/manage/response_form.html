@@ -1,3 +1,10 @@
-<h1>Single response</h1>
+{% extends "bootstrapped.html" %}
 
-{% include "manage/_feedback_response.html" %}
+{% block content %}
+	<h1>Single response</h1>
+
+	<div class="panel panel-default">
+		{% include "manage/_feedback_heading.html" with user=feedback.student only %}
+		{% include "manage/_feedback_response.html" %}
+	</div>
+{% endblock %}

@@ -1,3 +1,6 @@
+{% extends "bootstrapped.html" %}
+
+{% block content %}
 <h1>List of known sites in feedback management</h1>
 <ul>
 	{% for site in sites %}
@@ -9,3 +12,4 @@
 		<li>No known sites yet.</li>
 	{% endfor %}
 </ul>
+{% endblock %}

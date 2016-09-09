@@ -12,14 +12,18 @@ class ResponseForm(forms.ModelForm):
             'response_msg',
             'response_grade',
         )
-        widget = {
-            'response_msg': forms.Textarea(attrs={'placeholder': 'Response'}),
+        widgets = {
+            'response_msg': forms.Textarea(),
+            'response_grade': forms.RadioSelect(),
         }
 
     def __init__(self, **kwargs):
+        instance = kwargs.get('instance')
+        assert instance is not None, "ResponseForm requires feedback instance"
+        kwargs.setdefault("auto_id", "response_{}_%s".format(instance.id))
         super().__init__(**kwargs)
 
-        self.disabled = not self.instance.can_be_responded
+        self.disabled = not instance.can_be_responded
         if self.disabled:
             for field in self.fields.values():
                 field.disabled = True

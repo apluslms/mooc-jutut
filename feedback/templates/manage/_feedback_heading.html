@@ -1,0 +1,15 @@
+{% load i18n %}
+{% comment %}
+	expects to be used under bootstrapped.html
+	expects from context:
+		user
+{% endcomment %}
+<div class="panel-heading">
+	<span class="panel-title">
+		{{ user.username }}, {{ user.full_name }} {{ user.tags }}
+	</span>
+	<div class="btn-group pull-right">
+		<a class="btn btn-primary btn-xs" href="#">All feedbacks</a>
+		<a class="btn btn-primary btn-xs" href="#">All submissions</a>
+	</div>
+</diV>

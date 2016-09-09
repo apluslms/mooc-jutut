@@ -1,13 +1,15 @@
-<table style="width: 100%;"><tr><td>
-<table>
-{% for k, v in feedback.form_data.items|dictsort:"0.lower" %}
-	<tr>
-		<th>{{ k }}</th>
-		<td>{{ v }}</td>
-	</tr>
-{% endfor %}
-</table>
-</td><td>
-{% include "manage/_response_form.html" %}
-</td></tr></table>
-<p>posted {{ feedback.timestamp }}</p>
+{% comment %}
+	expects to be used under bootstrapped.html
+	expects from context:
+		form
+		feedback
+		post_url
+{% endcomment %}
+<div class="panel-body row">
+	<div class="col-lg-6">
+		{% include "manage/_feedback_panel.html" %}
+	</div>
+	<div class="col-lg-6">
+		{% include "manage/_response_panel.html" %}
+	</div>
+</div>

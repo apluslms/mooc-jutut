@@ -1,17 +1,18 @@
-<h1>Unresponded Feedback</h1>
-<h3>{{ course }}
-{% if exercise %}| {{ exercise }}{% endif %}
-</h3>
-{% for data in feedbacks %}
-	<div style="display: block; border: 1px solid black;">
-		<h3>
-		Feedback from {{ data.feedback.student }} to {{data.feedback.exercise_path }}
-		{% if data.feedback.has_older_versions %}
-			[<a href="{{ data.older_url }}">older comments</a>]
-		{% endif %}
-		</h3>
-		{% include "manage/_feedback_response.html" with form=data.form feedback=data.feedback post_url=data.post_url %}
+{% extends "bootstrapped.html" %}
+
+{% block content %}
+	<h1>Unresponded Feedback</h1>
+	<h3>{{ course }}
+		{% if exercise %}| {{ exercise }}{% endif %}
+	</h3>
+	<div> {# class="_panel-group" #}
+	{% for data in feedbacks %}
+		<div class="panel panel-default">
+			{% include "manage/_feedback_heading.html" with user=data.feedback.student only %}
+			{% include "manage/_feedback_response.html" with form=data.form feedback=data.feedback post_url=data.post_url older_url=data.older_url %}
+		</div>
+	{% empty %}
+		<p>No unresponded feedback yet.</p>
+	{% endfor %}
 	</div>
-{% empty %}
-	<p>No unresponded feedback yet.</p>
-{% endfor %}
+{% endblock %}

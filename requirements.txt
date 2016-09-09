@@ -1,5 +1,6 @@
 # Usage: pip install -r requirements.txt
 Django==1.9.7
+django-bootstrap-form==3.2.1
 psycopg2>=2.5.4
 
 # aplus_client

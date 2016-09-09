@@ -1,3 +1,6 @@
+{% extends "bootstrapped.html" %}
+
+{% block content %}
 <h1>List of courses with feedback</h1>
 
 {% for course in courses %}
@@ -12,11 +15,15 @@
 		>see all not responded</a> ]
 		<ul>
 		{% for exercise in course.exercises.all %}
-			<li>
-				{{ exercise }}
-				[ <a href="{% url 'feedback:notresponded-exercise' exercise_id=exercise.id %}"
-				>{{ exercise.unresponded_feedback.count }} not responded</a> ]
-			</li>
+			{% with amount=exercise.unresponded_feedback.count %}
+				{% if amount > 0 %}
+					<li>
+						{{ exercise }}
+						[ <a href="{% url 'feedback:notresponded-exercise' exercise_id=exercise.id %}"
+						>{{ exercise.unresponded_feedback.count }} not responded</a> ]
+					</li>
+				{% endif %}
+			{% endwith %}
 		{% endfor %}
 		</ul>
 	</li>
@@ -25,3 +32,4 @@
 	<li>No courses known yet.</li>
 {% endfor %}
 </ul>
+{% endblock %}

@@ -40,6 +40,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.postgres',
 
+    # 3rd party libs
+    'bootstrapform',
     # libs
     'django_lti_login',
     'aplus_client',

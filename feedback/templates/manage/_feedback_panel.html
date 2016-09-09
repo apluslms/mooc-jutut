@@ -1,0 +1,37 @@
+{% load i18n %}
+{% comment %}
+	expects to be used under bootstrapped.html
+	expects from context:
+		form
+		feedback
+		post_url
+		older_url (optional)
+{% endcomment %}
+<div class="panel panel-success">
+	<div class="panel-heading panel-heading-sm">
+		{{ feedback.exercise_path }}
+		{% with time=feedback.form_data.timespent %}
+			{# One variable to rule them all! #}
+			{% if time %}
+				{# FIXME: use expected time to set different colors #}
+				<span class="label label-primary pull-right">{{ time }} mins</span>
+			{% endif %}
+		{% endwith %}
+		{% if older_url %}
+			<a class="btn btn-warning btn-xs pull-right"
+			  href="{{ older_url }}"
+			  >Older feedbacks</a>
+		{% endif %}
+	</div>
+	<table class="table">
+		{% for k, v in feedback.form_data.items|dictsort:"0.lower" %}
+			<tr>
+				<th>{{ k }}</th>
+				<td>{{ v }}</td>
+			</tr>
+		{% endfor %}
+	</table>
+	<div class="panel-footer">
+		Posted {{ feedback.timestamp }}
+	</div>
+</div>

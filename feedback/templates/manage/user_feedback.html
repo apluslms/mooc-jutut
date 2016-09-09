@@ -1,8 +1,20 @@
-<h1>Feedback from {{ student }} to {{ exercise }} on {{ exercise.course }}</h1>
-{% for data in feedbacks %}
-	<div style="display: block; border: 1px solid black;">
-		{% include "manage/_feedback_response.html" with form=data.form feedback=data.feedback post_url=data.post_url %}
+{% extends "bootstrapped.html" %}
+
+{% block content %}
+<h1>List of student feedback to {{ exercise }} on {{ exercise.course }}</h1>
+
+	<div class="panel panel-default">
+		{% include "manage/_feedback_heading.html" with user=student only %}
+
+		{% for data in feedbacks %}
+			{% if not forloop.first %}<hr />{% endif %}
+			{% include "manage/_feedback_response.html" with form=data.form feedback=data.feedback post_url=data.post_url %}
+		{% empty %}
+			<div class="panel-body">
+				<div class="alert alert-info">
+					No feedback yet.
+				</div>
+			</div>
+		{% endfor %}
 	</div>
-{% empty %}
-	<p>No feedback yet.</p>
-{% endfor %}
+{% endblock %}

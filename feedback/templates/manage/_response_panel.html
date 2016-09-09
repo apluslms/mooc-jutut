@@ -1,0 +1,109 @@
+{% load i18n %}
+{% load bootstrap %}
+{% load feedback %}
+{% comment %}
+	expects to be used under bootstrapped.html
+	expects from context:
+		form
+		feedback
+		post_url
+{% endcomment %}
+
+<div class="panel panel-primary">
+	<div class="panel-heading">
+		Response
+		{% if form.disabled %}
+			<span class="label label-warning pull-right">Superseded</span>
+		{% endif %}
+	</div>
+
+	<div class="panel-body">
+		<form
+			id="{{ form.auto_id|fill_format_string:"form" }}"
+			data-footer-id="{{ form.auto_id|fill_format_string:"footer" }}"
+			data-state-id="{{ form.auto_id|fill_format_string:"state" }}"
+			action="{{ post_url }}"
+			method="post"
+			class="form-horizontal"
+			role="form">
+			{% csrf_token %}
+
+			{{ form.non_field_errors }}
+
+			{% with f=form.response_msg %}
+				<div class="col-xs-12">
+					<div class="form-group">
+						{{ f.errors }}
+						<textarea
+							id={{ f.id_for_label }}
+							class="form-control track-change"
+							name="response_msg"
+							placeholder="{{ f.label }}"
+							{% if f.field.disabled %} disabled="disabled" {% endif %}
+							rows="4"
+							>{{ f.value|default:'' }}</textarea>
+					</div>
+				</div>
+			{% endwith %}
+
+			{% with f=form.response_grade %}
+				{% if f.errors %}
+					<div class="col-xs-12">
+						{{ f.errors }}
+					</div>
+				{% endif %}
+				<div class="form-group submit-on-click" style="margin-bottom: 0;">
+					<div class="col-xs-10">
+					<div class="btn-group btn-group-justified add-check" data-toggle="buttons">
+						{% for c in f %}
+							<label
+								class="btn
+								btn-{{ c.choice_value|grade_color }}
+								{% if form.disabled %}disabled{% endif %}
+								{% if c.value == c.choice_value and form.instance.responded %}active{% endif %}
+								">
+								<input
+									type="radio"
+									name="{{ f.name }}"
+									value="{{ c.choice_value }}"
+									{% if c.value == c.choice_value and form.instance.responded %} checked='checked' {% endif %}
+									{% if form.disabled %} disabled="disabled" {% endif %}
+									/>
+								{{ c.choice_label }}
+							</label>
+						{% endfor %}
+						</div>
+					</div>
+					<div class="col-xs-2">
+						<input
+							type="submit"
+							class="btn btn-primary pull-right"
+							data-responded="{{ form.instance.responded|yesno:"1,0" }}"
+							value="{% if form.instance.responded %}Update{% else %}Respond{% endif %}"
+							{% if form.disabled %} disabled="disabled" {% endif %}
+							/>
+					</div>
+				</div>
+			{% endwith %}
+		</form>
+	</div>
+
+	<div class="panel-footer" id="{{ form.auto_id|fill_format_string:"footer" }}">
+		{% with grade=form.instance.response_grade_text color=form.instance.valid_response_grade|grade_color %}
+			<span
+				id="{{ form.auto_id|fill_format_string:"state" }}"
+				class="label label-{{ color }}"
+				data-orig-style="label-{{ color }}"
+				data-orig-text="{{ grade }}"
+				style="font-size: 100%;"
+				>{{ grade }}</span>
+		{% endwith %}
+		<button
+			class="btn btn-danger btn-xs reset-button"
+			data-form-id="{{ form.auto_id|fill_format_string:"form" }}"
+			>Reset</button>
+		{% if form.instance.responded %}
+			<span class="response-time">{{ form.instance.response_time }}</span>
+		{% endif %}
+	</div>
+</div>

@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.template.loader import get_template
 from django.utils import translation
 
