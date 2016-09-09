@@ -8,7 +8,7 @@ from dynamic_forms.forms import DummyForm, DynamicForm
 
 def update_response_to_aplus(feedback):
     submission_url = feedback.submission_url
-    client = AplusGraderClient(submission_url)
+    client = AplusGraderClient(submission_url, debug_enabled=settings.DEBUG)
 
     template = get_template('feedback/_form.html')
     context = {
