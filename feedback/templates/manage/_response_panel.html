@@ -31,6 +31,11 @@
 
 			{% include "_errors_box.html" with errors=form.non_field_errors %}
 
+			{% for field in form.hidden_fields %}
+				{% include "_errors_box.html" with errors=field.errors %}
+				{{ field }}
+			{% endfor %}
+
 			{% with f=form.response_msg %}
 				{% include "_errors_box.html" with errors=f.errors %}
 				<div class="col-xs-12">
@@ -86,21 +91,28 @@
 	</div>
 
 	<div class="panel-footer" id="{{ form.auto_id|fill_format_string:"footer" }}">
-		{% with grade=form.had.response_grade_text color=form.had.valid_response_grade|grade_color %}
+		{% if form.has_expired %}
 			<span
 				id="{{ form.auto_id|fill_format_string:"state" }}"
-				class="label label-{{ color }}"
-				data-orig-style="label-{{ color }}"
-				data-orig-text="{{ grade }}"
-				style="font-size: 100%;"
-				>{{ grade }}</span>
-		{% endwith %}
-		<button
-			class="btn btn-danger btn-xs reset-button"
-			data-form-id="{{ form.auto_id|fill_format_string:"form" }}"
-			>Reset</button>
-		{% if form.had.responded %}
-			<span class="response-time">{{ form.had.response_time }}</span>
+				class="label label-default"
+				>Conflict</span>
+		{% else %}
+			{% with grade=form.had.response_grade_text color=form.had.valid_response_grade|grade_color %}
+				<span
+					id="{{ form.auto_id|fill_format_string:"state" }}"
+					class="label label-{{ color }}"
+					data-orig-style="label-{{ color }}"
+					data-orig-text="{{ grade }}"
+					>{{ grade }}</span>
+			{% endwith %}
+			<button
+				class="btn btn-danger btn-xs reset-button"
+				data-form-id="{{ form.auto_id|fill_format_string:"form" }}"
+				style="display: none;"
+				>Reset</button>
+			{% if form.had.responded %}
+				<span class="response-time">{{ form.had.response_time }}</span>
+			{% endif %}
 		{% endif %}
 	</div>
 </div>

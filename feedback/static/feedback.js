@@ -122,7 +122,7 @@ $(function() {
 		dom.find('form.ajax-form').submit(ajax_submit);
 		dom.find('textarea.track-change').on('change keyup paste', on_textarea_change);
 		dom.find('.submit-on-click input').on('change click', on_submit_button);
-		dom.find('.reset-button[data-form-id]').on('click', on_reset_button).hide();
+		dom.find('.reset-button[data-form-id]').on('click', on_reset_button);
 		var send_button_div = dom.find('input[data-responded=0]').closest('.col-xs-2');
 		send_button_div.prev().removeClass('col-xs-10').addClass('col-xs-12');
 		send_button_div.remove();

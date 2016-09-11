@@ -1,4 +1,4 @@
-.panel-heading .label {
+.panel-heading .label, .panel-footer .label {
 	font-size: 100%;
 }
 
