@@ -94,19 +94,25 @@ $(function() {
 						"'");
 					clear_status_tags(panel);
 					add_status_tag($(panel_id), "Not saved", "warning");
-					add_status_tag($(panel_id), "Login required", "danger");
-					alert("You are not logged in, do that in another window and resend the form!");
+					add_status_tag($(panel_id), "Unknown error", "danger");
+					alert("Unknown error occured. See javascript console!");
 				}
 			},
 			timeout: 10000,
 			error: function(xhr, textStatus, error) {
 				clear_status_tags(panel);
+				add_status_tag($(panel_id), "Not saved", "warning");
 				if (textStatus == "timeout") {
 					// act on timeout
-					add_status_tag(panel_id, "Update timeouted!", "danger");
+					add_status_tag($(panel_id), "Update timeouted!", "danger");
+				} else if (xhr.status == 403) {
+					// no authentication
+					add_status_tag($(panel_id), "Not authenticated!", "danger");
+					alert("You are not authenticated. Do that in another tab, then open this reponse in another tab and copy input. Then you can refesh this page.");
+					$(panel_id + ' .panel-footer').html('<a href="'+url+'">Link to this responses update page. Open in new tab!</a>');
 				} else {
 					// axt on other errors: xhr.status
-					add_status_tag(panel_id, "Got error " + xhr.status, "danger");
+					add_status_tag($(panel_id), "Server returned " + xhr.status, "danger");
 				}
 			},
 		});
