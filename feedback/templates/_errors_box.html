@@ -1,0 +1,11 @@
+{% comment %}
+	expects to be used under bootstrapped.html
+	expects from context:
+		errors
+		classes (optionl)
+{% endcomment %}
+{% if errors %}
+	<div class="alert alert-danger {{classes}}">
+		{{ errors }}
+	</div>
+{% endif %}

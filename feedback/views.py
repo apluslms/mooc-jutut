@@ -3,7 +3,7 @@ from datetime import timedelta
 from functools import partial
 from urllib.parse import urljoin, urlencode
 from django.conf import settings
-from django.http import HttpResponse, HttpResponseBadRequest, Http404
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, Http404
 from django.shortcuts import get_object_or_404
 from django.views.generic import FormView, UpdateView, ListView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -214,7 +214,7 @@ class ManageNotRespondedListView(LoginRequiredMixin, ListView):
         context['path_filter'] = self._path_filter
         context['feedbacks'] = (
             {
-                'form': self.form_class(instance=obj, auto_id="resp{}_%s".format(obj.id)),
+                'form': self.form_class(instance=obj),
                 'feedback': obj,
                 'post_url': urljoin(
                     reverse('feedback:respond', kwargs={'feedback_id': obj.id}),
@@ -312,9 +312,20 @@ class RespondFeedbackView(LoginRequiredMixin, UpdateView):
         return context
 
     def get_success_url(self):
+        if self.request.is_ajax():
+            # skip redirect url resolving for ajax request, as it will be replaced
+            return "ajax"
         url = self.request.GET.get('success_url')
         if not url:
             url = reverse('feedback:notresponded-exercise', kwargs={
                 'exercise_id': self.object.form.exercise.id,
             })
         return url
+
+    def form_valid(self, form):
+        result = super().form_valid(form)
+        if isinstance(result, HttpResponseRedirect) and self.request.is_ajax():
+            # return form as we would have done with invalid case, but signal client with 201 code that it was created
+            logger.debug("Ajax POST ok, returning original form with status 201")
+            return self.render_to_response(self.get_context_data(form=form), status=201)
+        return result
