@@ -9,7 +9,11 @@
 {% endcomment %}
 <div class="panel panel-success">
 	<div class="panel-heading panel-heading-sm">
-		{{ feedback.exercise_path }}
+		<a
+			class="panel-title"
+			title="Show exercise in A+"
+			href="{{ feedback.exercise.html_url }}"
+			>{{ feedback.exercise_path }}</a>
 		<div class="btn-toolbar pull-right">
 			{% if older_url %}
 				<a class="btn btn-warning btn-xs"

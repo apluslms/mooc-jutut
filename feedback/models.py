@@ -27,6 +27,7 @@ class Student(NamespacedApiObject):
 class Course(NamespacedApiObject):
     code = models.CharField(max_length=128)
     name = models.CharField(max_length=128)
+    html_url = models.CharField(max_length=255)
     language = models.CharField(max_length=5)
 
     def __str__(self):
@@ -45,6 +46,7 @@ class Exercise(NestedApiObject):
 
     name = models.CharField(max_length=255)
     display_name = models.CharField(max_length=255)
+    html_url = models.CharField(max_length=255)
     course = models.ForeignKey(Course,
                                related_name='exercises',
                                on_delete=models.PROTECT)
