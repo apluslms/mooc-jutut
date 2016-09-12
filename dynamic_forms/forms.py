@@ -165,6 +165,9 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
         forms.MultipleChoiceField: forms.TypedMultipleChoiceField,
     }
 
+    # globals used by django forms
+    required_css_class = 'required'
+
 
     @classmethod
     def create_form_class_from(cls, data: "list of field structs"):
