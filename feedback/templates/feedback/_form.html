@@ -21,6 +21,7 @@
 
 	{# Response #}
 	{% if feedback and feedback.responded %}
+		<div class="alert alert-info">
 		<h4>{% trans "Staff response" %}</h4>
 		{% if feedback.response_msg %}
 			<p>{{ feedback.response_msg }}</p>
@@ -28,6 +29,7 @@
 		<p>{% blocktrans with status=feedback.response_grade_text.lower %}
 			Feedback is {{ status }}
 		{% endblocktrans%}</p>
+		</div>
 	{% endif %}
 </div>
 
