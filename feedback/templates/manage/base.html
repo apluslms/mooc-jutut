@@ -71,19 +71,34 @@
 												href="{% url "feedback:notresponded-course" course_id=course.id %}"
 												title="Show unresponded feedback for {{ course }}"
 												>{{ course }}
-												<span class="badge">{{ course_notresponded }}</span>
 											</a>
 										</li>
 									{% endfor %}
 								</ul>
 							</li>
+							{% if course %}
+								<li>
+									<a
+										href="{% url "feedback:notresponded-course" course_id=course.id %}"
+										title="Show unresponded feedback for {{ course }}"
+										>
+										<span class="{% if course_notresponded %}badge{% endif %}">
+											<span class="glyphicon glyphicon-send"></span>
+											{{ course_notresponded }}
+										</span>
+									</a>
+								</li>
+							{% endif %}
 						{% elif course %}
 							<li>
 								<a
 									href="{% url "feedback:notresponded-course" course_id=course.id %}"
 									title="Show unresponded feedback for {{ course }}"
 									>{{ course }}
-									<span class="badge">{{ course_notresponded }}</span>
+									<span class="{% if course_notresponded %}badge{% endif %}">
+										<span class="glyphicon glyphicon-send"></span>
+										{{ course_notresponded }}
+									</span>
 								</a>
 							</li>
 						{% endif %}
