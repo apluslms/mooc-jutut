@@ -9,14 +9,23 @@
 {% endcomment %}
 <div class="panel panel-success feedback-panel">
 	<div class="panel-heading clearfix">
-		<a
+		<a rel="external"
 			class="panel-title btn btn-xs btn-link"
-			title="Show exercise in A+"
+			data-toggle="tooltip"
+			data-trigger="hover"
+			data-placement="top"
+			data-title="{% trans 'Show exercise in A+' %}"
+			title="{% trans 'Show exercise in A+' %}"
 			href="{{ feedback.exercise.html_url }}"
 			>{{ feedback.exercise_path }}</a>
 		<div class="btn-toolbar pull-right">
 			{% if older_url %}
 				<a class="btn btn-default btn-sm"
+					data-toggle="tooltip"
+					data-trigger="hover"
+					data-placement="top"
+					data-title="{% trans 'Show all feedbacks from this student for this exercise' %}"
+					title="{% trans 'Show all feedbacks from this student for this exercise' %}"
 					href="{{ older_url }}"
 					>
 					{% trans "Older feedbacks" %}
@@ -26,11 +35,23 @@
 		</div>
 	</div>
 	<table class="table">
-		{% for k, v in feedback.form_data.items|dictsort:"0.lower" %}
-			<tr>
-				<th>{{ k }}</th>
-				<td>{{ v }}</td>
-			</tr>
+		{% for field in feedback_form %}
+			{% if field.has_data %}
+				<tr>
+					<th>
+						<span rel="tooltip"
+							data-toggle="tooltip"
+							data-trigger="hover"
+							data-placement="bottom"
+							data-html="true"
+							data-title="{{ field.help_text }}"
+							>
+							{{ field.label|default:field.name }}
+						</span>
+					</th>
+					<td>{{ field.display_data }}</td>
+				</tr>
+			{% endif %}
 		{% endfor %}
 	</table>
 	<div class="panel-footer">

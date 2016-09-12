@@ -8,7 +8,7 @@
 
 		{% for data in feedbacks %}
 			{% if not forloop.first %}<hr />{% endif %}
-			{% include "manage/_feedback_response.html" with form=data.form feedback=data.feedback post_url=data.post_url %}
+			{% include "manage/_feedback_response.html" with form=data.form feedback=data.feedback feedback_form=data.feedback_form post_url=data.post_url %}
 		{% empty %}
 			<div class="panel-body">
 				<div class="alert alert-info">

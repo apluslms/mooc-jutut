@@ -250,6 +250,7 @@ class ManageNotRespondedListView(LoginRequiredMixin,
             {
                 'form': self.form_class(instance=obj),
                 'feedback': obj,
+                'feedback_form': obj.form_obj,
                 'post_url': urljoin(
                     reverse('feedback:respond', kwargs={'feedback_id': obj.id}),
                     params),
@@ -336,6 +337,7 @@ class UserFeedbackView(LoginRequiredMixin,
             {
                 'form': self.form_class(instance=obj),
                 'feedback': obj,# exercise=exercise),
+                'feedback_form': obj.form_obj,
                 'post_url': urljoin(
                     reverse('feedback:respond', kwargs={'feedback_id': obj.id}),
                     params),

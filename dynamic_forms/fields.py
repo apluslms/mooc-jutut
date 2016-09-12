@@ -48,6 +48,17 @@ class EnchantedBoundField(BoundField):
             extra_classes.extend(extra_css_classes)
         return super().css_classes(extra_classes=extra_classes)
 
+    def has_data(self):
+        return self.data is not None
+
+    def display_data(self):
+        data = self.data
+        if hasattr(self.field, 'choices'):
+            extra_data = next((v for k, v in self.field.choices if k == data), None)
+            if extra_data:
+                data = "{}: {}".format(data, extra_data)
+        return data
+
 
 class BoundLabelField(EnchantedBoundField):
     auto_id = None

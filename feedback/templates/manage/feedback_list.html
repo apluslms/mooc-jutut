@@ -10,7 +10,7 @@
 	{% for data in feedbacks %}
 		<div class="panel panel-default">
 			{% include "manage/_feedback_heading.html" with course=course user=data.feedback.student only %}
-			{% include "manage/_feedback_response.html" with form=data.form feedback=data.feedback post_url=data.post_url older_url=data.older_url %}
+			{% include "manage/_feedback_response.html" with form=data.form feedback=data.feedback feedback_form=data.feedback_form post_url=data.post_url older_url=data.older_url %}
 		</div>
 	{% empty %}
 		<p>No unresponded feedback yet.</p>
