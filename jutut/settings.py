@@ -74,7 +74,6 @@ TEMPLATES = [
             os.path.join(BASE_DIR, 'local_templates'),
             os.path.join(BASE_DIR, 'templates'),
         ],
-        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
                 "django.template.context_processors.debug",
@@ -84,6 +83,10 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+            ],
+            'loaders': [
+                'django.template.loaders.filesystem.Loader',
+                'django.template.loaders.app_directories.Loader',
             ],
         },
     },
@@ -248,6 +251,10 @@ if not SECRET_KEY:
 
 if not DEBUG:
     # when not in debug mode, add cached loader on top of template loaders
-    TEMPLATE_LOADERS = (
-        ('django.template.loaders.cached.Loader', TEMPLATE_LOADERS),
-    )
+    cached_loader = 'django.template.loaders.cached.Loader'
+    for backend in TEMPLATES:
+        options = backend.get('OPTIONS')
+        loaders = options and options.get('loaders')
+        if loaders and cached_loader not in loaders:
+            loaders = ((cached_loader, loaders),)
+            backend['OPTIONS']['loaders'] = loaders
