@@ -8,6 +8,7 @@ Install software:
 
 * nginx
 * postgresql
+* memcached
 * git
 * python 3
 * python 3 virtualenv
@@ -16,7 +17,7 @@ Install software:
 
 Debian:
 
-`sudo apt-get install nginx postgresql git python3 python-virtualenv python3-psycopg2 python3-certifi`
+`sudo apt-get install nginx postgresql memcached git python3 python-virtualenv python3-psycopg2 python3-certifi`
 
 Setup environment
 
