@@ -10,6 +10,8 @@ class LabelWidget(Widget):
     """
     def render(self, name, value, attrs):
         attrs = self.build_attrs(attrs, name=name)
+        if 'class' in attrs:
+            attrs['class'] = attrs['class'].replace('form-control', '') # fix bootstrap lib
         if hasattr(self, 'initial'):
             value = self.initial
         return '<span %s>%s</span>' % (flatatt(attrs), value or '')
@@ -23,7 +25,10 @@ class LabelField(Field):
     widget = LabelWidget
 
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('label', '')
+        label = kwargs.setdefault('label', '')
+        help_ = kwargs.pop('help_text', None)
+        if not 'initial' in kwargs:
+            kwargs['initial'] = help_ or label
         kwargs['required'] = False
         super().__init__(*args, **kwargs)
 
@@ -44,7 +49,13 @@ class EnchantedBoundField(BoundField):
         return super().css_classes(extra_classes=extra_classes)
 
 
+class BoundLabelField(EnchantedBoundField):
+    auto_id = None
+
+
 def _get_bound_field(self, form, field_name):
+    if isinstance(self, LabelField):
+        return BoundLabelField(form, self, field_name)
     return EnchantedBoundField(form, self, field_name)
 
 
