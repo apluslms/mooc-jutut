@@ -35,15 +35,15 @@ def update_response_to_aplus(feedback):
         #     was not created with FORM POST this is important for later investigations.
         # * `error` (optional)
         #     Sets the submission to an error state.
-        # * `notificate` (optional)
-        #     If exists and not empty, create notification for the submitting users
+        # * `notify` (optional)
+        #     If exists and not empty, create notification in a-plus for students in submission
         'points': feedback.response_grade,
         'max_points': feedback.MAX_GRADE,
         'feedback': html,
         'grading_payload': '{}'
     }
     if feedback.response_msg.strip():
-        update_data['notificate'] = "true"
+        update_data['notify'] = "true"
 
     r = client.grade(update_data)
     feedback.response_uploaded = r.status_code
