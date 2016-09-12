@@ -2,6 +2,7 @@
 Django==1.9.7
 django-bootstrap-form==3.2.1
 psycopg2>=2.5.4
+python-memcached==1.58
 
 # aplus_client
 cachetools==1.1.6

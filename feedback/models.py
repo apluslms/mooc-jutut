@@ -16,7 +16,17 @@ from aplus_client.django.models import (
 from dynamic_forms.models import Form
 
 
+class StudentManager(NamespacedApiObject.Manager):
+    def get_students_on_course(self, course):
+        return ( self.using_namespace_id(course.namespace_id)
+                 .filter(feedbacks__exercise__course=course)
+                 .distinct()
+                 .all() )
+
+
 class Student(NamespacedApiObject):
+    objects = StudentManager()
+
     username = models.CharField(max_length=128)
     full_name = models.CharField(max_length=128)
 
@@ -79,28 +89,26 @@ class Exercise(NestedApiObject):
 
 
 class FeedbackManager(models.Manager):
-    def feedback_exercises_for(self, student):
-        F = models.F
-        key = 'student' if isinstance(student, Student) else 'student_id'
+    def feedback_exercises_for(self, course, student):
         q = self.values(
                 'exercise_id',
+                'path_key',
             ).filter(
-                **{key: student}
+                student=student,
+                exercise__course=course,
             ).annotate(
-                course_id=F('exercise__course__id'),
                 count=models.Count('form_data'),
             ).order_by(
-                'course_id', 'exercise_id'
+                'exercise__course', 'exercise_id'
             )
         return q
 
     def get_notresponded(self, exercise_id=None, course_id=None, path_filter=None):
-        Q = models.Q
         qs = self.get_queryset().select_related(
             'form',
             'exercise',
         ).all().filter(
-            Q(response_msg='') | Q(response_msg=None),
+            _response_time=None,
             superseded_by=None,
         ).exclude(
             submission_url='',
@@ -185,13 +193,17 @@ class Feedback(models.Model):
     def course(self):
         return self.exercise.course
 
+    @staticmethod
+    def get_exercise_path(exercise, path_key):
+        return "{}{}{}".format(
+            exercise,
+            "/" if path_key else "",
+            path_key or '',
+        )
+
     @cached_property
     def exercise_path(self):
-        return "{}{}{}".format(
-            self.exercise,
-            "/" if self.path_key else "",
-            self.path_key or '',
-        )
+        return self.get_exercise_path(self.exercise, self.path_key)
 
     @property
     def form_class(self):
@@ -287,8 +299,8 @@ class Feedback(models.Model):
         return self.submission_url and not self.superseded_by_id
 
     @cached_property
-    def has_older_versions(self):
-        return self.supersedes.exists()
+    def older_versions_count(self):
+        return Feedback.objects.filter(student=self.student, exercise=self.exercise).count() - 1
 
     def __getitem__(self, key):
         return self.feedback[key]

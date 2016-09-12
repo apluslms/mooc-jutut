@@ -71,19 +71,21 @@ $(function() {
 			data: post_data,
 			success: function(data, textStatus, xhr) {
 				console.log("Post to '" + url + "' with data '" + post_data + "'");
+				var panel = $(panel_id);
 				var new_panel = $(data).find(panel_id);
 				if (new_panel.length > 0) {
 					// update form
 					$(panel_id).replaceWith(new_panel);
-					on_form_insert($(panel_id));
+					panel = $(panel_id);
+					on_form_insert(panel);
 					if (xhr.status == 201) {
 						// submission was ok
 						console.log(" -> was good");
-						add_status_tag($(panel_id), "Saved", "success");
+						add_status_tag(panel, "Saved", "success");
 					} else {
 						console.log(" -> had errors");
-						add_status_tag($(panel_id), "Not saved", "warning");
-						add_status_tag($(panel_id), "Has errors", "danger");
+						add_status_tag(panel, "Not saved", "warning");
+						add_status_tag(panel, "Has errors", "danger");
 					}
 				} else {
 					// Probably login form...
@@ -93,8 +95,8 @@ $(function() {
 						"'. data was '" + data +
 						"'");
 					clear_status_tags(panel);
-					add_status_tag($(panel_id), "Not saved", "warning");
-					add_status_tag($(panel_id), "Unknown error", "danger");
+					add_status_tag(panel, "Not saved", "warning");
+					add_status_tag(panel, "Unknown error", "danger");
 					alert("Unknown error occured. See javascript console!");
 				}
 			},

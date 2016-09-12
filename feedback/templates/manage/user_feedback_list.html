@@ -1,18 +1,22 @@
-<h1>Feedbacks by {{ student }}</h1>
+{% extends "manage/base.html" %}
 
-{% for feedback in feedbacks %}
-	{% ifchanged feedback.course_id %}
-		{% if not forloop.first %}</ul>{% endif %}
-		<h3>{{ feedback.course }}</h3>
+{% block content %}
+	<h1>Feedbacks by {{ student }}</h1>
+
+	{% for feedback in feedbacks %}
+		{% ifchanged feedback.course_id %}
+			{% if not forloop.first %}</ul>{% endif %}
+			<h3>{{ feedback.course }}</h3>
+			<ul>
+		{% endifchanged %}
+		<li>
+			{{ feedback.exercise_path }}
+			[ <a href="{% url 'feedback:byuser' course_id=course.id user_id=student.id exercise_id=feedback.exercise.id path_filter=feedback.path_key %}"
+			>{{ feedback.count }} feedback versions</a> ]
+		</li>
+	{% empty %}
 		<ul>
-	{% endifchanged %}
-	<li>
-		{{ feedback.exercise }}
-		[ <a href="{% url 'feedback:byuser' user_id=student.id exercise_id=feedback.exercise.id %}"
-		>{{ feedback.count }} feedback versions</a> ]
-	</li>
-{% empty %}
-	<ul>
-	<li>No feedback by this user yet.</li>
-{% endfor %}
-</ul>
+		<li>No feedback by this user yet.</li>
+	{% endfor %}
+	</ul>
+{% endblock %}

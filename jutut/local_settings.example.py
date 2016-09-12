@@ -14,6 +14,25 @@ DATABASES = {
     }
 }
 
+#CACHES = {
+#    'default': {
+#        # prefer memcached with unix socket
+#        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+#        'LOCATION': 'unix:/tmp/memcached.sock',,
+#
+#        # Database cache, if memcached is not possible
+#        # remember to run `./manage.py createcachetable`
+#        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+#        'LOCATION': 'django_cache_default',
+#
+#        # For development local memory
+#        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+#        'LOCATION': 'unique-snowflake',
+#        # or dummy
+#        'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
+#    }
+#}
+
 # For debugging purposes
 #from .settings import LOGGING
 #LOGGING['loggers'] = {

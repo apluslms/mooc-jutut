@@ -1,12 +1,16 @@
-<h1>List of students with feedback</h1>
-<ul>
-	{% for student in students %}
-		<li>
-			<a href="{% url 'feedback:user' user_id=student.id %}">
-			{{ student }}
-			</a>
-		</li>
-	{% empty %}
-		<li>No feedback by any student yet.</li>
-	{% endfor %}
-</ul>
+{% extends "manage/base.html" %}
+
+{% block content %}
+	<h1>List of students with feedback</h1>
+	<ul>
+		{% for student in students %}
+			<li>
+				<a href="{% url 'feedback:byuser' course_id=course.id user_id=student.id %}">
+					{{ student }}
+				</a>
+			</li>
+		{% empty %}
+			<li>No feedback by any student yet.</li>
+		{% endfor %}
+	</ul>
+{% endblock %}
