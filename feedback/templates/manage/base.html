@@ -1,0 +1,14 @@
+{% extends "bootstrapped.html" %}
+{% load staticfiles %}
+
+{% block meta %}
+{{ block.super }}
+	{# project additions #}
+	<link rel="stylesheet" href="{% static "feedback.css" %}">
+{% endblock %}
+
+{% block scripts %}
+{{ block.super }}
+	{# project additions #}
+	<script src="{% static "feedback.js" %}"></script>
+{% endblock %}

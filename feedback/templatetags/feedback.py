@@ -8,9 +8,12 @@ register = template.Library()
 def grade_color(grade):
     colors = ['danger', 'warning', 'success']
     if grade is not None:
-        grade = int(grade)
-        if 0 <= grade < len(colors):
-            return colors[grade]
+        try:
+            grade = int(grade)
+            if 0 <= grade < len(colors):
+                return colors[grade]
+        except ValueError:
+            pass
     return 'default'
 
 @register.filter
