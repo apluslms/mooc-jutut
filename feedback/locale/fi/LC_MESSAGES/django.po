@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-08-29 23:19+0300\n"
-"PO-Revision-Date: 2016-08-29 23:21+0200\n"
+"POT-Creation-Date: 2016-09-12 18:20+0300\n"
+"PO-Revision-Date: 2016-09-12 18:27+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: English <>\n"
 "Language: en_US\n"
@@ -17,31 +17,48 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 2.0\n"
 
-#: feedback/models.py:125
+#: feedback/forms.py:90
+msgid "older versions"
+msgstr "vanhemmista versioista"
+
+#: feedback/forms.py:91
+#, python-brace-format
+msgid ""
+"Someone else has updated this form. See {older_versions_link} for editing."
+msgstr ""
+"Joku muu on päivittänyt lomaketta. Katso {older_versions_link} mikä on"
+" muuttunut."
+
+#: feedback/models.py:135
+#| msgid "Staff response"
+msgid "No response"
+msgstr "Ei vastausta"
+
+#: feedback/models.py:136
 msgid "Rejected"
 msgstr "Hylätty"
 
-#: feedback/models.py:126
+#: feedback/models.py:137
 msgid "Accepted"
 msgstr "Hyväksytty"
 
-#: feedback/models.py:127
-msgid "Accepted and Good"
-msgstr "Hyväksytty lisäpisteellä"
+#: feedback/models.py:138
+msgid "Good"
+msgstr "Hyvä"
 
-#: feedback/templates/feedback/_form.html:14
+#: feedback/templates/feedback/_form.html:16
 msgid "Submit"
 msgstr "Lähetä"
 
-#: feedback/templates/feedback/_form.html:14
+#: feedback/templates/feedback/_form.html:16
 msgid "Submit update"
 msgstr "Lähetä uudestaan"
 
-#: feedback/templates/feedback/_form.html:22
+#: feedback/templates/feedback/_form.html:25
 msgid "Staff response"
 msgstr "Henkilökunnan vastaus"
 
-#: feedback/templates/feedback/_form.html:26
+#: feedback/templates/feedback/_form.html:29
 #, python-format
 msgid ""
 "\n"
@@ -52,3 +69,22 @@ msgstr ""
 "\t\t\tPalaute on %(status)s\n"
 "\t\t"
 
+#: feedback/templates/manage/_feedback_panel.html:22
+msgid "Older feedbacks"
+msgstr "Vanhemmat palautteet"
+
+#: feedback/templates/manage/base.html:42
+#, python-format
+msgid "Site: %(name)s"
+msgstr "Sivusto: %(name)s"
+
+#: feedback/templates/manage/base.html:44
+msgid "Select site"
+msgstr "Valitse sivusto"
+
+#: feedback/templates/manage/base.html:64
+msgid "Select course"
+msgstr "Valitse kurssi"
+
+#~ msgid "Accepted and Good"
+#~ msgstr "Hyväksytty lisäpisteellä"
