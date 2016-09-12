@@ -245,3 +245,9 @@ if not SECRET_KEY:
         del create_secret_key_file
         del key_filename
         from .secret_key import SECRET_KEY
+
+if not DEBUG:
+    # when not in debug mode, add cached loader on top of template loaders
+    TEMPLATE_LOADERS = (
+        ('django.template.loaders.cached.Loader', TEMPLATE_LOADERS),
+    )
