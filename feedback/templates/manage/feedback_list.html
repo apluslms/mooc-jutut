@@ -6,6 +6,7 @@
 		{% if exercise %}| {{ exercise }}{% endif %}
 	</h3>
 	<div> {# class="_panel-group" #}
+	{% include "_pagination.html" %}
 	{% for data in feedbacks %}
 		<div class="panel panel-default">
 			{% include "manage/_feedback_heading.html" with course=course user=data.feedback.student only %}

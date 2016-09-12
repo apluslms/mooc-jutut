@@ -219,6 +219,7 @@ class ManageNotRespondedListView(LoginRequiredMixin,
     model = Feedback
     template_name = "manage/feedback_list.html"
     form_class = ResponseForm
+    paginate_by = 10
 
     def get_queryset(self):
         kw = self.kwargs
