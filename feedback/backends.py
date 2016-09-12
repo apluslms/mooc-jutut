@@ -2,6 +2,7 @@ import logging
 from django.dispatch import receiver
 from django.contrib.auth.signals import user_logged_in
 from django.core.exceptions import PermissionDenied
+from django.core.urlresolvers import reverse
 
 from aplus_client.client import AplusTokenClient
 from .models import Site, Course
@@ -38,6 +39,12 @@ def add_course_permissions(sender, **kwargs):
             apiclient.update_params(params)
             course_obj = apiclient.load_data(url)
             course = Course.objects.get_new_or_updated(course_obj, namespace=site)
+
+        # Redirect to notresponded page after login
+        oauth.redirect_url = reverse(
+            'feedback:notresponded-course',
+            kwargs={'course_id': course.id}
+        )
 
         logger.debug("LTI login for user %s on course %s", user, course)
         for k, v in sorted(oauth.params):
