@@ -30,3 +30,6 @@ class JututUser(AbstractUser):
     def add_api_token(self, token, site):
         if not self.has_api_token(site):
             Token.objects.create(user=self, site=site, token=token)
+
+    def __str__(self):
+        return self.email
