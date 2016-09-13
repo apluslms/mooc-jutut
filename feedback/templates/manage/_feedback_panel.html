@@ -14,7 +14,6 @@
 			data-toggle="tooltip"
 			data-trigger="hover"
 			data-placement="top"
-			data-title="{% trans 'Show exercise in A+' %}"
 			title="{% trans 'Show exercise in A+' %}"
 			href="{{ feedback.exercise.html_url }}"
 			>{{ feedback.exercise_path }}</a>
@@ -24,7 +23,6 @@
 					data-toggle="tooltip"
 					data-trigger="hover"
 					data-placement="top"
-					data-title="{% trans 'Show all feedbacks from this student for this exercise' %}"
 					title="{% trans 'Show all feedbacks from this student for this exercise' %}"
 					href="{{ older_url }}"
 					>
@@ -34,20 +32,34 @@
 			{% endif %}
 		</div>
 	</div>
-	<table class="table">
+	<table class="table table-condensed">
 		{% for field in feedback_form %}
 			{% if field.has_data %}
-				<tr>
+				<tr class="{% if not field.field.required %}info{% endif %}">
 					<th>
-						<span rel="tooltip"
-							data-toggle="tooltip"
-							data-trigger="hover"
-							data-placement="bottom"
-							data-html="true"
-							data-title="{{ field.help_text }}"
-							>
-							{{ field.label|default:field.name }}
-						</span>
+						{{ field.label|default:field.name }}
+						{% if field.help_text %}
+							<span rel="tooltip"
+								data-toggle="tooltip"
+								data-trigger="hover click"
+								data-placement="bottom"
+								data-html="true"
+								title="{{ field.help_text }}"
+								>
+								<span class="glyphicon glyphicon-info-sign"></span>
+							</span>
+						{% endif %}
+						{% if not field.field.required %}
+							<span rel="tooltip"
+								data-toggle="tooltip"
+								data-trigger="hover click"
+								data-placement="bottom"
+								data-html="true"
+								title="{% trans 'This field was <b>not</b> required' %}"
+								>
+								<span class="label label-info">{% trans "optional" %}</span>
+							</span>
+						{% endif %}
 					</th>
 					<td>{{ field.display_data }}</td>
 				</tr>
