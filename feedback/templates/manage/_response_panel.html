@@ -42,6 +42,7 @@
 							class="form-control track-change"
 							name="response_msg"
 							placeholder="{{ f.label }}"
+							autocomplete="off"
 							rows="4"
 							>{{ f.value|default:'' }}</textarea>
 					</div>
@@ -63,6 +64,7 @@
 										type="radio"
 										name="{{ f.name }}"
 										value="{{ c.choice_value }}"
+										autocomplete="off"
 										data-color="{{ c.choice_value|grade_color }}"
 										{% if c.value == c.choice_value and form.instance.responded %} checked='checked' {% endif %}
 										/>
