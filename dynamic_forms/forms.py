@@ -278,8 +278,16 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                 field_class = get_enchanted_field(field_class, extra=freeze(extra_vars))
 
                 # initialize classes and add fields
-                widget = widget_class(attrs=widget_attrs)
-                field = field_class(widget=widget, **field_args)
+                try:
+                    widget = widget_class(attrs=widget_attrs)
+                    field = field_class(widget=widget, **field_args)
+                except Exception as error:
+                    raise ValueError(
+                        "Got invalid form field definition. "
+                        "Field at index {index} with name '{name}' and value '{value}' "
+                        "raised error '{error}'."
+                        .format(index=i, name=name, value=row, error=error)
+                    )
                 fields[name] = field
             return fields
 
