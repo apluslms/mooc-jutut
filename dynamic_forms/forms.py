@@ -6,7 +6,11 @@ from django.forms.utils import pretty_name
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
 
-from .fields import LabelField, get_enchanted_field
+from .fields import (
+    DUMMY_FIELD,
+    LabelField,
+    get_enchanted_field,
+)
 from .utils import freeze
 
 
@@ -329,40 +333,18 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
             errors_on_separate_row=True)
 
 
-class DummyForm:
+class DummyForm(forms.forms.BaseForm):
     """
-    Duck type of django Forms class
-    Will wrap full POST data to cleaned_data with some exceptions (csrf for example)
+    Will wrap provided data into dummy charfields.
+    Can be used in place of dynamicform if original form spec is missing / broken.
     """
+
     def __init__(self, data=None, **kwargs):
-        self.data = data
+        self.is_dummy_form = True
 
-    def is_valid(self):
-        return True
-
-    @property
-    def cleaned_data(self):
-        return {(k, v) for k, v in self.data.items() if k not in ['csrfmiddlewaretoken']}
-
-    # Use template rendering interface from django Forms
-
-    as_table = forms.Form.as_table
-    as_ul = forms.Form.as_ul
-    as_p = forms.Form.as_p
-
-    def __str__(self):
-        return self.as_table()
-
-    def _html_output(self, normal_row, error_row, row_ender, help_text_html, errors_on_separate_row):
-        output = []
-        for key, value in sorted(self.data.items()):
-            output.append(normal_row % {
-                'errors': '',
-                'label': conditional_escape(pretty_name(key)),
-                'field': conditional_escape(str(value)),
-                'help_text': '',
-                'html_class_attr': '',
-                'css_classes': '',
-                'field_name': '',
-            })
-        return mark_safe('\n'.join(output))
+        self.base_fields = self.declared_fields = {
+            name: DUMMY_FIELD
+            for name, value in data.items()
+            if name not in ['csrfmiddlewaretoken']
+        }
+        super().__init__(data=data, **kwargs)

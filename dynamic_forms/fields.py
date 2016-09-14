@@ -1,5 +1,5 @@
 from functools import lru_cache
-from django.forms import Widget, Field
+from django.forms import Widget, Field, CharField, TextInput
 from django.forms.utils import flatatt
 from django.forms.boundfield import BoundField
 
@@ -73,6 +73,9 @@ def _get_bound_field(self, form, field_name):
 @lru_cache(maxsize=None)
 def get_enchanted_field(field_class, extra=None):
     member_dict = {}
-    member_dict.update(extra)
+    member_dict.update(extra or {})
     member_dict['get_bound_field'] = _get_bound_field
     return type(field_class.__name__, (field_class,), member_dict)
+
+DummyField = get_enchanted_field.__wrapped__(CharField)
+DUMMY_FIELD = DummyField(widget=TextInput(attrs={'readonly': True}))

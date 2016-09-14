@@ -24,6 +24,7 @@ from .models import (
     Feedback,
 )
 from .cached import (
+    FormCache,
     CachedSites,
     CachedCourses,
     CachedNotrespondedCount,
@@ -250,7 +251,7 @@ class ManageNotRespondedListView(LoginRequiredMixin,
             {
                 'form': self.form_class(instance=obj),
                 'feedback': obj,
-                'feedback_form': obj.form_obj,
+                'feedback_form': obj.get_form_obj(True),
                 'post_url': urljoin(
                     reverse('feedback:respond', kwargs={'feedback_id': obj.id}),
                     params),
@@ -306,20 +307,6 @@ class UserFeedbackListView(LoginRequiredMixin,
         context['feedbacks'] = (get_feedback(feedback) for feedback in feedbacks)
         context['student'] = self.student
         return context
-
-
-class FormCache:
-    def __init__(self):
-        self.cache = {}
-
-    def get(self, feedback):
-        cache = self.cache
-        form_id = feedback.form_id
-        form_class = cache.get(form_id)
-        if not form_class:
-            form_class = feedback.form_class
-            cache[form_id] = form_class
-        return form_class(data=feedback.form_data)
 
 
 class UserFeedbackView(LoginRequiredMixin,

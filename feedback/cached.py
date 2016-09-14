@@ -8,6 +8,24 @@ from .models import (
     Feedback,
 )
 
+
+class FormCache:
+    """
+    Short time buffer for feedback form classes
+    """
+    def __init__(self):
+        self.cache = {}
+
+    def get(self, feedback):
+        cache = self.cache
+        form_id = feedback.form_id
+        form_class = cache.get(form_id)
+        if not form_class:
+            form_class = feedback.get_form_class(True)
+            cache[form_id] = form_class
+        return form_class(data=feedback.form_data)
+
+
 class Cached:
     def __init__(self, prefix=None, timeout=None):
         self.prefix = prefix or self.__class__.__name__

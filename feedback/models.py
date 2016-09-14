@@ -209,9 +209,15 @@ class Feedback(models.Model):
     def form_class(self):
         return self.form.form_class
 
+    def get_form_class(self, dummy=True):
+        return self.form.form_class_or_dummy if dummy else self.form.form_class
+
     @property
     def form_obj(self):
         return self.form_class(data=self.form_data)
+
+    def get_form_obj(self, dummy=False):
+        return self.get_form_class(dummy)(data=self.form_data)
 
     @property
     def response_time(self):

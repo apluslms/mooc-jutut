@@ -1,11 +1,16 @@
+import logging
 from django.db import models
 from django.conf import settings
 from django.contrib.postgres import fields as pg_fields
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from .forms import DynamicForm
+from .forms import DynamicForm, DummyForm
 from .utils import freeze, hashsum
+
+
+logger = logging.getLogger('dynamic_forms.models')
+
 
 class FormManager(models.Manager):
     def get_or_create(self, form_spec):
@@ -46,6 +51,14 @@ class Form(models.Model):
     @cached_property
     def form_class(self):
         return DynamicForm.get_form_class_by(self.form_spec, frozen=self.frozen_spec)
+
+    @cached_property
+    def form_class_or_dummy(self):
+        try:
+            return self.form_class
+        except ValueError as error:
+            logger.critical("DB has invalid form_spec with id %d: %s", self.id, error)
+            return DummyForm
 
     def save(self, **kwargs):
         if not self.sha1:
