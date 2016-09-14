@@ -60,9 +60,6 @@ class ResponseForm(forms.ModelForm):
         super().__init__(**kwargs)
 
         self.disabled = not instance.can_be_responded
-        if self.disabled:
-            for field in self.fields.values():
-                field.disabled = True
 
         self.had = HadValue(self)
         self.has_expired = False

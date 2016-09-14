@@ -27,3 +27,19 @@ body {
 .response-panel .form-group {
 	margin-bottom: 0;
 }
+
+.response-panel .panel-body {
+	position: relative; /* required for overlay to work */
+}
+
+.response-panel .panel-body .overlay {
+	display: none;
+	z-index: 100;
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background-color: rgba(0,0,0,0.3);
+	padding: 0.6em;
+}

@@ -56,9 +56,8 @@ $(function() {
 				color + '">' + text + '</button></div>');
 			var button = cont.find('button').last();
 			button.data('radio', radio_pure).on('click', on_submit_button);
-			if (radio.is(':checked')) {
+			if (radio.is(':checked'))
 				button.addClass('active');
-			}
 		});
 		// hide original form-group
 		src.hide();
@@ -71,6 +70,15 @@ $(function() {
 		$('#' + me.data('form-id')).each(function() {
 			this.reset();
 			form_changed.call(this);
+		});
+	};
+
+	/* disable respone panel */
+	var show_noedit_overlay = function() {
+		var overlay = $(this).find('.overlay');
+		overlay.show();
+		overlay.find('button.edit-btn').on('click', function() {
+			overlay.hide();
 		});
 	};
 
@@ -163,6 +171,7 @@ $(function() {
 		dom.find('.reset-button[data-form-id]').on('click', on_reset_button);
 		dom.find('[data-toggle="tooltip"]').tooltip();
 		dom.find('.replace-with-buttons').each(replace_with_buttons);
+		dom.find('.panel-body.disabled').each(show_noedit_overlay);
 	};
 
 	/* on page load forms got inserted */

@@ -12,12 +12,9 @@
 <div class="panel panel-primary response-panel" id="{{ form.auto_id|fill_format_string:"panel" }}">
 	<div class="panel-heading">
 		Response
-		{% if form.disabled %}
-			<span class="label label-warning pull-right">Superseded</span>
-		{% endif %}
 	</div>
 
-	<div class="panel-body">
+	<div class="panel-body {{ form.disabled|yesno:'disabled,' }}">
 		<form
 			id="{{ form.auto_id|fill_format_string:"form" }}"
 			data-footer-id="{{ form.auto_id|fill_format_string:"footer" }}"
@@ -45,7 +42,6 @@
 							class="form-control track-change"
 							name="response_msg"
 							placeholder="{{ f.label }}"
-							{% if f.field.disabled %} disabled="disabled" {% endif %}
 							rows="4"
 							>{{ f.value|default:'' }}</textarea>
 					</div>
@@ -69,7 +65,6 @@
 										value="{{ c.choice_value }}"
 										data-color="{{ c.choice_value|grade_color }}"
 										{% if c.value == c.choice_value and form.instance.responded %} checked='checked' {% endif %}
-										{% if form.disabled %} disabled="disabled" {% endif %}
 										/>
 									{{ c.choice_label }}
 								</label>
@@ -88,6 +83,12 @@
 				{# javascript will add buttons for above here #}
 			{% endwith %}
 		</form>
+		<div class="overlay">
+			<button class="btn btn-default pull-right edit-btn">
+				<span class="glyphicon glyphicon-pencil"></span>
+				{% trans "Edit" %}
+			</button>
+		</div>
 	</div>
 
 	<div class="panel-footer" id="{{ form.auto_id|fill_format_string:"footer" }}">
