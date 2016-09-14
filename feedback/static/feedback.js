@@ -121,6 +121,7 @@ $(function() {
 						// submission was ok
 						console.log(" -> was good");
 						add_status_tag(panel, "Saved", "success");
+						new_panel.find('.panel-body').each(show_noedit_overlay);
 					} else {
 						console.log(" -> had errors");
 						add_status_tag(panel, "Not saved", "warning");
