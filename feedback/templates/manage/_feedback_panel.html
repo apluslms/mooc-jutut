@@ -35,7 +35,7 @@
 	<table class="table table-condensed">
 		{% for field in feedback_form %}
 			{% if field.has_data %}
-				<tr class="{% if not field.field.required %}info{% endif %}">
+				<tr class="{{ field.field.required|yesno:',info' }}">
 					<th>
 						{{ field.label|default:field.name }}
 						{% if field.help_text %}
@@ -61,7 +61,14 @@
 							</span>
 						{% endif %}
 					</th>
-					<td>{{ field.display_data }}</td>
+					<td>
+						{% for val in field.display_data_list %}
+							{% if not forloop.first %}<br>{% endif %}
+							{{ val }}
+						{% empty %}
+							{{ field.display_data }}
+						{% endfor %}
+					</td>
 				</tr>
 			{% endif %}
 		{% endfor %}

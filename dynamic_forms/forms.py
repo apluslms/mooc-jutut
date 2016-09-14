@@ -14,17 +14,17 @@ from .fields import (
 from .utils import freeze
 
 
-def auto_type_for_enums(default: str):
+def auto_type_for_enums(default, many=None, few=None, short=None):
     def selector(prop: dict):
         if any(w in prop for w in ('enum', 'titleMap')):
             vals = prop.get('enum')
             if vals is None:
                 vals = prop.get('titleMap').values()
-            if len(vals) < 6:
-                if max(len(str(x)) for x in vals) < 6:
-                    return 'radios-inline'
-                return 'radios'
-            return 'select'
+            if few and len(vals) < 6:
+                if short and max(len(str(x)) for x in vals) < 6:
+                    return short
+                return few
+            return many
         return default
     return selector
 
@@ -110,15 +110,28 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
     """
 
     FORM_CACHE = {}
+
+    AUTO_TYPE_ARGS_FOR_BASE_TYPES = {
+        'many': 'select',
+        'few': 'radios',
+        'short': 'radios-inline',
+    }
+    AUTO_TYPE_TEXT = auto_type_for_enums('text', **AUTO_TYPE_ARGS_FOR_BASE_TYPES)
+    AUTO_TYPE_INT = auto_type_for_enums('number', **AUTO_TYPE_ARGS_FOR_BASE_TYPES)
+    AUTO_TYPE_CHECKBOX = auto_type_for_enums('checkbox', many='checkboxes')
+
+    # map data types to actual types
+    # also do aliases and other type remappings with this
     DATA_TO_TYPE_MAP = {
-        'string': auto_type_for_enums('text'),
-        'integer': auto_type_for_enums('number'),
-        'int': auto_type_for_enums('number'), # support alias 'int' for 'integer'
+        'string': AUTO_TYPE_TEXT,
+        'integer': AUTO_TYPE_INT,
+        'int': AUTO_TYPE_INT, # support alias 'int' for 'integer'
         'boolean': 'checkbox',
         #'object': 'fieldset',
         'array': 'array',
         'static': 'help',
         'radio': 'radios',
+        'checkbox': AUTO_TYPE_CHECKBOX,
     }
     TYPE_MAP = {
         # form types

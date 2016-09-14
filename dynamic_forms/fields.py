@@ -2,6 +2,7 @@ from functools import lru_cache
 from django.forms import Widget, Field, CharField, TextInput
 from django.forms.utils import flatatt
 from django.forms.boundfield import BoundField
+from django.utils.functional import cached_property
 
 
 class LabelWidget(Widget):
@@ -51,13 +52,24 @@ class EnchantedBoundField(BoundField):
     def has_data(self):
         return self.data is not None
 
+    @cached_property
     def display_data(self):
         data = self.data
         if hasattr(self.field, 'choices'):
-            extra_data = next((v for k, v in self.field.choices if k == data), None)
-            if extra_data:
-                data = "{}: {}".format(data, extra_data)
+            map_ = {k: v for k, v in self.field.choices}
+            fmt = lambda a, b: "{}: {}".format(a, b) if b is not None and a != b else a
+            if isinstance(data, list):
+                data = [fmt(v, map_.get(v)) for v in data]
+            else:
+                data = fmt(data, map_.get(data))
         return data
+
+    @property
+    def display_data_list(self):
+        data = self.display_data
+        if isinstance(data, list):
+            return data
+        return None
 
 
 class BoundLabelField(EnchantedBoundField):
