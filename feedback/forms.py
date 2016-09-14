@@ -81,6 +81,7 @@ class ResponseForm(forms.ModelForm):
         if data_changed_check != self.initial['data_changed_check']:
             self.has_expired = True
             url = reverse('feedback:byuser', kwargs={
+                'course_id': self.instance.exercise.course.id,
                 'user_id': self.instance.student.id,
                 'exercise_id': self.instance.exercise.id,
             })
