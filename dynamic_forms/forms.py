@@ -287,10 +287,14 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                     field = field_class(widget=widget, **field_args)
                 except Exception as error:
                     raise ValueError(
-                        "Got invalid form field definition. "
+                        "Got invalid form field definition for {field} with {widget} widget. "
                         "Field at index {index} with name '{name}' and value '{value}' "
                         "raised error '{error}'."
-                        .format(index=i, name=name, value=row, error=error)
+                        .format(
+                            field=field_class.__name__,
+                            widget=widget_class.__name__,
+                            index=i, name=name, value=row,
+                            error=error)
                     )
                 fields[name] = field
             return fields
