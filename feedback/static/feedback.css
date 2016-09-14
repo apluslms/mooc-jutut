@@ -3,10 +3,12 @@ body {
 	padding-bottom: 30px;
 }
 
+/* labels in panel headers and footers */
 .panel-heading .label, .panel-footer .label {
 	font-size: 100%;
 }
 
+/* add selected mark for active radio replacement button */
 .buttons-for-radio button.active:before {
 	position: relative;
 	top: 1px;
@@ -20,18 +22,37 @@ body {
 	content: "\e013";
 }
 
+/* feedback/response panel */
+.panel.feedback-response-panel .panel-body {
+	padding-top: 0.4em;
+	padding-bottom: 0;
+}
+.panel.feedback-response-panel .col-lg-6 {
+	padding-left: 0.4em;
+	padding-right: 0.4em;
+}
+
+/* feedback panel */
 .feedback-panel .panel-heading {
 	padding: 4px 6px;
 }
 
-.response-panel .form-group {
+/* response panel */
+.panel.response-panel .panel-body {
+	position: relative; /* required for overlay to work */
+	padding: 0.4em;
+}
+.panel.response-panel .panel-footer {
+	padding: 0.4em;
+}
+.panel.response-panel .form-group {
+	margin-bottom: 0.6em;
+}
+.panel.response-panel .form-group:last-child {
 	margin-bottom: 0;
 }
 
-.response-panel .panel-body {
-	position: relative; /* required for overlay to work */
-}
-
+/* response panel overlay */
 .response-panel .panel-body .overlay {
 	display: none;
 	z-index: 100;

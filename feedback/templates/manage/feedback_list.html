@@ -8,7 +8,7 @@
 	<div> {# class="_panel-group" #}
 	{% include "_pagination.html" %}
 	{% for data in feedbacks %}
-		<div class="panel panel-default">
+		<div class="panel panel-default feedback-response-panel">
 			{% include "manage/_feedback_heading.html" with course=course user=data.feedback.student only %}
 			{% include "manage/_feedback_response.html" with form=data.form feedback=data.feedback feedback_form=data.feedback_form post_url=data.post_url older_url=data.older_url %}
 		</div>
