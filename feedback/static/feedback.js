@@ -30,11 +30,40 @@ $(function() {
 		$(this).closest('form').each(function() { form_changed.call(this); });
 	};
 
-	/* when submit-on-click buttons are clicked/radios changed post the form */
+	/* Buttons that replace radio select */
 	var on_submit_button = function(e) {
 		e.preventDefault();
-		var form = $(this).closest('form').submit();
+		var button = $(this);
+		var radio = $(button.data('radio'));
+		radio.prop('checked', true);
+		button.closest('.buttons-for-radio').find('.btn.active').removeClass('active');
+		button.addClass('active');
+		button.closest('form').submit();
+	}
+	var replace_with_buttons = function() {
+		var src = $(this);
+		// create new form-group and select it
+		var dst = src.after('<div class="form-group buttons-for-radio"><div class="col-xs-12"><div class="btn-group btn-group-justified" role="group"></div></div></div>').next();
+		var cont = dst.find('.btn-group');
+		var panel = src.closest('.panel');
+		// for every input radio, create new button
+		src.find('input[type="radio"]').each(function() {
+			var radio_pure = this;
+			var radio = $(this);
+			var text = radio.parent().text();
+			var color = radio.data('color');
+			cont.append('<div class="btn-group" rule="group"><button class="btn btn-' +
+				color + '">' + text + '</button></div>');
+			var button = cont.find('button').last();
+			button.data('radio', radio_pure).on('click', on_submit_button);
+			if (radio.is(':checked')) {
+				button.addClass('active');
+			}
+		});
+		// hide original form-group
+		src.hide();
 	};
+;
 
 	/* hook reset button to also hide itself and update form state */
 	var on_reset_button = function() {
@@ -58,6 +87,7 @@ $(function() {
 
 	/* use ajax to post forms */
 	var ajax_submit = function(e) {
+		e.preventDefault();
 		var me = $(this);
 		var url = this.action;
 		var post_data = me.serialize();
@@ -65,6 +95,7 @@ $(function() {
 		var panel = $(panel_id);
 		clear_status_tags(panel);
 		add_status_tag(panel, "Sending...", "default");
+
 		$.ajax({
 			type: 'POST',
 			url: url,
@@ -118,8 +149,8 @@ $(function() {
 				}
 			},
 		});
-		e.preventDefault();
 	};
+
 
 	/* call for inserted forms */
 	var on_form_insert = function(dom=null) {
@@ -129,12 +160,9 @@ $(function() {
 
 		dom.find('form.ajax-form').submit(ajax_submit);
 		dom.find('textarea.track-change').on('change keyup paste', on_textarea_change);
-		dom.find('.submit-on-click input').on('change click', on_submit_button);
 		dom.find('.reset-button[data-form-id]').on('click', on_reset_button);
 		dom.find('[data-toggle="tooltip"]').tooltip();
-		var send_button_div = dom.find('input[data-responded=0]').closest('.col-xs-2');
-		send_button_div.prev().removeClass('col-xs-10').addClass('col-xs-12');
-		send_button_div.remove();
+		dom.find('.replace-with-buttons').each(replace_with_buttons);
 	};
 
 	/* on page load forms got inserted */

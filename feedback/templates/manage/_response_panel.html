@@ -9,7 +9,7 @@
 		post_url
 {% endcomment %}
 
-<div class="panel panel-primary" id="{{ form.auto_id|fill_format_string:"panel" }}">
+<div class="panel panel-primary response-panel" id="{{ form.auto_id|fill_format_string:"panel" }}">
 	<div class="panel-heading">
 		Response
 		{% if form.disabled %}
@@ -38,8 +38,8 @@
 
 			{% with f=form.response_msg %}
 				{% include "_errors_box.html" with errors=f.errors %}
-				<div class="col-xs-12">
-					<div class="form-group {% if f.errors %}has-error{% endif %}">
+				<div class="form-group {% if f.errors %}has-error{% endif %}">
+					<div class="col-xs-12">
 						<textarea
 							id={{ f.id_for_label }}
 							class="form-control track-change"
@@ -54,13 +54,12 @@
 
 			{% with f=form.response_grade %}
 				{% include "_errors_box.html" with errors=f.errors classes="col-xs-12" %}
-				<div class="form-group submit-on-click" style="margin-bottom: 0;">
+				<div class="form-group replace-with-buttons">
 					<div class="col-xs-10">
-						<div class="btn-group btn-group-justified add-check" data-toggle="buttons">
+						<div class="btn-group btn-group-justified">
 							{% for c in f %}
 								<label
-									class="btn
-									btn-{{ c.choice_value|grade_color }}
+									class="btn btn-{{ c.choice_value|grade_color }}
 									{% if form.disabled %}disabled{% endif %}
 									{% if c.value == c.choice_value and form.instance.responded %}active{% endif %}
 									">
@@ -68,6 +67,7 @@
 										type="radio"
 										name="{{ f.name }}"
 										value="{{ c.choice_value }}"
+										data-color="{{ c.choice_value|grade_color }}"
 										{% if c.value == c.choice_value and form.instance.responded %} checked='checked' {% endif %}
 										{% if form.disabled %} disabled="disabled" {% endif %}
 										/>
@@ -80,12 +80,12 @@
 						<input
 							type="submit"
 							class="btn btn-primary pull-right"
-							data-responded="{{ form.instance.responded|yesno:"1,0" }}"
 							value="{% if form.had.responded %}Update{% else %}Respond{% endif %}"
 							{% if form.disabled %} disabled="disabled" {% endif %}
 							/>
 					</div>
 				</div>
+				{# javascript will add buttons for above here #}
 			{% endwith %}
 		</form>
 	</div>
