@@ -308,6 +308,20 @@ class UserFeedbackListView(LoginRequiredMixin,
         return context
 
 
+class FormCache:
+    def __init__(self):
+        self.cache = {}
+
+    def get(self, feedback):
+        cache = self.cache
+        form_id = feedback.form_id
+        form_class = cache.get(form_id)
+        if not form_class:
+            form_class = feedback.form_class
+            cache[form_id] = form_class
+        return form_class(data=feedback.form_data)
+
+
 class UserFeedbackView(LoginRequiredMixin,
                        ManageCourseMixin,
                        TemplateView):
@@ -329,6 +343,8 @@ class UserFeedbackView(LoginRequiredMixin,
             exercise = exercise,
         ).order_by('-timestamp')
         params = '?' + urlencode({"success_url": self.request.path})
+        form_cache = FormCache()
+        _form_obj = form_cache.get
         def _w(obj, **kwargs):
             for k, v in kwargs.items():
                 setattr(obj, k, v)
@@ -336,8 +352,8 @@ class UserFeedbackView(LoginRequiredMixin,
         context['feedbacks'] = (
             {
                 'form': self.form_class(instance=obj),
-                'feedback': obj,# exercise=exercise),
-                'feedback_form': obj.form_obj,
+                'feedback': _w(obj, exercise=exercise),
+                'feedback_form': _form_obj(obj),
                 'post_url': urljoin(
                     reverse('feedback:respond', kwargs={'feedback_id': obj.id}),
                     params),
