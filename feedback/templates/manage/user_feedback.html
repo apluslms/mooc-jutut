@@ -1,4 +1,5 @@
 {% extends "manage/base.html" %}
+{% load dictiterators %}
 
 {% block content %}
 <h1>List of student feedback to {{ exercise }}</h1>
@@ -6,15 +7,15 @@
 	<div class="panel panel-default feedback-response-panel">
 		{% include "manage/_feedback_heading.html" with course=course user=student only %}
 
-		{% for data in feedbacks %}
+		{% foreachdict in feedbacks %}
 			{% if not forloop.first %}<hr />{% endif %}
-			{% include "manage/_feedback_response.html" with form=data.form feedback=data.feedback feedback_form=data.feedback_form post_url=data.post_url %}
+			{% include "manage/_feedback_response.html" %}
 		{% empty %}
 			<div class="panel-body">
 				<div class="alert alert-info">
 					No feedback yet.
 				</div>
 			</div>
-		{% endfor %}
+		{% endforeachdict %}
 	</div>
 {% endblock %}

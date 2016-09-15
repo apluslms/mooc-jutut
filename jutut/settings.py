@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 import os, warnings
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
-# Critical (override in local_settings.py)
+# Base options, commonly overridden in local_settings.py
 ###############################################################################
 DEBUG = False
 SECRET_KEY = None
@@ -20,7 +20,6 @@ ADMINS = (
 )
 #SERVER_EMAIL = 'root@'
 ALLOWED_HOSTS = ["*"]
-###############################################################################
 
 
 # Content (may override in local_settings.py)
@@ -46,6 +45,7 @@ INSTALLED_APPS = [
     'django_lti_login',
     'aplus_client',
     'dynamic_forms',
+    'django_dictiterators',
     # project apps
     'accounts',
     'feedback',

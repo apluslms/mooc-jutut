@@ -1,5 +1,7 @@
 import logging
+from urllib.parse import urljoin
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from django.template.loader import get_template
 from django.utils import translation
 
@@ -50,3 +52,24 @@ def update_response_to_aplus(feedback):
     log_method = logger.debug if r.status_code == 200 else logger.critical
     log_method("Update to submission_url '%s' returned with code %d and text '%s'", submission_url, r.status_code, r.text)
     return (r.status_code == 200, r.text)
+
+
+def obj_with_attrs(obj, **kwargs):
+    for k, v in kwargs.items():
+        setattr(obj, k, v)
+    return obj
+
+
+def get_url_reverse_resolver(urlname, kwargs, query=None):
+    """
+    Django doesn't support caching url reverse resolving,
+    thus we hack around it
+    """
+    if not isinstance(kwargs, dict):
+        kwargs = {n: i*100+i for i, n in enumerate(kwargs, 2)}
+    url = str(reverse(urlname, kwargs=kwargs))
+    for n, i in kwargs.items():
+        url = url.replace('/{}/'.format(i), '/{{{}}}/'.format(n))
+    if query:
+        url = urljoin(url, '?'+query)
+    return url.format

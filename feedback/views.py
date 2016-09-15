@@ -30,6 +30,10 @@ from .cached import (
     CachedNotrespondedCount,
 )
 from .forms import ResponseForm
+from .utils import (
+    get_url_reverse_resolver,
+    obj_with_attrs,
+)
 
 
 logger = logging.getLogger('jutut.feedback')
@@ -214,6 +218,20 @@ class ManageCourseListView(LoginRequiredMixin,
         return super().get_context_data(site=self._site, **kwargs)
 
 
+def get_feedback_dict(obj, get_form=None, extra=None):
+    if get_form:
+        form = get_form(obj)
+    else:
+        form = obj.get_form_obj(dummy=True)
+    data = {
+        'feedback': obj,
+        'feedback_form': form,
+    }
+    if extra:
+        data.update(extra)
+    return data
+
+
 class ManageNotRespondedListView(LoginRequiredMixin,
                                  ManageCourseMixin,
                                  ListView):
@@ -244,24 +262,24 @@ class ManageNotRespondedListView(LoginRequiredMixin,
     def get_context_data(self, **kwargs):
         course=self._course
         context = super().get_context_data(course=course, **kwargs)
-        params = '?' + urlencode({"success_url": self.request.path})
+        posturl_r = get_url_reverse_resolver('feedback:respond',
+            ('feedback_id',),
+            urlencode({"success_url": self.request.path}))
+        older_r = get_url_reverse_resolver('feedback:byuser',
+            ('course_id', 'user_id', 'exercise_id'))
+        context['feedbacks'] = (
+            get_feedback_dict(obj,
+                extra={
+                    'form': self.form_class(instance=obj),
+                    'older_url': older_r(course_id=course.id,
+                                         user_id=obj.student.id,
+                                         exercise_id=obj.exercise.id),
+                    'post_url': posturl_r(feedback_id=obj.id)
+                }
+            ) for obj in context['object_list']
+        )
         context['exercise'] = self._exercise
         context['path_filter'] = self._path_filter
-        context['feedbacks'] = (
-            {
-                'form': self.form_class(instance=obj),
-                'feedback': obj,
-                'feedback_form': obj.get_form_obj(True),
-                'post_url': urljoin(
-                    reverse('feedback:respond', kwargs={'feedback_id': obj.id}),
-                    params),
-                'older_url': reverse('feedback:byuser', kwargs={
-                    'course_id': course.id,
-                    'user_id': obj.student.id,
-                    'exercise_id': obj.exercise.id,
-                }),
-            } for obj in context['object_list']
-        )
         return context
 
 
@@ -329,26 +347,33 @@ class UserFeedbackView(LoginRequiredMixin,
             student = student,
             exercise = exercise,
         ).order_by('-timestamp')
-        params = '?' + urlencode({"success_url": self.request.path})
         form_cache = FormCache()
-        _form_obj = form_cache.get
-        def _w(obj, **kwargs):
-            for k, v in kwargs.items():
-                setattr(obj, k, v)
-            return obj
+        posturl_r = get_url_reverse_resolver('feedback:respond',
+            ('feedback_id',),
+            urlencode({"success_url": self.request.path}))
         context['feedbacks'] = (
-            {
-                'form': self.form_class(instance=obj),
-                'feedback': _w(obj, exercise=exercise),
-                'feedback_form': _form_obj(obj),
-                'post_url': urljoin(
-                    reverse('feedback:respond', kwargs={'feedback_id': obj.id}),
-                    params),
-            } for obj in feedbacks
+            get_feedback_dict(
+                obj_with_attrs(obj, exercise=exercise),
+                get_form=form_cache.get,
+                extra={
+                    'form': self.form_class(instance=obj),
+                    'post_url': posturl_r(feedback_id=obj.id)
+                }
+            ) for obj in feedbacks
         )
         context['student'] = student
         context['exercise'] = exercise
         return context
+
+
+def update_respond_context(self, context):
+    feedback = context['object']
+    context.update(get_feedback_dict(feedback))
+    success_url = self.request.GET.get(self.success_url_param)
+    if success_url:
+        me = self.request.path
+        params = '?' + urlencode({self.success_url_param: success_url})
+        context['post_url'] = urljoin(me, params)
 
 
 class RespondFeedbackView(LoginRequiredMixin,
@@ -364,11 +389,7 @@ class RespondFeedbackView(LoginRequiredMixin,
     def get_context_data(self, **kwargs):
         feedback = self.object
         context = super().get_context_data(course=feedback.exercise.course, **kwargs)
-        success_url = self.request.GET.get(self.success_url_param)
-        if success_url:
-            me = self.request.path
-            params = '?' + urlencode({self.success_url_param: success_url})
-            context['post_url'] = urljoin(me, params)
+        update_respond_context(self, context)
         return context
 
     def get_success_url(self):
@@ -403,11 +424,7 @@ class RespondFeedbackViewAjax(LoginRequiredMixin,
     def get_context_data(self, **kwargs):
         feedback = self.object
         context = super().get_context_data(course=feedback.exercise.course, **kwargs)
-        success_url = self.request.GET.get(self.success_url_param)
-        if success_url:
-            me = self.request.path
-            params = '?' + urlencode({self.success_url_param: success_url})
-            context['post_url'] = urljoin(me, params)
+        update_respond_context(self, context)
         return context
 
     def get_success_url(self):

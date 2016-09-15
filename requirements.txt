@@ -1,6 +1,7 @@
 # Usage: pip install -r requirements.txt
 Django==1.9.7
 django-bootstrap-form==3.2.1
+git+https://github.com/Aalto-LeTech/django-dictiterators.git@1.0.0#django-dictiterators
 psycopg2>=2.5.4
 python-memcached==1.58
 
