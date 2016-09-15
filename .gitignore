@@ -14,18 +14,18 @@
 *.db
 *.db.*
 
-local_settings.py
-local_templates/
-jutut/local_settings.py
-jutut/secret_key.py
+/local_settings.py
+/local_templates/
+/jutut/local_settings.py
+/jutut/secret_key.py
 
-venv/
-static/
-media/
-selenium_test/
-test_*
+/venv/
+/static/
+/media/
+/selenium_test/
+/test_*
 
 *.mo
-*.lokalize
-lokalize-*/
-main.lqa
+/*.lokalize
+/lokalize-*/
+/main.lqa
