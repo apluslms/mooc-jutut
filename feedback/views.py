@@ -465,6 +465,5 @@ class RespondFeedbackViewAjax(LoginRequiredMixin,
 def respond_feedback_view_select(normal_view, ajax_view):
     def dispatch(request, *args, **kwargs):
         view = ajax_view if request.is_ajax() else normal_view
-        print(" ----- suing view: ", view)
         return view(request, *args, **kwargs)
     return dispatch
