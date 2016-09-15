@@ -52,14 +52,16 @@ $(function() {
 			var radio = $(this);
 			var text = radio.parent().text();
 			var color = radio.data('color');
-			if (radio.prop('disabled'))
-				return;
-			cont.append('<div class="btn-group" rule="group"><button class="btn btn-' +
-				color + '">' + text + '</button></div>');
-			var button = cont.find('button').last();
-			button.data('radio', radio_pure).on('click', on_submit_button);
-			if (radio.is(':checked'))
-				button.addClass('active');
+			if (radio.prop('disabled')) {
+				cont.append('<div class="btn-group" role="group"></div>')
+			} else {
+				cont.append('<div class="btn-group" rule="group"><button class="btn btn-' +
+					color + '">' + text + '</button></div>');
+				var button = cont.find('button').last();
+				button.data('radio', radio_pure).on('click', on_submit_button);
+				if (radio.is(':checked'))
+					button.addClass('active');
+			}
 		});
 		// hide original form-group
 		src.hide();
