@@ -52,6 +52,8 @@ $(function() {
 			var radio = $(this);
 			var text = radio.parent().text();
 			var color = radio.data('color');
+			if (radio.prop('disabled'))
+				return;
 			cont.append('<div class="btn-group" rule="group"><button class="btn btn-' +
 				color + '">' + text + '</button></div>');
 			var button = cont.find('button').last();

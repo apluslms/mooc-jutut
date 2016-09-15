@@ -33,6 +33,10 @@ from .forms import ResponseForm
 from .utils import (
     get_url_reverse_resolver,
     obj_with_attrs,
+    augment_form_with_optional_field_info,
+    augment_form_with_optional_answers_info,
+    form_can_be_autoaccepted,
+    is_grade_restricted_to_good,
 )
 
 
@@ -137,6 +141,14 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
         student = self.get_student()
         path_key = self.path_key
 
+        # test if feedback can be automatically accepted
+        if settings.JUTUT_AUTOACCEPT_ON:
+            augment_form_with_optional_field_info(form)
+            augment_form_with_optional_answers_info(form)
+            can_be_autoaccepted = form_can_be_autoaccepted(form)
+        else:
+            can_be_autoaccepted = False
+
         # will create and save new feedback
         # will also take care of marking old feedbacks
         new = Feedback.create_new_version(
@@ -148,6 +160,9 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
             post_url = self.post_url or '',
             submission_url = self.submission_url or '',
         )
+
+        if can_be_autoaccepted:
+            logger.warning("Feedback %d could have been automatically accepted.", new.id)
 
         return self.render_to_response(self.get_context_data(
             status='accepted',
@@ -223,9 +238,16 @@ def get_feedback_dict(obj, get_form=None, extra=None):
         form = get_form(obj)
     else:
         form = obj.get_form_obj(dummy=True)
+    if settings.JUTUT_OBLY_ACCEPT_ON and not form.is_dummy_form:
+        augment_form_with_optional_field_info(form)
+        augment_form_with_optional_answers_info(form, use_cleaned_data=False)
+        min_grade = obj.MAX_GRADE if is_grade_restricted_to_good(form) else 0
+    else:
+        min_grade = 0
     data = {
         'feedback': obj,
         'feedback_form': form,
+        'min_grade': min_grade,
     }
     if extra:
         data.update(extra)
@@ -260,7 +282,7 @@ class ManageNotRespondedListView(LoginRequiredMixin,
         raise Http404
 
     def get_context_data(self, **kwargs):
-        course=self._course
+        course = self._course
         context = super().get_context_data(course=course, **kwargs)
         posturl_r = get_url_reverse_resolver('feedback:respond',
             ('feedback_id',),

@@ -6,6 +6,7 @@
 	expects from context:
 		form
 		feedback
+		min_grade
 		post_url
 {% endcomment %}
 
@@ -58,15 +59,16 @@
 								<label
 									class="btn btn-{{ c.choice_value|grade_color }}
 									{% if form.disabled %}disabled{% endif %}
-									{% if c.value == c.choice_value and form.instance.responded %}active{% endif %}
+									{% if c.is_checked and form.instance.responded %}active{% endif %}
 									">
 									<input
 										type="radio"
 										name="{{ f.name }}"
 										value="{{ c.choice_value }}"
+										{% if c.choice_value|force_int < min_grade %} disabled {% endif %}
 										autocomplete="off"
 										data-color="{{ c.choice_value|grade_color }}"
-										{% if c.value == c.choice_value and form.instance.responded %} checked='checked' {% endif %}
+										{% if c.is_checked and form.instance.responded %} checked {% endif %}
 										/>
 									{{ c.choice_label }}
 								</label>

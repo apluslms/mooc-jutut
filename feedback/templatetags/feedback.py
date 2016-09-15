@@ -20,3 +20,11 @@ def grade_color(grade):
 def fill_format_string(fmt, value):
     parts = tuple(value.split(','))
     return fmt % parts
+
+
+@register.filter
+def force_int(string):
+    try:
+        return int(string)
+    except ValueError:
+        return None
