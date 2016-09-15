@@ -182,6 +182,9 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
         forms.MultipleChoiceField: forms.TypedMultipleChoiceField,
     }
 
+    # this can be used to test if form is dummy or not
+    is_dummy_form = False
+
     # globals used by django forms
     required_css_class = 'required'
 
@@ -355,10 +358,10 @@ class DummyForm(forms.forms.BaseForm):
     Will wrap provided data into dummy charfields.
     Can be used in place of dynamicform if original form spec is missing / broken.
     """
+    # this can be used to test if form is dummy or not
+    is_dummy_form = True
 
     def __init__(self, data=None, **kwargs):
-        self.is_dummy_form = True
-
         self.base_fields = self.declared_fields = {
             name: DUMMY_FIELD
             for name, value in data.items()
