@@ -4,6 +4,7 @@ from urllib.parse import urlsplit, urlunsplit, parse_qsl as urlparse_qsl
 from cachetools import TTLCache
 
 from .debugging import AplusClientDebugging, FakeResponse
+from .interfaces import GraderInterface2
 
 
 NoDefault = object()
@@ -348,6 +349,7 @@ class AplusGraderClient(AplusClient):
     @property
     def grading_data(self):
         data = self.load_data(self.grading_url)
+        data = GraderInterface2(data)
         self.__dict__['grading_data'] = data
         return data
 
