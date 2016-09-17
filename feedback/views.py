@@ -1,9 +1,10 @@
 import logging
 from datetime import timedelta
 from functools import partial
-from urllib.parse import urljoin, urlencode
+from urllib.parse import urlsplit, urljoin, urlencode
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, Http404
+from django.utils.text import slugify
 from django.shortcuts import get_object_or_404
 from django.views.generic import FormView, UpdateView, ListView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -25,6 +26,7 @@ from .models import (
 )
 from .cached import (
     FormCache,
+    CachedForm,
     CachedSites,
     CachedCourses,
     CachedNotrespondedCount,
@@ -78,40 +80,41 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
     """
     template_name = 'feedback/new.html'
     success_url = '/feedback/'
+    form_class = None
 
     def get_form_class(self):
+        if self.form_class:
+            return self.form_class
+
         self.path_key = path_key = self.kwargs.get('path_key', '').strip('/')
-        gd = self.grading_data
-        exercise = gd.exercise
-
-        if not exercise:
-            logger.critical("exercise not resolved from submission_url '%s'", self.submission_url)
-            raise Http404("exercise not found from provided submission_url")
-
-        # get or create exercise for this request that has correct namespace
-        # (gotten from exercise api_obj url field)
-        exercise, created = Exercise.objects.get_or_create(exercise)
-        self.exercise = exercise
-
+        form_obj = None
 
         # get latest form object or create new
-        form_obj = exercise.get_latest_form(path_key, max_age=timedelta(minutes=5))
-        if form_obj is None:
-            form_spec = gd.form_spec
+        post_url = urlsplit(self.post_url)
+        if post_url.path and path_key:
+            cache_key = ''.join((post_url.netloc, post_url.path, path_key))
+            try:
+                form_obj = CachedForm.get(cache_key, lambda: self.grading_data.form_spec)
+            except ValueError:
+                pass
+
+        # if we can't use cache, use the "old way"
+        else:
+            form_spec = self.grading_data.form_spec
             if form_spec:
                 form_obj = Form.objects.get_or_create(form_spec=form_spec)
 
         if form_obj:
             self.form_obj = form_obj
-            auto_id = "jutut_ex{}_%s".format(exercise.api_id)
-            return partial(form_obj.form_class, auto_id=auto_id)
+            auto_id = "jutut_{}_%s".format(slugify(post_url.path or path_key))
+            self.form_class = form_class = partial(form_obj.form_class, auto_id=auto_id)
+            return form_class
         else:
             logger.critical("form_spec not resolved from submission_url '%s'", self.submission_url)
             raise Http404("form_spec not found from provided submission_url")
 
-    def get_student(self):
+    def get_student(self, namespace):
         student = None
-        namespace = self.exercise.namespace
 
         # Try to resolve student using uid from query parameters
         uids = self.request.GET.get('uid', '').split('-')
@@ -134,13 +137,17 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['exercise'] = self.exercise
         context['post_url'] = self.post_url or ''
         return context
 
     def form_valid(self, form):
-        student = self.get_student()
+        gd = self.grading_data
         path_key = self.path_key
+        exercise, created = Exercise.objects.get_or_create(gd.exercise, select_related=('course', 'course__namespace'))
+        if not exercise:
+            logger.warning("exercise not resolved from submission_url '%s'", self.submission_url)
+            return HttpResponseBadRequest("exercise not found from provided submission_url")
+        student = self.get_student(exercise.namespace)
 
         # test if feedback can be automatically accepted
         if settings.JUTUT_AUTOACCEPT_ON:
@@ -153,7 +160,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
         # will create and save new feedback
         # will also take care of marking old feedbacks
         new = Feedback.create_new_version(
-            exercise = self.exercise,
+            exercise = exercise,
             path_key = path_key,
             student = student,
             form = self.form_obj,

@@ -71,15 +71,6 @@ class Exercise(NestedApiObject):
             filters['feedbacks__path_key__startswith'] = path_key
         return Form.objects.all().filter(**filters)
 
-    def get_latest_form(self, path_key=None, max_age=None):
-        forms = self.get_forms(path_key)
-        if max_age:
-            forms = forms.filter(feedbacks__timestamp__gt=timezone.now()-max_age)
-        try:
-            return forms.latest('feedbacks__timestamp')
-        except Form.DoesNotExist:
-            return None
-
     @property
     def unresponded_feedback(self):
         return Feedback.objects.get_notresponded(exercise_id=self.id)

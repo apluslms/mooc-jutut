@@ -5,6 +5,7 @@ from django.dispatch import receiver
 from .models import (
     Site,
     Course,
+    Form,
     Feedback,
 )
 
@@ -31,31 +32,25 @@ class Cached:
         self.prefix = prefix or self.__class__.__name__
         self.timeout = timeout or 60 * 5
 
-    def get_suffix(self, key_obj):
-        return key_obj
+    def get_suffix(self, *args):
+        return '-'.join(str(x) for x in args)
 
-    def get(self, key_obj):
-        key = self.prefix + str(self.get_suffix(key_obj))
+    def get(self, *args):
+        key = '/'.join((self.prefix, str(self.get_suffix(*args))))
         obj = cache.get(key)
         if obj is None:
-            obj = self.get_obj(key_obj)
+            obj = self.get_obj(*args)
             cache.set(key, obj, self.timeout)
         return obj
 
-    def clear(self, key_obj):
-        key = self.prefix + str(self.get_suffix(key_obj))
+    def clear(self, *args):
+        key = '/'.join((self.prefix, str(self.get_suffix(*args))))
         cache.delete(key)
 
 
 class CachedSites(Cached):
-    def get_obj(self, suffix):
+    def get_obj(self):
         return list(Site.objects.all())
-
-    def get(self):
-        return super().get('')
-
-    def clear(self):
-        super().clear('')
 CachedSites = CachedSites()
 
 @receiver(post_save, sender=Site)
@@ -64,11 +59,11 @@ def post_site_save(sender, **kwargs):
 
 
 class CachedCourses(Cached):
-    def get_obj(self, site):
-        return list(Course.objects.using_namespace_id(site.id).all())
-
     def get_suffix(self, site):
         return site.id
+
+    def get_obj(self, site):
+        return list(Course.objects.using_namespace_id(site.id).all())
 CachedCourses = CachedCourses()
 
 @receiver(post_save, sender=Course)
@@ -89,3 +84,15 @@ CachedNotrespondedCount = CachedNotrespondedCount()
 def post_course_save(sender, instance, **kwargs):
     feedback = instance
     CachedNotrespondedCount.clear(feedback.exercise.course)
+
+
+class CachedForm(Cached):
+    def get_suffix(self, key, spec_getter):
+        return key
+
+    def get_obj(self, key, spec_getter):
+        form_spec = spec_getter()
+        if form_spec is None:
+            raise ValueError("spec_getter returned None")
+        return Form.objects.get_or_create(form_spec=form_spec)
+CachedForm = CachedForm(timeout=60*60)
