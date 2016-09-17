@@ -189,6 +189,9 @@ class Feedback(models.Model):
         '_response_upl_at',
     )
 
+
+    # Extra getters and properties
+
     @cached_property
     def course(self):
         return self.exercise.course
@@ -242,6 +245,10 @@ class Feedback(models.Model):
         return self._response_time is not None
 
     @property
+    def can_be_responded(self):
+        return self.submission_url and not self.superseded_by_id
+
+    @property
     def response_grade_text(self):
         if not self.responded:
             return self.GRADES[self.GRADES.NONE]
@@ -253,6 +260,28 @@ class Feedback(models.Model):
             return None
         return self.response_grade
 
+    @property
+    def older_versions(self):
+        return self.__class__.objects.filter(
+            ~models.Q(pk=self.pk),
+            exercise_id = self.exercise_id,
+            student_id = self.student_id,
+            timestamp__lt = self.timestamp,
+        )
+
+    @cached_property
+    def older_versions_count(self):
+        return self.older_versions.count()
+
+    def __getitem__(self, key):
+        return self.feedback[key]
+
+    def __setitem__(self, key, value):
+        self.feedback[key] = value
+
+
+    # Feedback management interface
+
     @classmethod
     @transaction.atomic
     def create_new_version(cls, **kwargs):
@@ -260,25 +289,23 @@ class Feedback(models.Model):
         Creates new feedback object and marks it as parent for all
         old feedbacks by same user to defined resource
         """
-        # create new item
+        kwargs = {k: v for k,v in kwargs.items() if v is not None}
         new = cls.objects.create(**kwargs)
         assert new.pk is not None, "New feedback doesn't have primary key"
-
-        # mark all old versions to be superseded_by this new
-        current_versions = cls.objects.all().filter(
-            ~models.Q(pk=new.pk),
-            superseded_by = None,
-            form = new.form,
-            student = new.student,
-        ).update(superseded_by=new)
-
+        new.supersede_older()
         return new
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.__response = {k: getattr(self, k) for k in self.RESPONSE_FIELDS}
+        self.__response = (
+            {k: getattr(self, k) for k in self.RESPONSE_FIELDS}
+            if not self.get_deferred_fields() else
+            None
+        )
 
     def clean(self):
+        if not self.__response:
+            raise RuntimeError("Model is read-only as response fields are deferred")
         # if response field is changed set udpate time
         for k in self.RESPONSE_FIELDS:
             if getattr(self, k) != self.__response[k]:
@@ -286,6 +313,8 @@ class Feedback(models.Model):
                 break
 
     def save(self, update_fields=None, **kwargs):
+        if not self.__response:
+            raise RuntimeError("Model is read-only as response fields are deferred")
         response_update = True
         if update_fields is not None:
             update_fields = set(update_fields)
@@ -300,16 +329,7 @@ class Feedback(models.Model):
             self.__response = {k: getattr(self, k) for k in self.RESPONSE_FIELDS}
         return ret
 
-    @property
-    def can_be_responded(self):
-        return self.submission_url and not self.superseded_by_id
-
-    @cached_property
-    def older_versions_count(self):
-        return Feedback.objects.filter(student=self.student, exercise=self.exercise).count() - 1
-
-    def __getitem__(self, key):
-        return self.feedback[key]
-
-    def __setitem__(self, key, value):
-        self.feedback[key] = value
+    def supersede_older(self):
+        return self.older_versions.filter(
+            superseded_by = None,
+        ).update(superseded_by=self)
