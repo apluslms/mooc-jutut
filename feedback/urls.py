@@ -1,8 +1,12 @@
+from django.conf import settings
 from django.conf.urls import url
 from django.views.decorators.cache import cache_page
 
+cache = cache_page(60 * 15) if not settings.DEBUG else lambda x: x
+
 from . import views
-FeedbackSubmissionView_view = cache_page(60 * 15)(views.FeedbackSubmissionView.as_view())
+
+FeedbackSubmissionView_view = cache(views.FeedbackSubmissionView.as_view())
 ManageCourseListView_view = views.ManageCourseListView.as_view()
 ManageNotRespondedListView_view = views.ManageNotRespondedListView.as_view()
 UserFeedbackView_view = views.UserFeedbackView.as_view()
