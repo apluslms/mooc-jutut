@@ -82,6 +82,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
     template_name = 'feedback/new.html'
     success_url = '/feedback/'
     form_class = None
+    form_cache_key = None
 
     def get_form_class(self):
         if self.form_class:
@@ -93,7 +94,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
         # get latest form object or create new
         post_url = urlsplit(self.post_url)
         if post_url.path and path_key:
-            cache_key = ''.join((post_url.netloc, post_url.path, path_key))
+            self.form_cache_key = cache_key = ''.join((post_url.netloc, post_url.path, path_key))
             try:
                 form_obj = CachedForm.get(cache_key, lambda: self.grading_data.form_spec)
             except ValueError:
@@ -113,6 +114,16 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
         else:
             logger.critical("form_spec not resolved from submission_url '%s'", self.submission_url)
             raise Http404("form_spec not found from provided submission_url")
+
+    def reload_form_class(self):
+        cache_key = self.form_cache_key
+        if cache_key:
+            form_obj_id = getattr(self.form_obj, 'id', None)
+            CachedForm.clear(cache_key, lambda: None)
+            self.form_class = None
+            self.get_form_class()
+            return form_obj_id != self.form_obj.id
+        return False
 
     def get_student(self, namespace):
         student = None
@@ -201,14 +212,10 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
         return self.render_to_response(self.get_context_data(status=status, feedback=feedback))
 
     def form_invalid(self, form):
-        # FIXME: trigger validate again
-        # update cached form definition and reparse input
-        #if self.form_obj.could_be_updated:
-        #    form_spec = self.grading_data.form_spec
-        #    form_obj = self.form_obj.get_updated(form_spec)
-        #    if form_obj == self.form_obj:
-        #        pass
-
+        if self.reload_form_class():
+            form = self.get_form()
+            if form.is_valid():
+                return self.form_valid(form)
         return super().form_invalid(form)
 
 
