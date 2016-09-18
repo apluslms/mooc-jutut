@@ -18,6 +18,15 @@
 			href="{{ feedback.exercise.html_url }}"
 			>{{ feedback.exercise_path }}</a>
 		<div class="btn-toolbar pull-right">
+			<a class="btn btn-default btn-sm"
+				data-toggle="tooltip"
+				data-trigger="hover"
+				data-placement="top"
+				title="{% trans 'Show submission in A+' %}"
+				href="{{ feedback.submission_html_url }}"
+				>
+				{% trans "Show in A+" %}
+			</a>
 			{% if older_url %}
 				<a class="btn btn-default btn-sm"
 					data-toggle="tooltip"
