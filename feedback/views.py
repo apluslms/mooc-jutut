@@ -111,14 +111,15 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 
     def get_student(self):
         student = None
+        namespace = self.exercise.namespace
 
         # Try to resolve student using uid from query parameters
         uids = self.request.GET.get('uid', '').split('-')
         if len(uids) > 1:
             raise SuspiciousStudent("Multiple uids in query uid field")
-        if len(uids) == 1:
+        if len(uids) == 1 and uids[0]:
             try:
-                student = Student.objects.get(id=uids[0])
+                student = Student.objects.using_namespace(namespace).get(api_id=uids[0])
             except (Student.DoesNotExist, ValueError):
                 pass
 
@@ -127,7 +128,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
             students = self.grading_data.submitters
             if len(students) != 1:
                 raise SuspiciousStudent("Multiple students in submission. Feedback expects only one")
-            student = Student.objects.get_new_or_updated(students[0])
+            student = Student.objects.get_new_or_updated(students[0], namespace=namespace)
 
         return student
 
