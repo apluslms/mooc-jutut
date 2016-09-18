@@ -111,6 +111,8 @@
 								>More <span class="caret"></span></a>
 							<ul class="dropdown-menu">
 								<li><a href="{% url "feedback:user-list" course_id=course.id %}">List of Users</a></li>
+								<li role="separator" class="divider"></li>
+								<li><a href="{% url "feedback:clear-cache" course_id=course.id %}">Clear cache</a></li>
 								<!-- <li><a href="#">Action</a></li>
 								<li><a href="#">Another action</a></li>
 								<li><a href="#">Something else here</a></li>

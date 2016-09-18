@@ -30,6 +30,7 @@ from .cached import (
     CachedSites,
     CachedCourses,
     CachedNotrespondedCount,
+    clear_cache,
 )
 from .forms import ResponseForm
 from .utils import (
@@ -261,6 +262,20 @@ class ManageCourseListView(LoginRequiredMixin,
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(site=self._site, **kwargs)
+
+
+class ManageClearCacheView(LoginRequiredMixin,
+                           ManageCourseMixin,
+                           TemplateView):
+    template_name = "manage/cache_cleared.html"
+
+    def get_context_data(self, **kwargs):
+        course = get_object_or_404(Course, pk=self.kwargs['course_id'])
+        return super().get_context_data(course=course)
+
+    def get(self, *args, **kwargs):
+        clear_cache()
+        return super().get(*args, **kwargs)
 
 
 def get_feedback_dict(obj, get_form=None, extra=None):
