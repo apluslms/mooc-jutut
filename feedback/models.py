@@ -230,7 +230,7 @@ class Feedback(models.Model):
         code = self._response_upl_code
         attempts = self._response_upl_attempt
         ok = code == 200
-        return ResponseUplaoded(ok, when, code, attempts)
+        return ResponseUploaded(ok, when, code, attempts)
 
     @response_uploaded.setter
     def response_uploaded(self, status_code):

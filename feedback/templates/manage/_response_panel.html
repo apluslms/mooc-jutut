@@ -13,6 +13,19 @@
 <div class="panel panel-primary response-panel" id="{{ form.auto_id|fill_format_string:"panel" }}">
 	<div class="panel-heading">
 		Response
+		{% with upl=feedback.response_uploaded %}
+			{% if feedback.responded and not upl.ok %}
+				<span rel="tooltip"
+					class="label label-danger pull-right"
+					data-toggle="tooltip"
+					data-trigger="hover click"
+					data-placement="top"
+					data-html="true"
+					title="Upload is <b>not</b> ok.<br>Tried {{ upl.attempts }} times.<br>Last tried {{ upl.when|date:'Y-m-d H:i:s' }} with statys {{ upl.code }}."
+					>upload status {{ upl.code }}
+				</span>
+			{% endif %}
+		{% endwith %}
 	</div>
 
 	<div class="panel-body {{ feedback.waiting_for_response|yesno:',disabled' }}">
