@@ -122,6 +122,11 @@ ResponseUploaded = namedtuple('ResponseUploaded',
 class Feedback(models.Model):
     objects = FeedbackManager()
 
+    class Meta:
+        unique_together = [
+            ('exercise', 'submission_id'),
+        ]
+
     GRADES = Enum(
         ('NONE', -1, _('No response')), # can't be stored in db (positive integers only)
         ('REJECTED', 0, _('Rejected')),
@@ -134,8 +139,9 @@ class Feedback(models.Model):
     exercise = models.ForeignKey(Exercise,
                                  related_name='feedbacks',
                                  on_delete=models.PROTECT)
+    submission_id = models.IntegerField()
     path_key = models.CharField(max_length=255, db_index=True)
-    timestamp = models.DateTimeField(default=timezone.now)
+    timestamp = models.DateTimeField(default=timezone.now, db_index=True)
     language = models.CharField(max_length=5, default=get_language, null=True)
     student = models.ForeignKey(Student,
                                 related_name='feedbacks',
@@ -153,6 +159,7 @@ class Feedback(models.Model):
                                       db_index=True)
     post_url = models.URLField()
     submission_url = models.URLField()
+    submission_html_url = models.URLField()
     response_msg = models.TextField(blank=True,
                                     null=True,
                                     default=None,
@@ -227,17 +234,26 @@ class Feedback(models.Model):
 
     @response_uploaded.setter
     def response_uploaded(self, status_code):
-        self._response_upl_code = status_code
-        self._response_upl_attempt += 1
-        self._response_upl_at = timezone.now()
+        if status_code:
+            self._response_upl_code = status_code
+            self._response_upl_attempt += 1
+            self._response_upl_at = timezone.now()
+        else:
+            self._response_upl_code = 0
+            self._response_upl_attempt = 0
+            self._response_upl_at = None
 
     @property
     def responded(self):
         return self._response_time is not None
 
     @property
+    def waiting_for_response(self):
+        return not self.responded and not self.superseded_by_id
+
+    @property
     def can_be_responded(self):
-        return self.submission_url and not self.superseded_by_id
+        return bool(self.submission_url)
 
     @property
     def response_grade_text(self):
@@ -298,8 +314,10 @@ class Feedback(models.Model):
         if not self.__response:
             raise RuntimeError("Model is read-only as response fields are deferred")
         # if response field is changed set udpate time
+        rt = self._response_time
         for k in self.RESPONSE_FIELDS:
-            if getattr(self, k) != self.__response[k]:
+            val = getattr(self, k)
+            if val != self.__response[k] or (not rt and val != self._meta.get_field(k).get_default()):
                 self._response_time = timezone.now()
                 break
 

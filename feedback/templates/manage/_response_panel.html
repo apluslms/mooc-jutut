@@ -15,7 +15,7 @@
 		Response
 	</div>
 
-	<div class="panel-body {{ form.disabled|yesno:'disabled,' }}">
+	<div class="panel-body {{ feedback.waiting_for_response|yesno:',disabled' }}">
 		<form
 			id="{{ form.auto_id|fill_format_string:"form" }}"
 			data-footer-id="{{ form.auto_id|fill_format_string:"footer" }}"
@@ -44,6 +44,7 @@
 							name="response_msg"
 							placeholder="{{ f.label }}"
 							autocomplete="off"
+							{{ form.disabled|yesno:'disabled,' }}
 							rows="2"
 							>{{ f.value|default:'' }}</textarea>
 					</div>
@@ -58,14 +59,13 @@
 							{% for c in f %}
 								<label
 									class="btn btn-{{ c.choice_value|grade_color }}
-									{% if form.disabled %}disabled{% endif %}
 									{% if c.is_checked and form.instance.responded %}active{% endif %}
 									">
 									<input
 										type="radio"
 										name="{{ f.name }}"
 										value="{{ c.choice_value }}"
-										{% if c.choice_value|force_int < min_grade %} disabled {% endif %}
+										{% if c.choice_value|force_int < min_grade or form.disabled %} disabled {% endif %}
 										autocomplete="off"
 										data-color="{{ c.choice_value|grade_color }}"
 										{% if c.is_checked and form.instance.responded %} checked {% endif %}
@@ -80,7 +80,7 @@
 							type="submit"
 							class="btn btn-primary pull-right"
 							value="{% if form.had.responded %}Update{% else %}Respond{% endif %}"
-							{% if form.disabled %} disabled="disabled" {% endif %}
+							{% if form.disabled %} disabled {% endif %}
 							/>
 					</div>
 				</div>

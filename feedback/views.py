@@ -149,6 +149,42 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
             return HttpResponseBadRequest("exercise not found from provided submission_url")
         student = self.get_student(exercise.namespace)
 
+        feedback = None
+        data = {
+            'student': student,
+            'form': self.form_obj,
+            'form_data': form.cleaned_data,
+            'post_url': self.post_url or '',
+            'submission_url': self.submission_url or '',
+            'submission_html_url': gd.html_url,
+            'timestamp': gd.submission_time,
+        }
+
+        # find if there is submission we should update (aplus resend action for example)
+        try:
+            feedback = Feedback.objects.get(exercise=exercise, submission_id=gd.submission_id)
+            feedback.exercise = exercise
+        except Feedback.DoesNotExist:
+            pass
+
+        # update
+        if feedback:
+            for k, v in data.items():
+                if v is not None:
+                    setattr(feedback, k, v)
+            feedback.save()
+
+        # create
+        else:
+            # will create and save new feedback
+            # will also take care of marking old feedbacks
+            feedback = Feedback.create_new_version(
+                exercise = exercise,
+                submission_id = gd.submission_id,
+                path_key = path_key,
+                **data,
+            )
+
         # test if feedback can be automatically accepted
         if settings.JUTUT_AUTOACCEPT_ON:
             augment_form_with_optional_field_info(form)
@@ -157,25 +193,11 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
         else:
             can_be_autoaccepted = False
 
-        # will create and save new feedback
-        # will also take care of marking old feedbacks
-        new = Feedback.create_new_version(
-            exercise = exercise,
-            path_key = path_key,
-            student = student,
-            form = self.form_obj,
-            form_data = form.cleaned_data,
-            post_url = self.post_url or '',
-            submission_url = self.submission_url or '',
-        )
-
         if can_be_autoaccepted:
-            logger.warning("Feedback %d could have been automatically accepted.", new.id)
+            logger.warning("Feedback %d could have been automatically accepted.", feedback.id)
 
-        return self.render_to_response(self.get_context_data(
-            status='accepted',
-            feedback=new,
-        ))
+        status = 'graded' if feedback.responded else 'accepted'
+        return self.render_to_response(self.get_context_data(status=status, feedback=feedback))
 
     def form_invalid(self, form):
         # FIXME: trigger validate again

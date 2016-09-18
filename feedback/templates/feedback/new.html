@@ -4,8 +4,12 @@
 
 {% block meta %}
 	{{ block.super }}
-	{% if status %}
-		<meta name="status" value="{{ status }}" />
+	{% if status == "graded" %}
+		<meta name="status" value="graded" />
+		<meta name="points" value="{{ feedback.response_grade|default:0 }}" />
+		<meta name="max-points" value="{{ feedback.MAX_GRADE }}" />
+	{% else %}
+		<meta name="status" value="{{ status|default:'error' }}" />
 	{% endif %}
 {% endblock %}
 

@@ -1,5 +1,9 @@
 import logging
 from functools import wraps, partial
+from datetime import datetime, timezone
+
+
+DATETIME_JSON_FMT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
 logger = logging.getLogger('aplus_client.interfaces')
 
@@ -49,5 +53,21 @@ class GraderInterface2:
 
     @property
     @none_on_error
+    def submission_id(self):
+        return self.data.submission.id
+
+    @property
+    @none_on_error
     def submitters(self):
         return self.data.submission.submitters
+
+    @property
+    @none_on_error(ValueError)
+    def submission_time(self):
+        time = self.data.submission.submission_time
+        return datetime.strptime(time, DATETIME_JSON_FMT).replace(tzinfo=timezone.utc) if time else None
+
+    @property
+    @none_on_error(KeyError)
+    def html_url(self):
+        return self.data.submission.get_item('html_url')
