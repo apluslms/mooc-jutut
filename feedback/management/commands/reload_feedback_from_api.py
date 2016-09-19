@@ -93,6 +93,7 @@ class Command(BaseCommand):
                 # submission id
                 submission_id = gd.submission_id
                 if not Feedback.objects.filter(exercise=feedback.exercise, submission_id=submission_id).exists():
+                    self.stdout.write(self.style.SUCCESS("  Updating submission_id from '{}' to '{}'".format(feedback.submission_id, submission_id)))
                     feedback.submission_id = submission_id
                     fields.append('submission_id')
 
