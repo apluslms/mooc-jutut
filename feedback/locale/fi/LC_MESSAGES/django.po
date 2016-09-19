@@ -1,13 +1,13 @@
-# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
-# This file is distributed under the same license as the PACKAGE package.
+# Copyright (C) 2016 Jaakko Kantojärvi, Learning + Technology Research Group, Aalto University
+# This file is distributed under the same license as the mooc-jutut package.
 #
 # Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>, 2016.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-12 18:20+0300\n"
-"PO-Revision-Date: 2016-09-12 18:27+0200\n"
+"POT-Creation-Date: 2016-09-19 12:35+0300\n"
+"PO-Revision-Date: 2016-09-19 12:33+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: English <>\n"
 "Language: en_US\n"
@@ -17,48 +17,47 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 2.0\n"
 
-#: feedback/forms.py:90
+#: feedback/forms.py:88
 msgid "older versions"
 msgstr "vanhemmista versioista"
 
-#: feedback/forms.py:91
+#: feedback/forms.py:89
 #, python-brace-format
 msgid ""
 "Someone else has updated this form. See {older_versions_link} for editing."
 msgstr ""
-"Joku muu on päivittänyt lomaketta. Katso {older_versions_link} mikä on"
-" muuttunut."
+"Joku muu on päivittänyt lomaketta. Katso {older_versions_link} mikä on "
+"muuttunut."
 
-#: feedback/models.py:135
-#| msgid "Staff response"
+#: feedback/models.py:152
 msgid "No response"
 msgstr "Ei vastausta"
 
-#: feedback/models.py:136
+#: feedback/models.py:153
 msgid "Rejected"
 msgstr "Hylätty"
 
-#: feedback/models.py:137
+#: feedback/models.py:154
 msgid "Accepted"
 msgstr "Hyväksytty"
 
-#: feedback/models.py:138
+#: feedback/models.py:155
 msgid "Good"
 msgstr "Hyvä"
 
-#: feedback/templates/feedback/_form.html:16
+#: feedback/templates/feedback/_form.html:14
 msgid "Submit"
 msgstr "Lähetä"
 
-#: feedback/templates/feedback/_form.html:16
+#: feedback/templates/feedback/_form.html:14
 msgid "Submit update"
 msgstr "Lähetä uudestaan"
 
-#: feedback/templates/feedback/_form.html:25
+#: feedback/templates/feedback/_form.html:23
 msgid "Staff response"
 msgstr "Henkilökunnan vastaus"
 
-#: feedback/templates/feedback/_form.html:29
+#: feedback/templates/feedback/_form.html:27
 #, python-format
 msgid ""
 "\n"
@@ -69,9 +68,37 @@ msgstr ""
 "\t\t\tPalaute on %(status)s\n"
 "\t\t"
 
-#: feedback/templates/manage/_feedback_panel.html:22
+#: feedback/templates/manage/_feedback_panel.html:17
+msgid "Show exercise in A+"
+msgstr "Näytä tehtävä A+:ssa"
+
+#: feedback/templates/manage/_feedback_panel.html:25
+msgid "Show submission in A+"
+msgstr "Näytä palautus A+:ssa"
+
+#: feedback/templates/manage/_feedback_panel.html:28
+msgid "Show in A+"
+msgstr "Näytä A+:ssa"
+
+#: feedback/templates/manage/_feedback_panel.html:35
+msgid "Show all feedbacks from this student for this exercise"
+msgstr "Näytä kaikki opiskelijan aikaisemmat palautteet tähän tehtävään"
+
+#: feedback/templates/manage/_feedback_panel.html:38
 msgid "Older feedbacks"
 msgstr "Vanhemmat palautteet"
+
+#: feedback/templates/manage/_feedback_panel.html:67
+msgid "This field was <b>not</b> required"
+msgstr "Tämä kenttä <b>ei</b> ollut pakollinen"
+
+#: feedback/templates/manage/_feedback_panel.html:69
+msgid "optional"
+msgstr "valinnainen"
+
+#: feedback/templates/manage/_response_panel.html:106
+msgid "Edit"
+msgstr "Muokkaa"
 
 #: feedback/templates/manage/base.html:42
 #, python-format
