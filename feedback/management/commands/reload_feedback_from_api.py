@@ -48,13 +48,33 @@ class Command(BaseCommand):
 
         feedbacks = feedbacks.order_by('-timestamp', '-id')
 
+        def load_grading_data(client):
+            gd = client.grading_data
+            # make sure all required resources are loaded
+            try:
+                eid = gd.data.submission.exercise.id if update_meta else -1
+            except AttributeError:
+                eid = None
+            ok = eid is not None
+            return gd, ok
+
         for feedback in feedbacks:
             submission_url = feedback.submission_url
             self.stdout.write(self.style.NOTICE("Working on {}, {}".format(feedback.id, submission_url)))
             client = AplusGraderClient(submission_url, debug_enabled=True)
-            gd = client.grading_data
-
             fields = []
+
+            # get grading data
+            for i in range(100):
+                gd, gd_ok = load_grading_data(client)
+                if gd_ok:
+                    break
+                sleep_for = wait + (i*wait/10)
+                self.stdout.write(self.style.NOTICE("ERROR: failed to get grading data.. sleeping for {}s".format(sleep_for)))
+                time.sleep(sleep_for)
+            if not gd_ok:
+                self.stdout.write(self.style.NOTICE("ERROR: failed to get grading data.. giving up"))
+                break
 
             if update_meta:
                 # submitter / student
