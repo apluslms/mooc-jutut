@@ -141,6 +141,8 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
         # Fallback to resolve student from grading_data
         if not student:
             students = self.grading_data.submitters
+            if not students:
+                raise SuspiciousStudent("Failed to resolve students")
             if len(students) != 1:
                 raise SuspiciousStudent("Multiple students in submission. Feedback expects only one")
             student = Student.objects.get_new_or_updated(students[0], namespace=namespace)
@@ -155,11 +157,16 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
     def form_valid(self, form):
         gd = self.grading_data
         path_key = self.path_key
-        exercise, created = Exercise.objects.get_or_create(gd.exercise, select_related=('course', 'course__namespace'))
+        exercise_obj = gd.exercise
+        exercise, created = Exercise.objects.get_or_create(exercise_obj, select_related=('course', 'course__namespace')) if exercise_obj else (None, False)
         if not exercise:
             logger.warning("exercise not resolved from submission_url '%s'", self.submission_url)
             return HttpResponseBadRequest("exercise not found from provided submission_url")
-        student = self.get_student(exercise.namespace)
+        try:
+            student = self.get_student(exercise.namespace)
+        except SuspiciousStudent as err:
+            logger.warning("failed to resolve student: %s", err)
+            return HttpResponseBadRequest(str(err))
 
         feedback = None
         data = {
