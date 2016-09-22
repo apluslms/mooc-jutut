@@ -101,6 +101,24 @@ class FeedbackQuerySet(models.QuerySet):
         return self.filter(
             response_by=None,
             response_time=None,
+            superseded_by=None,
+        )
+
+    def filter_is_responded(self):
+        return self.filter(
+            ~Q(response_by=None),
+            ~Q(response_time=None),
+        )
+
+    def filter_is_autoaccepted(self):
+        return self.filter(
+            Q(response_by=None),
+            ~Q(response_time=None),
+        )
+
+    def filter_is_upload_ok(self):
+        return self.filter(
+            _response_upl_code=200,
         )
 
     def filter_is_upload_failed(self):
@@ -110,9 +128,7 @@ class FeedbackQuerySet(models.QuerySet):
         )
 
     def get_notresponded(self, exercise_id=None, course_id=None, path_filter=None):
-        qs = self.select_related('form', 'exercise').filter(
-            superseded_by=None,
-        ).filter_is_unread()
+        qs = self.select_related('form', 'exercise').filter_is_unread()
         if exercise_id is not None:
             qs = qs.filter(exercise__id=exercise_id)
         elif course_id is not None:

@@ -230,6 +230,12 @@ LOGGING = {
 }
 
 
+# Django fitlers
+# https://django-filter.readthedocs.io/en/latest/ref/settings.html
+FILTERS_HELP_TEXT_EXCLUDE = False
+FILTERS_HELP_TEXT_FILTER = False
+
+
 ###############################################################################
 #
 # Settings logic to handle local settings and any reactions to them

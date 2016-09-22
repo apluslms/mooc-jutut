@@ -34,6 +34,7 @@ from .cached import (
     clear_cache,
 )
 from .forms import ResponseForm
+from .filters import FeedbackFilter
 from .utils import (
     get_url_reverse_resolver,
     obj_with_attrs,
@@ -318,7 +319,7 @@ class ManageNotRespondedListView(LoginRequiredMixin,
                                  ManageCourseMixin,
                                  ListView):
     model = Feedback
-    template_name = "manage/feedback_list.html"
+    template_name = "manage/feedback_unread.html"
     form_class = ResponseForm
     paginate_by = 10
 
@@ -362,6 +363,46 @@ class ManageNotRespondedListView(LoginRequiredMixin,
         )
         context['exercise'] = self._exercise
         context['path_filter'] = self._path_filter
+        return context
+
+
+class ManageFeedbacksListView(LoginRequiredMixin,
+                              ManageCourseMixin,
+                              ListView):
+    model = Feedback
+    template_name = "manage/feedback_list.html"
+    form_class = ResponseForm
+    paginate_by = 10
+
+    def get_queryset(self):
+        self.course = course = get_object_or_404(Course, pk=self.kwargs['course_id'])
+        queryset = Feedback.objects.filter(exercise__course=course)
+        self.feedback_filter = filter = FeedbackFilter(self.request.GET, queryset, course=course)
+        queryset = filter.qs
+        if not queryset.ordered:
+            queryset.order_by('timestamp')
+        return queryset
+
+    def get_context_data(self, **kwargs):
+        course = self.course
+        context = super().get_context_data(course=course, **kwargs)
+        posturl_r = get_url_reverse_resolver('feedback:respond',
+            ('feedback_id',),
+            urlencode({"success_url": self.request.path}))
+        older_r = get_url_reverse_resolver('feedback:byuser',
+            ('course_id', 'user_id', 'exercise_id'))
+        context['feedback_filter'] = self.feedback_filter
+        context['feedbacks'] = (
+            get_feedback_dict(obj,
+                extra={
+                    'form': self.form_class(instance=obj),
+                    'older_url': older_r(course_id=course.id,
+                                         user_id=obj.student.id,
+                                         exercise_id=obj.exercise.id),
+                    'post_url': posturl_r(feedback_id=obj.id)
+                }
+            ) for obj in context['object_list']
+        )
         return context
 
 

@@ -1,0 +1,35 @@
+{% extends "manage/base.html" %}
+{% load dictiterators %}
+{% load i18n %}
+
+{% block content %}
+	<h1>{% trans "Unread Feedback" %}</h1>
+	<h3>{{ course }}
+		{% if exercise %}| {{ exercise }}{% endif %}
+		{% if feedback_filter == None %}
+			<a href="{% url "feedback:list" course_id=course.id %}"
+				class="btn btn-success btn-sm pull-right"
+				>{% trans "Filter feedbacks" %}</a>
+		{% endif %}
+	</h3>
+
+
+	{% if feedback_filter != None %}
+		<div class="col-xs-12">
+			{% include "manage/_filter_bar.html" %}
+		</div>
+	{% endif%}
+
+	{% include "_pagination.html" %}
+
+	{% foreachdict in feedbacks %}
+		<div class="panel panel-default feedback-response-panel">
+			{% include "manage/_feedback_heading.html" with course=course user=feedback.student only %}
+			{% include "manage/_feedback_response.html" %}
+		</div>
+	{% empty %}
+		<p class="alert alert-success">{% trans "No unread feedback." %}</p>
+	{% endforeachdict %}
+
+	{% include "_pagination.html" %}
+{% endblock %}
