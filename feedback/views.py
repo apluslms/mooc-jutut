@@ -170,6 +170,14 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
             logger.warning("failed to resolve student: %s", err)
             return HttpResponseBadRequest(str(err))
 
+        # test if feedback can be automatically accepted
+        if settings.JUTUT_AUTOACCEPT_ON:
+            augment_form_with_optional_field_info(form)
+            augment_form_with_optional_answers_info(form)
+            autoaccept = form_can_be_autoaccepted(form)
+        else:
+            autoaccept = False
+
         # Common data for feedback
         data = {
             'student': student,
@@ -197,6 +205,11 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 
         # create
         else:
+            # grade if autoaccept
+            if autoaccept:
+                data['response_grade'] = Feedback.MAX_GRADE
+                data['response_time'] = timezone_now()
+
             # will create and save new feedback
             # will also take care of marking old feedbacks
             feedback = Feedback.create_new_version(
@@ -206,18 +219,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
                 **data,
             )
 
-        # test if feedback can be automatically accepted
-        if settings.JUTUT_AUTOACCEPT_ON:
-            augment_form_with_optional_field_info(form)
-            augment_form_with_optional_answers_info(form)
-            can_be_autoaccepted = form_can_be_autoaccepted(form)
-        else:
-            can_be_autoaccepted = False
-
-        if can_be_autoaccepted:
-            logger.warning("Feedback %d could have been automatically accepted.", feedback.id)
-
-        status = 'graded' if feedback.responded else 'accepted'
+        status = 'graded' if autoaccept or feedback.responded else 'accepted'
         return self.render_to_response(self.get_context_data(status=status, feedback=feedback))
 
     def form_invalid(self, form):
