@@ -5,6 +5,7 @@ from urllib.parse import urlsplit, urljoin, urlencode
 from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, Http404
 from django.utils.text import slugify
+from django.utils.timezone import now as timezone_now
 from django.shortcuts import get_object_or_404
 from django.views.generic import FormView, UpdateView, ListView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -168,7 +169,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
             logger.warning("failed to resolve student: %s", err)
             return HttpResponseBadRequest(str(err))
 
-        feedback = None
+        # Common data for feedback
         data = {
             'student': student,
             'form': self.form_obj,
@@ -184,7 +185,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
             feedback = Feedback.objects.get(exercise=exercise, submission_id=gd.submission_id)
             feedback.exercise = exercise
         except Feedback.DoesNotExist:
-            pass
+            feedback = None
 
         # update
         if feedback:
@@ -447,42 +448,28 @@ class UserFeedbackView(LoginRequiredMixin,
         return context
 
 
-def update_respond_context(self, context):
-    feedback = context['object']
-    context.update(get_feedback_dict(feedback))
-    success_url = self.request.GET.get(self.success_url_param)
-    if success_url:
-        me = self.request.path
-        params = '?' + urlencode({self.success_url_param: success_url})
-        context['post_url'] = urljoin(me, params)
-
-
-class RespondFeedbackView(LoginRequiredMixin,
-                          ManageCourseMixin,
-                          UpdateView):
+class RespondFeedbackMixin:
     model = Feedback
     form_class = ResponseForm
-    template_name = "manage/response_form.html"
     context_object_name = 'feedback'
     pk_url_kwarg = 'feedback_id'
     success_url_param = 'success_url'
 
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def get_context_data(self, **kwargs):
         feedback = self.object
         context = super().get_context_data(course=feedback.exercise.course, **kwargs)
-        update_respond_context(self, context)
+        context.update(get_feedback_dict(feedback))
+        success_url = self.request.GET.get(self.success_url_param)
+        if success_url:
+            me = self.request.path
+            params = '?' + urlencode({self.success_url_param: success_url})
+            context['post_url'] = urljoin(me, params)
         return context
-
-    def get_success_url(self):
-        if self.request.is_ajax():
-            # skip redirect url resolving for ajax request, as it will be replaced
-            return "ajax"
-        url = self.request.GET.get(self.success_url_param)
-        if not url:
-            url = reverse('feedback:notresponded-exercise', kwargs={
-                'exercise_id': self.object.form.exercise.id,
-            })
-        return url
 
     def form_valid(self, form):
         result = super().form_valid(form)
@@ -492,33 +479,30 @@ class RespondFeedbackView(LoginRequiredMixin,
             return self.render_to_response(self.get_context_data(form=form), status=201)
         return result
 
+    def get_success_url(self):
+        url = self.request.GET.get(self.success_url_param)
+        if not url:
+            url = reverse('feedback:notresponded-exercise', kwargs={
+                'exercise_id': self.object.form.exercise.id,
+            })
+        return url
+
+
+class RespondFeedbackView(LoginRequiredMixin,
+                          RespondFeedbackMixin,
+                          ManageCourseMixin,
+                          UpdateView):
+    template_name = "manage/response_form.html"
+
 
 class RespondFeedbackViewAjax(LoginRequiredMixin,
+                              RespondFeedbackMixin,
                               UpdateView):
-    model = Feedback
-    form_class = ResponseForm
     template_name = "manage/response_form_ajax.html"
-    context_object_name = 'feedback'
-    pk_url_kwarg = 'feedback_id'
-    success_url_param = RespondFeedbackView.success_url_param
-
-    def get_context_data(self, **kwargs):
-        feedback = self.object
-        context = super().get_context_data(course=feedback.exercise.course, **kwargs)
-        update_respond_context(self, context)
-        return context
 
     def get_success_url(self):
         # skip redirect url resolving for ajax request, as it will be replaced
         return None
-
-    def form_valid(self, form):
-        result = super().form_valid(form)
-        if isinstance(result, HttpResponseRedirect):
-            # return form as we would have done with invalid case, but signal client with 201 code that it was created
-            logger.debug("Ajax POST ok, returning original form with status 201")
-            return self.render_to_response(self.get_context_data(form=form), status=201)
-        return result
 
 
 def respond_feedback_view_select(normal_view, ajax_view):

@@ -1,5 +1,4 @@
 import time
-from django.db.models import Q
 from django.core.management.base import BaseCommand, CommandError
 
 from ..command_utils import get_feedback_queryset
@@ -33,7 +32,7 @@ class Command(BaseCommand):
             options['course'],
         )
 
-        feedbacks = feedbacks.filter(~Q(_response_upl_code=200), ~Q(_response_upl_code=0))
+        feedbacks = feedbacks.filter_is_upload_failed()
         if feedbacks_count > 0 and options['max_retries'] > 0:
             feedbacks = feedbacks.filter(_response_upl_attempt__lte=options['max_retries'])
 
@@ -49,7 +48,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.NOTICE("Retrying {} to '{}' having old status {}".format(feedback.id, feedback.submission_url, feedback.response_uploaded)))
 
             update_response_to_aplus(feedback)
-            feedback.save(feedback.RESPONSE_EXTRA_FIELDS)
+            feedback.save([])
 
             status = feedback.response_uploaded
             if status.ok:

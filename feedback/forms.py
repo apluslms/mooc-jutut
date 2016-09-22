@@ -2,6 +2,7 @@ import logging
 from hashlib import md5
 from django import forms
 from django.core.urlresolvers import reverse
+from django.utils.timezone import now as timezone_now
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import mark_safe
 
@@ -14,7 +15,7 @@ logger = logging.getLogger("feedback.forms")
 
 def get_data_changed_check_value(instance):
     check = md5()
-    for k in ('response_msg', 'response_grade', 'response_time'):
+    for k in ('response_time', 'response_by_id', 'response_msg', 'response_grade'):
         check.update(str(getattr(instance, k)).encode('utf-8'))
     return check.hexdigest()
 
@@ -51,13 +52,13 @@ class ResponseForm(forms.ModelForm):
             'response_grade': forms.RadioSelect(),
         }
 
-    def __init__(self, **kwargs):
-        instance = kwargs.get('instance')
+    def __init__(self, instance, user=None, **kwargs):
         assert instance is not None, "ResponseForm requires feedback instance"
+        self._user = user
 
         kwargs.setdefault("auto_id", "resp_{}_%s".format(instance.id))
         kwargs.setdefault('initial', {}).update(self.original_fields(instance))
-        super().__init__(**kwargs)
+        super().__init__(instance=instance, **kwargs)
 
         self.disabled = not instance.can_be_responded
 
@@ -91,9 +92,15 @@ class ResponseForm(forms.ModelForm):
         return self.cleaned_data['data_changed_check']
 
     def save(self):
+        user = self._user
+        if user is None:
+            raise RuntimeError("ResponseForm without user, can't be saved.")
         logger.debug("Saving response data to database and requesing doing update to submission_url")
+
         instance = super().save(commit=False)
+        instance.response_time = timezone_now()
+        instance.response_by = user
         update_response_to_aplus(instance)
-        instance.save(update_fields=self._meta.fields)
-        self.original_fields(self.instance, update=True)
+        instance.save(update_fields=self._meta.fields + ('response_time', 'response_by'))
+        self.original_fields(instance, update=True)
         return instance

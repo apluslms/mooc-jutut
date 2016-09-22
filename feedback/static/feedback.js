@@ -14,14 +14,14 @@ $(function() {
 			sts.removeClass(sts.data('orig-style'));
 			sts.addClass('label-default');
 			sts.text('not saved');
-			footer.find('.response-time').hide();
+			footer.find('.response-by').hide();
 			footer.find('.reset-button').show();
 		} else {
 			sts.removeClass('label-default');
 			sts.addClass(sts.data('orig-style'));
 			sts.text(sts.data('orig-text'));
 			footer.find('.reset-button').hide();
-			footer.find('.response-time').show();
+			footer.find('.response-by').show();
 		}
 	};
 

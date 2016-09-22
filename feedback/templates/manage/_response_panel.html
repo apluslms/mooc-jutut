@@ -21,7 +21,7 @@
 					data-trigger="hover click"
 					data-placement="top"
 					data-html="true"
-					title="Upload is <b>not</b> ok.<br>Tried {{ upl.attempts }} times.<br>Last tried {{ upl.when|date:'Y-m-d H:i:s' }} with statys {{ upl.code }}."
+					title="{% blocktrans with count=upl.attempts when=upl.when|date:'Y-m-d H:i:s' code=upl.code %}Upload is <b>not</b> ok.<br>Tried {{count}} times.<br>Last tried {{when}} with status {{code}}.{% endblocktrans %}"
 					>upload status {{ upl.code }}
 				</span>
 			{% endif %}
@@ -129,7 +129,20 @@
 				style="display: none;"
 				>Reset</button>
 			{% if form.had.responded %}
-				<span class="response-time">{{ form.had.response_time }}</span>
+				<span class="response-by">
+					{% if form.instance.response_by %}
+						{% blocktrans with time=form.instance.response_time user=form.instance.response_by.email %}{{time}} by {{user}}{% endblocktrans %}
+					{% else %}
+						<span rel="tooltip"
+							class="label label-info"
+							data-toggle="tooltip"
+							data-trigger="hover click"
+							data-placement="top"
+							title="{% trans "This feedback was automatically accepted" %}"
+							>{% trans "auto" %}</span>
+						{{ form.instance.response_time }}
+					{% endif %}
+				</span>
 			{% endif %}
 		{% endif %}
 	</div>

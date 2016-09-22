@@ -1,6 +1,7 @@
 import datetime
 from collections import namedtuple
 from django.db import models, transaction
+from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.postgres import fields as pg_fields
 from django.utils import timezone
@@ -14,6 +15,8 @@ from aplus_client.django.models import (
     NestedApiObject,
 )
 from dynamic_forms.models import Form
+
+Q = models.Q
 
 
 class StudentManager(NamespacedApiObject.Manager):
@@ -79,7 +82,7 @@ class Exercise(NestedApiObject):
         return self.display_name
 
 
-class FeedbackManager(models.Manager):
+class FeedbackQuerySet(models.QuerySet):
     def feedback_exercises_for(self, course, student):
         q = self.values(
                 'exercise_id',
@@ -94,16 +97,22 @@ class FeedbackManager(models.Manager):
             )
         return q
 
-    def get_notresponded(self, exercise_id=None, course_id=None, path_filter=None):
-        qs = self.get_queryset().select_related(
-            'form',
-            'exercise',
-        ).all().filter(
-            _response_time=None,
-            superseded_by=None,
-        ).exclude(
-            submission_url='',
+    def filter_is_unread(self):
+        return self.filter(
+            response_by=None,
+            response_time=None,
         )
+
+    def filter_is_upload_failed(self):
+        return self.filter(
+            ~Q(_response_upl_code=200),
+            ~Q(_response_upl_code=0)
+        )
+
+    def get_notresponded(self, exercise_id=None, course_id=None, path_filter=None):
+        qs = self.select_related('form', 'exercise').filter(
+            superseded_by=None,
+        ).filter_is_unread()
         if exercise_id is not None:
             qs = qs.filter(exercise__id=exercise_id)
         elif course_id is not None:
@@ -120,7 +129,7 @@ ResponseUploaded = namedtuple('ResponseUploaded',
 
 
 class Feedback(models.Model):
-    objects = FeedbackManager()
+    objects = FeedbackQuerySet.as_manager()
 
     class Meta:
         unique_together = [
@@ -133,20 +142,23 @@ class Feedback(models.Model):
         ('ACCEPTED', 1, _('Accepted')),
         ('ACCEPTED_GOOD', 2, _('Good')),
     )
+    GRADE_CHOICES = [x for x in GRADES.choices if x[0] >= 0]
     MAX_GRADE = GRADES.ACCEPTED_GOOD
     OK_GRADES = (GRADES.ACCEPTED, GRADES.ACCEPTED_GOOD)
 
+    # identifier
     exercise = models.ForeignKey(Exercise,
                                  related_name='feedbacks',
                                  on_delete=models.PROTECT)
     submission_id = models.IntegerField()
     path_key = models.CharField(max_length=255, db_index=True)
+
+    # feedback
     timestamp = models.DateTimeField(default=timezone.now, db_index=True)
     language = models.CharField(max_length=5, default=get_language, null=True)
     student = models.ForeignKey(Student,
                                 related_name='feedbacks',
-                                on_delete=models.CASCADE,
-                                db_index=True)
+                                on_delete=models.CASCADE)
     form = models.ForeignKey(Form,
                              related_name='feedbacks',
                              on_delete=models.PROTECT,
@@ -155,37 +167,32 @@ class Feedback(models.Model):
     superseded_by = models.ForeignKey('self',
                                       related_name="supersedes",
                                       on_delete=models.SET_NULL,
-                                      null=True,
-                                      db_index=True)
+                                      null=True)
     post_url = models.URLField()
     submission_url = models.URLField()
     submission_html_url = models.URLField()
+
+    # response
+    response_time = models.DateTimeField(null=True)
+    response_by = models.ForeignKey(settings.AUTH_USER_MODEL,
+                                    related_name='responded_feedbacks',
+                                    on_delete=models.SET_NULL,
+                                    null=True)
     response_msg = models.TextField(blank=True,
                                     null=True,
                                     default=None,
                                     verbose_name="Response")
     response_grade = models.PositiveSmallIntegerField(default=GRADES.REJECTED,
-                                                      choices=[x for x in GRADES.choices if x[0] >= 0],
+                                                      choices=GRADE_CHOICES,
                                                       verbose_name="Grade")
-    _response_time = models.DateTimeField(null=True,
-                                          db_column='response_time')
+
+    # response upload
     _response_upl_code = models.PositiveSmallIntegerField(default=0,
                                                           db_column='response_upload_code')
     _response_upl_attempt = models.PositiveSmallIntegerField(default=0,
                                                              db_column='response_upload_attempt')
     _response_upl_at = models.DateTimeField(null=True,
                                             db_column='response_upload_at')
-
-    RESPONSE_FIELDS =  (
-        'response_msg',
-        'response_grade',
-    )
-    RESPONSE_EXTRA_FIELDS = (
-        '_response_time',
-        '_response_upl_code',
-        '_response_upl_attempt',
-        '_response_upl_at',
-    )
 
 
     # Extra getters and properties
@@ -221,15 +228,11 @@ class Feedback(models.Model):
         return self.get_form_class(dummy)(data=self.form_data)
 
     @property
-    def response_time(self):
-        return self._response_time
-
-    @property
     def response_uploaded(self):
         when = self._response_upl_at
         code = self._response_upl_code
         attempts = self._response_upl_attempt
-        ok = code == 200
+        ok = code in (0, 200)
         return ResponseUploaded(ok, when, code, attempts)
 
     @response_uploaded.setter
@@ -242,10 +245,11 @@ class Feedback(models.Model):
             self._response_upl_code = 0
             self._response_upl_attempt = 0
             self._response_upl_at = None
+        self.__changed_fields.update(('_response_upl_code', '_response_upl_attempt', '_response_upl_at'))
 
     @property
     def responded(self):
-        return self._response_time is not None
+        return self.response_time is not None
 
     @property
     def waiting_for_response(self):
@@ -304,38 +308,13 @@ class Feedback(models.Model):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.__response = (
-            {k: getattr(self, k) for k in self.RESPONSE_FIELDS}
-            if not self.get_deferred_fields() else
-            None
-        )
-
-    def clean(self):
-        if not self.__response:
-            raise RuntimeError("Model is read-only as response fields are deferred")
-        # if response field is changed set udpate time
-        rt = self._response_time
-        for k in self.RESPONSE_FIELDS:
-            val = getattr(self, k)
-            if val != self.__response[k] or (not rt and val != self._meta.get_field(k).get_default()):
-                self._response_time = timezone.now()
-                break
+        self.__changed_fields = set()
 
     def save(self, update_fields=None, **kwargs):
-        if not self.__response:
-            raise RuntimeError("Model is read-only as response fields are deferred")
-        response_update = True
-        if update_fields is not None:
-            update_fields = set(update_fields)
-            if any(k in update_fields for k in self.RESPONSE_FIELDS):
-                update_fields.update(self.RESPONSE_FIELDS)
-                update_fields.update(self.RESPONSE_EXTRA_FIELDS)
-            else:
-                response_update = False
-            update_fields = tuple(update_fields)
+        if update_fields is not None and self.__changed_fields:
+            update_fields = tuple(set(update_fields) | self.__changed_fields)
         ret = super().save(update_fields=update_fields, **kwargs)
-        if response_update:
-            self.__response = {k: getattr(self, k) for k in self.RESPONSE_FIELDS}
+        self.__changed_fields = set()
         return ret
 
     def supersede_older(self):

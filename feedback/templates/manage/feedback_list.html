@@ -1,20 +1,23 @@
 {% extends "manage/base.html" %}
 {% load dictiterators %}
+{% load i18n %}
 
 {% block content %}
-	<h1>Unresponded Feedback</h1>
+	<h1>{% trans "Unread Feedback" %}</h1>
 	<h3>{{ course }}
 		{% if exercise %}| {{ exercise }}{% endif %}
 	</h3>
-	<div> {# class="_panel-group" #}
+
 	{% include "_pagination.html" %}
+
 	{% foreachdict in feedbacks %}
 		<div class="panel panel-default feedback-response-panel">
 			{% include "manage/_feedback_heading.html" with course=course user=feedback.student only %}
 			{% include "manage/_feedback_response.html" %}
 		</div>
 	{% empty %}
-		<p>No unresponded feedback yet.</p>
+		<p class="alert alert-success">{% trans "No unread feedback." %}</p>
 	{% endforeachdict %}
-	</div>
+
+	{% include "_pagination.html" %}
 {% endblock %}
