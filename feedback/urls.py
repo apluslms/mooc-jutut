@@ -9,6 +9,8 @@ from . import views
 FeedbackSubmissionView_view = cache(views.FeedbackSubmissionView.as_view())
 ManageCourseListView_view = views.ManageCourseListView.as_view()
 ManageNotRespondedListView_view = views.ManageNotRespondedListView.as_view()
+UserListView_view = views.UserListView.as_view()
+UserFeedbackListView_view = views.UserFeedbackListView.as_view()
 UserFeedbackView_view = views.UserFeedbackView.as_view()
 RespondFeedbackView_view = views.respond_feedback_view_select(
     views.RespondFeedbackView.as_view(),
@@ -43,28 +45,42 @@ urlpatterns = [
     url(r'^manage/(?P<course_id>\d+)/clear-cache/$',
         views.ManageClearCacheView.as_view(),
         name='clear-cache'),
-    url(r'^manage/notresponded/course/(?P<course_id>\d+)/$',
+    url(r'^manage/(?P<course_id>\d+)/unread/$',
         ManageNotRespondedListView_view,
         name='notresponded-course'),
-    url(r'^manage/notresponded/course/(?P<course_id>\d+)/(?P<path_filter>{path_regex}*)$'.format(path_regex=PATH_REGEX),
+    url(r'^manage/(?P<course_id>\d+)/unread/(?P<path_filter>{path_regex}*)$'.format(path_regex=PATH_REGEX),
         ManageNotRespondedListView_view,
         name='notresponded-course'),
     url(r'^manage/notresponded/exercise/(?P<exercise_id>\d+)/$',
         ManageNotRespondedListView_view,
         name='notresponded-exercise'),
-    url(r'^manage/user/(?P<course_id>\d+)/$',
-        views.UserListView.as_view(),
+    url(r'^manage/(?P<course_id>\d+)/user/$',
+        UserListView_view,
         name='user-list'),
-    url(r'^manage/byuser/(?P<course_id>\d+)/(?P<user_id>\d+)/$',
-        views.UserFeedbackListView.as_view(),
+    url(r'^manage/(?P<course_id>\d+)/byuser/(?P<user_id>\d+)/$',
+        UserFeedbackListView_view,
         name='byuser'),
-    url(r'^manage/byuser/(?P<course_id>\d+)/(?P<user_id>\d+)/(?P<exercise_id>\d+)/$',
+    url(r'^manage/(?P<course_id>\d+)/byuser/(?P<user_id>\d+)/(?P<exercise_id>\d+)/$',
         UserFeedbackView_view,
         name='byuser'),
-    url(r'^manage/byuser/(?P<course_id>\d+)/(?P<user_id>\d+)/(?P<exercise_id>\d+)/(?P<path_filter>{path_regex}*)$'.format(path_regex=PATH_REGEX),
+    url(r'^manage/(?P<course_id>\d+)/byuser/(?P<user_id>\d+)/(?P<exercise_id>\d+)/(?P<path_filter>{path_regex}*)$'.format(path_regex=PATH_REGEX),
         UserFeedbackView_view,
         name='byuser'),
     url(r'^manage/respond/(?P<feedback_id>\d+)/$',
         RespondFeedbackView_view,
         name='respond'),
+
+    # support for old urls
+    url(r'^manage/notresponded/course/(?P<course_id>\d+)/$',
+         ManageNotRespondedListView_view),
+    url(r'^manage/notresponded/course/(?P<course_id>\d+)/(?P<path_filter>{path_regex}*)$'.format(path_regex=PATH_REGEX),
+         ManageNotRespondedListView_view),
+    url(r'^manage/user/(?P<course_id>\d+)/$',
+        UserListView_view),
+    url(r'^manage/byuser/(?P<course_id>\d+)/(?P<user_id>\d+)/$',
+        UserFeedbackListView_view),
+    url(r'^manage/byuser/(?P<course_id>\d+)/(?P<user_id>\d+)/(?P<exercise_id>\d+)/$',
+        UserFeedbackView_view),
+    url(r'^manage/byuser/(?P<course_id>\d+)/(?P<user_id>\d+)/(?P<exercise_id>\d+)/(?P<path_filter>{path_regex}*)$'.format(path_regex=PATH_REGEX),
+        UserFeedbackView_view),
 ]
