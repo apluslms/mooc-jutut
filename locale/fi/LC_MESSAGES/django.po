@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-19 12:35+0300\n"
+"POT-Creation-Date: 2016-09-23 05:54+0300\n"
 "PO-Revision-Date: 2016-09-19 12:35+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: English <>\n"
@@ -17,7 +17,7 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 2.0\n"
 
-#: templates/_pagination.html:10 templates/_pagination.html:13
+#: templates/_pagination.html:11 templates/_pagination.html:13
 msgid "Previous"
 msgstr "Edellinen"
 
@@ -32,7 +32,7 @@ msgstr ""
 "\t\t\t\tSivu %(current)s/%(total)s\n"
 "\t\t\t\t"
 
-#: templates/_pagination.html:35 templates/_pagination.html:38
+#: templates/_pagination.html:35 templates/_pagination.html:37
 msgid "Next"
 msgstr "Seuraava"
 

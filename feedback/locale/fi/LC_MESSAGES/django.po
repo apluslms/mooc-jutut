@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-19 12:35+0300\n"
-"PO-Revision-Date: 2016-09-19 12:33+0200\n"
+"POT-Creation-Date: 2016-09-23 05:54+0300\n"
+"PO-Revision-Date: 2016-09-23 06:00+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: English <>\n"
 "Language: en_US\n"
@@ -17,11 +17,44 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 2.0\n"
 
-#: feedback/forms.py:88
+#: feedback/filters.py:120
+msgid "Unread"
+msgstr "Lukemattomat"
+
+#: feedback/filters.py:121
+#| msgid "No response"
+msgid "Responded"
+msgstr "Vastattu"
+
+#: feedback/filters.py:122
+msgid "Has response message"
+msgstr "Omaa vastausviestin"
+
+#: feedback/filters.py:123
+msgid "Automatically accepted"
+msgstr "Automaattisesti hyväksytyt"
+
+#: feedback/filters.py:124
+msgid "Upload ok"
+msgstr "Lähetys on onnistunut"
+
+#: feedback/filters.py:125
+msgid "Upload has error"
+msgstr "Lähetys on epäonnistunut"
+
+#: feedback/filters.py:139
+msgid "Oldest first"
+msgstr "Vanhemmat ensin"
+
+#: feedback/filters.py:140
+msgid "Newest first"
+msgstr "Uudemmat ensin"
+
+#: feedback/forms.py:89
 msgid "older versions"
 msgstr "vanhemmista versioista"
 
-#: feedback/forms.py:89
+#: feedback/forms.py:90
 #, python-brace-format
 msgid ""
 "Someone else has updated this form. See {older_versions_link} for editing."
@@ -29,19 +62,19 @@ msgstr ""
 "Joku muu on päivittänyt lomaketta. Katso {older_versions_link} mikä on "
 "muuttunut."
 
-#: feedback/models.py:152
+#: feedback/models.py:157
 msgid "No response"
 msgstr "Ei vastausta"
 
-#: feedback/models.py:153
+#: feedback/models.py:158
 msgid "Rejected"
 msgstr "Hylätty"
 
-#: feedback/models.py:154
+#: feedback/models.py:159
 msgid "Accepted"
 msgstr "Hyväksytty"
 
-#: feedback/models.py:155
+#: feedback/models.py:160
 msgid "Good"
 msgstr "Hyvä"
 
@@ -96,9 +129,35 @@ msgstr "Tämä kenttä <b>ei</b> ollut pakollinen"
 msgid "optional"
 msgstr "valinnainen"
 
+#: feedback/templates/manage/_filter_bar.html:5
+msgid "Filter options"
+msgstr "Rajausvalinnat"
+
+#: feedback/templates/manage/_response_panel.html:24
+#, python-format
+msgid ""
+"Upload is <b>not</b> ok.<br>Tried %(count)s times.<br>Last tried %(when)s "
+"with status %(code)s."
+msgstr ""
+"Lähetyksessä on <b>virhe</b>.<br>Lähettämistä yritetty %(count)s kertaa."
+"<br>Viimeisin yritys %(when)s sai vastauskoodin %(code)s."
+
 #: feedback/templates/manage/_response_panel.html:106
 msgid "Edit"
 msgstr "Muokkaa"
+
+#: feedback/templates/manage/_response_panel.html:134
+#, python-format
+msgid "%(time)s by %(user)s"
+msgstr "%(time)s, %(user)s"
+
+#: feedback/templates/manage/_response_panel.html:141
+msgid "This feedback was automatically accepted"
+msgstr "Palaute on automaattisesti hyväksytty"
+
+#: feedback/templates/manage/_response_panel.html:142
+msgid "auto"
+msgstr "auto"
 
 #: feedback/templates/manage/base.html:42
 #, python-format
@@ -112,6 +171,53 @@ msgstr "Valitse sivusto"
 #: feedback/templates/manage/base.html:64
 msgid "Select course"
 msgstr "Valitse kurssi"
+
+#: feedback/templates/manage/base.html:113
+#: feedback/templates/manage/feedback_unread.html:12
+#| msgid "Older feedbacks"
+msgid "Filter feedbacks"
+msgstr "Rajaa palautteita"
+
+#: feedback/templates/manage/base.html:114
+msgid "Student list"
+msgstr "Opiskelijalista"
+
+#: feedback/templates/manage/base.html:116
+msgid "Clear cache"
+msgstr "Tyhjennä välimuisti"
+
+#: feedback/templates/manage/feedback_list.html:12
+#, python-format
+#| msgid ""
+#| "\n"
+#| "\t\t\tFeedback is %(status)s\n"
+#| "\t\t"
+msgid "Feedback for %(course)s"
+msgstr "Palauteet kurssilla '%(course)s'"
+
+#: feedback/templates/manage/feedback_list.html:25
+msgid "No feedback shown as there is errors in the filter form"
+msgstr "Palautteita ei näytetä, sillä lomakkeessa on virhe"
+
+#: feedback/templates/manage/feedback_list.html:27
+msgid "No feedback shown as there is no filter selection"
+msgstr "Palautteita ei näytetä, sillä mitään rajoitteita ei ole valittu"
+
+#: feedback/templates/manage/feedback_list.html:29
+msgid "No feedback found"
+msgstr "Yhtään palauttetta ei löytynyt"
+
+#: feedback/templates/manage/feedback_unread.html:6
+#| msgid "Older feedbacks"
+msgid "Unread Feedback"
+msgstr "Lukemattomat palautteet"
+
+#: feedback/templates/manage/feedback_unread.html:31
+msgid "No unread feedback."
+msgstr "Ei lukemattomia palautteita"
+
+#~ msgid "User list"
+#~ msgstr "Käyttäjälista"
 
 #~ msgid "Accepted and Good"
 #~ msgstr "Hyväksytty lisäpisteellä"
