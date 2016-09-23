@@ -68,7 +68,7 @@ class Enum(object):
 
     @property
     def choices(self):
-        return tuple(sorted(self._strings.items()))
+        return tuple(self._strings.items())
 
     def keys(self):
         return (x for x in self._keys)
