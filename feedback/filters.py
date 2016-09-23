@@ -80,6 +80,19 @@ class DateTimeFromToRangeFilter(django_filters.filters.RangeFilter):
     field_class = DateTimeRangeField
 
 
+class MultipleChoiceFilter(django_filters.MultipleChoiceFilter):
+    """MultipleChoiceFilter with extra_filter option to apply if filter itself was applied"""
+    def __init__(self, *args, extra_filter=None, **kwargs):
+        self._extra = extra_filter
+        super().__init__(*args, **kwargs)
+
+    def filter(self, qs, value):
+        fqs = super().filter(qs, value)
+        if fqs is not qs and self._extra:
+            fqs = self._extra(fqs)
+        return fqs
+
+
 class OrderingFilter(django_filters.filters.ChoiceFilter):
     """Simple ordering filter that works with radio select"""
     def __init__(self, *args, **kwargs):
@@ -128,8 +141,9 @@ class FeedbackFilter(django_filters.FilterSet):
     flags = django_filters.MultipleChoiceFilter(choices=FLAGS.choices,
                                                 widget=forms.CheckboxSelectMultiple(),
                                                 method='filter_flags')
-    response_grade = django_filters.MultipleChoiceFilter(choices=Feedback.GRADE_CHOICES,
-                                                         widget=forms.CheckboxSelectMultiple())
+    response_grade = MultipleChoiceFilter(choices=Feedback.GRADE_CHOICES,
+                                          extra_filter=lambda q: q.exclude(response_time=None),
+                                          widget=forms.CheckboxSelectMultiple())
     exercise = django_filters.ModelChoiceFilter(queryset=Exercise.objects.none())
     student = django_filters.ModelChoiceFilter(queryset=Student.objects.none())
     timestamp = DateTimeFromToRangeFilter()
