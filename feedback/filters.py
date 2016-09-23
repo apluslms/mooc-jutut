@@ -129,16 +129,7 @@ class FeedbackFilterForm(forms.Form):
 
 
 class FeedbackFilter(django_filters.FilterSet):
-    FLAGS = Enum(
-        ('UNREAD', 'u', _("Unread")),
-        ('RESPONDED', 'r', _("Responded")),
-        ('RESPONSE_MESSAGE', 'm', _("Has response message")),
-        ('AUTOACCEPTED', 'a', _("Automatically accepted")),
-        ('UPL_OK', 'o', _("Upload ok")),
-        ('UPL_ERROR', 'e', _("Upload has error")),
-    )
-
-    flags = django_filters.MultipleChoiceFilter(choices=FLAGS.choices,
+    flags = django_filters.MultipleChoiceFilter(choices=Feedback.objects.get_queryset().FILTER_FLAGS.choices,
                                                 widget=forms.CheckboxSelectMultiple(),
                                                 method='filter_flags')
     response_grade = MultipleChoiceFilter(choices=Feedback.GRADE_CHOICES,
@@ -184,18 +175,6 @@ class FeedbackFilter(django_filters.FilterSet):
         form.fields['student'].queryset = Student.objects.using_namespace(course.namespace).all()
         return form
 
-    def filter_flags(self, queryset, name, values):
-        f = self.FLAGS
-        handlers = {
-            f.UNREAD: lambda q: q.filter_is_unread(),
-            f.RESPONDED: lambda q: q.filter_is_responded(),
-            f.RESPONSE_MESSAGE: lambda q: q.filter_is_responded().exclude(response_msg='').exclude(response_msg=None),
-            f.AUTOACCEPTED: lambda q: q.filter_is_autoaccepted(),
-            f.UPL_OK: lambda q: q.filter_is_upload_ok(),
-            f.UPL_ERROR: lambda q: q.filter_is_upload_failed(),
-        }
-        for value in values:
-            handler = handlers.get(value)
-            if handler:
-                queryset = handler(queryset)
-        return queryset
+    @staticmethod
+    def filter_flags(queryset, name, values):
+        return queryset.filter_flags(*values)

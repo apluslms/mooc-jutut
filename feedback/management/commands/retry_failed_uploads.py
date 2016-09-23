@@ -32,7 +32,7 @@ class Command(BaseCommand):
             options['course'],
         )
 
-        feedbacks = feedbacks.filter_is_upload_failed()
+        feedbacks = feedbacks.filter_flags(feedbacks.FILTER_FLAGS.UPL_ERROR)
         if feedbacks_count > 0 and options['max_retries'] > 0:
             feedbacks = feedbacks.filter(_response_upl_attempt__lte=options['max_retries'])
 

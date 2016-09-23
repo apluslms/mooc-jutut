@@ -1,5 +1,6 @@
 import datetime
 from collections import namedtuple
+from functools import reduce
 from django.db import models, transaction
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -83,6 +84,38 @@ class Exercise(NestedApiObject):
 
 
 class FeedbackQuerySet(models.QuerySet):
+    FILTER_FLAGS = Enum(
+        ('NEWEST', 'n', _("Newest versions")),
+        ('UNREAD', 'u', _("Unread")),
+        ('READ', 'r', _("Read")),
+        ('GRADED', 'g', _("Graded")),
+        ('AUTO', 'a', _("Automatically graded")),
+        ('MANUAL', 'm', _("Manually graded")),
+        ('RESPONDED', 'h', _("Responded")),
+        ('UPL_OK', 'o', _("Upload ok")),
+        ('UPL_ERROR', 'e', _("Upload has error")),
+    )
+
+    FILTERS = {
+        FILTER_FLAGS.NEWEST: Q(superseded_by=None),
+        FILTER_FLAGS.UNREAD: Q(response_time=None),
+        FILTER_FLAGS.READ: ~Q(response_time=None),
+        FILTER_FLAGS.GRADED: ~Q(response_time=None),
+        FILTER_FLAGS.RESPONDED: ~Q(response_time=None) & ~Q(response_msg='') & ~Q(response_msg=None),
+        FILTER_FLAGS.AUTO: ~Q(response_time=None) & Q(response_by=None),
+        FILTER_FLAGS.MANUAL: ~Q(response_time=None) & ~Q(response_by=None),
+        FILTER_FLAGS.UPL_OK: Q(_response_upl_code=200),
+        FILTER_FLAGS.UPL_ERROR: ~Q(_response_upl_code=200) & ~Q(_response_upl_code=0),
+    }
+
+    def filter_flags(self, *flags):
+        try:
+            filters = [self.FILTERS[f] for f in flags]
+        except KeyError as e:
+            raise AttributeError("Invalid flag: {}".format(e))
+        q = reduce(Q.__and__, filters)
+        return self.filter(q)
+
     def feedback_exercises_for(self, course, student):
         q = self.values(
                 'exercise_id',
@@ -97,38 +130,11 @@ class FeedbackQuerySet(models.QuerySet):
             )
         return q
 
-    def filter_is_unread(self):
-        return self.filter(
-            response_by=None,
-            response_time=None,
-            superseded_by=None,
-        )
-
-    def filter_is_responded(self):
-        return self.filter(
-            ~Q(response_by=None),
-            ~Q(response_time=None),
-        )
-
-    def filter_is_autoaccepted(self):
-        return self.filter(
-            Q(response_by=None),
-            ~Q(response_time=None),
-        )
-
-    def filter_is_upload_ok(self):
-        return self.filter(
-            _response_upl_code=200,
-        )
-
-    def filter_is_upload_failed(self):
-        return self.filter(
-            ~Q(_response_upl_code=200),
-            ~Q(_response_upl_code=0)
-        )
-
     def get_notresponded(self, exercise_id=None, course_id=None, path_filter=None):
-        qs = self.select_related('form', 'exercise').filter_is_unread()
+        qs = self.select_related('form', 'exercise').filter_flags(
+            self.FILTER_FLAGS.NEWEST,
+            self.FILTER_FLAGS.UNREAD,
+        )
         if exercise_id is not None:
             qs = qs.filter(exercise__id=exercise_id)
         elif course_id is not None:
