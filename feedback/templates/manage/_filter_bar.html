@@ -2,7 +2,9 @@
 
 <div class="panel panel-{{ feedback_filter.form.contains_data|yesno:'success,default,danger' }}">
 	<div class="panel-heading" data-toggle="collapse" data-target="#filter-panel" role="button" style="cursor: pointer;">
-		<h3 class="panel-title">{% trans "Filter options" %}</h3>
+		<h3 class="panel-title">{% trans "Filter options" %}
+			<span class="glyphicon glyphicon-menu-down pull-right"></span>
+		</h3>
 	</div>
 	<div id="filter-panel" class="panel-body collapse {% if not feedback_filter.form.is_valid or not feedback_filter.qs.count %}in{% endif %}">
 		<form id="filter-form" role="form" action="{% url 'feedback:list' course_id=course.id %}" method="GET" class="form-horizontal">
