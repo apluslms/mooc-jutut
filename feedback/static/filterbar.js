@@ -2,14 +2,18 @@ $(function () {
 	// Disable empty fields from filter form
 	$("#filter-form").submit(function() {
 		$(this).find(":input").filter(function() {return !this.value;})
-			.data("get-cleaned", true)
+			.addClass("disabled-for-post")
 			.attr("disabled", "disabled");
 		return true;
-	}).find("[data-get-cleaned]").filter(":input").prop("disabled", false);
+	})
+	/* on page unload (just after creating form submission) remove disabled stated for bfcache */
+	$(window).on('unload', function() {
+		$("#filter-form .disabled-for-post").prop("disabled", false);
+		// NOTE: should we do reset here? Page rendered after back action would show form that reflects current page content.
+	});
 
 	// covert given ul to set of buttons
 	var covert_checkboxes_to_buttons = function() {
-		console.log(this);
 		var widget = $(this);
 		var group = $('<div class="btn-group"></div>');
 		widget.after(group);
