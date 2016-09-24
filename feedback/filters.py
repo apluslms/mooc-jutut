@@ -1,6 +1,7 @@
 import datetime
 import django_filters
 from django import forms
+from django.contrib.postgres import fields as pg_fields
 from django.utils.translation import ugettext_lazy as _
 
 from lib.helpers import Enum
@@ -139,6 +140,7 @@ class FeedbackFilter(django_filters.FilterSet):
     student = django_filters.ModelChoiceFilter(queryset=Student.objects.none())
     timestamp = DateTimeFromToRangeFilter()
     path_key = django_filters.CharFilter(lookup_expr='istartswith')
+    form_data = django_filters.CharFilter(method='filter_form_data')
 
     order_by = OrderingFilter(choices=(
         ('timestamp', _('Oldest first')),
@@ -153,10 +155,15 @@ class FeedbackFilter(django_filters.FilterSet):
             'student',
             'timestamp',
             'path_key',
+            'form_data',
             'response_by',
             'response_grade',
             'flags',
         )
+        filter_overrides = {
+            # hack to make django_filters not to complain about jsonfield
+            pg_fields.JSONField: { 'filter_class': django_filters.CharFilter },
+        }
 
     def __init__(self, data, *args, course=None, **kwargs):
         assert course, "FeedbackFilter requires course object"
@@ -178,3 +185,7 @@ class FeedbackFilter(django_filters.FilterSet):
     @staticmethod
     def filter_flags(queryset, name, values):
         return queryset.filter_flags(*values)
+
+    @staticmethod
+    def filter_form_data(queryset, name, value):
+        return queryset.filter_data(value)

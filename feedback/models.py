@@ -1,4 +1,5 @@
 import datetime
+import shlex
 from collections import namedtuple
 from functools import reduce
 from django.db import models, transaction
@@ -115,6 +116,16 @@ class FeedbackQuerySet(models.QuerySet):
             raise AttributeError("Invalid flag: {}".format(e))
         q = reduce(Q.__and__, filters)
         return self.filter(q)
+
+    def filter_data(self, search):
+        if '*' in search:
+            search = search.replace('*', '%')
+        else:
+            search = ''.join(('%', '%'.join(shlex.split(search)), '%'))
+        return self.extra(
+            where=['form_data::text like %s'],
+            params=[search],
+        )
 
     def feedback_exercises_for(self, course, student):
         q = self.values(
