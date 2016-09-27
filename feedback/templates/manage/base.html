@@ -7,10 +7,16 @@
 {{ block.super }}
 	{# project additions #}
 	<link rel="stylesheet" href="{% static "feedback.css" %}">
+
+	{# language flags, src: https://github.com/usrz/bootstrap-languages @ 81e4a03 #}
+	<link rel="stylesheet" href="{% static "languages.min.css" %}">
 {% endblock %}
 
 {% block scripts %}
 {{ block.super }}
+	{# nav bar code #}
+	<script src="{% static "nav.js" %}"></script>
+
 	{# project additions #}
 	<script src="{% static "feedback.js" %}"></script>
 {% endblock %}
@@ -108,7 +114,7 @@
 							<a href="#" class="dropdown-toggle"
 								data-toggle="dropdown" role="button"
 								aria-haspopup="true" aria-expanded="false"
-								>More <span class="caret"></span></a>
+								>{% trans "More" %} <span class="caret"></span></a>
 							<ul class="dropdown-menu">
 								<li><a href="{% url "feedback:list" course_id=course.id %}">{% trans "Filter feedbacks" %}</a></li>
 								<li><a href="{% url "feedback:user-list" course_id=course.id %}">{% trans "Student list" %}</a></li>
@@ -125,6 +131,31 @@
 						</li>
 					{% endif %}
 				</ul>
+
+				{# language select #}
+				<form id="language-form" action="{% url 'set_language' %}" method="post" style="display: none;">
+					{% csrf_token %}
+					<input name="next" type="hidden" value="{{ request.get_full_path }}" />
+					<input name="language" type="hidden" value="" />
+				</form>
+				<ul id="language-menu" class="nav navbar-nav navbar-right" style="display: none;">
+					<li class="dropdown">
+						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{% trans "Language" %} <span class="caret"></span></a>
+						<ul id="language-select" class="dropdown-menu" role="menu">
+							{% get_current_language as LANGUAGE_CODE %}
+							{% get_available_languages as LANGUAGES %}
+							{% get_language_info_list for LANGUAGES as languages %}
+							{% for language in languages %}
+								<li class="{% if language.code == LANGUAGE_CODE %}active{% endif %}" data-value="{{ language.code }}">
+									<a href="#" data-lang="{{ language.code }}">
+										<span class="lang-sm lang-lbl-full" lang="{{ language.code }}"></span>
+									</a>
+								</li>
+							{% endfor %}
+						</ul>
+					</li>
+				</ul>
+				{# END language select #}
 			</div><!--/.nav-collapse -->
 		</div>
 	</nav>

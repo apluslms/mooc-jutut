@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-27 20:15+0300\n"
-"PO-Revision-Date: 2016-09-27 20:18+0200\n"
+"POT-Creation-Date: 2016-09-27 21:47+0300\n"
+"PO-Revision-Date: 2016-09-27 21:48+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: English <>\n"
 "Language: en_US\n"
@@ -38,7 +38,6 @@ msgstr ""
 "muuttunut."
 
 #: feedback/models.py:89
-#| msgid "older versions"
 msgid "Newest versions"
 msgstr "Uusimmat versiot"
 
@@ -55,7 +54,6 @@ msgid "Graded"
 msgstr "Arvosteltu"
 
 #: feedback/models.py:93
-#| msgid "Automatically accepted"
 msgid "Automatically graded"
 msgstr "Automaattisesti arvosteltu"
 
@@ -172,31 +170,39 @@ msgstr "Palaute on automaattisesti hyväksytty"
 msgid "auto"
 msgstr "auto"
 
-#: feedback/templates/manage/base.html:42
+#: feedback/templates/manage/base.html:48
 #, python-format
 msgid "Site: %(name)s"
 msgstr "Sivusto: %(name)s"
 
-#: feedback/templates/manage/base.html:44
+#: feedback/templates/manage/base.html:50
 msgid "Select site"
 msgstr "Valitse sivusto"
 
-#: feedback/templates/manage/base.html:64
+#: feedback/templates/manage/base.html:70
 msgid "Select course"
 msgstr "Valitse kurssi"
 
-#: feedback/templates/manage/base.html:113
+#: feedback/templates/manage/base.html:117
+msgid "More"
+msgstr "Lisää"
+
+#: feedback/templates/manage/base.html:119
 #: feedback/templates/manage/feedback_unread.html:12
 msgid "Filter feedbacks"
 msgstr "Rajaa palautteita"
 
-#: feedback/templates/manage/base.html:114
+#: feedback/templates/manage/base.html:120
 msgid "Student list"
 msgstr "Opiskelijalista"
 
-#: feedback/templates/manage/base.html:116
+#: feedback/templates/manage/base.html:122
 msgid "Clear cache"
 msgstr "Tyhjennä välimuisti"
+
+#: feedback/templates/manage/base.html:143
+msgid "Language"
+msgstr "Kieli"
 
 #: feedback/templates/manage/feedback_list.html:12
 #, python-format
