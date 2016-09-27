@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-23 05:54+0300\n"
-"PO-Revision-Date: 2016-09-23 06:00+0200\n"
+"POT-Creation-Date: 2016-09-27 20:15+0300\n"
+"PO-Revision-Date: 2016-09-27 20:18+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: English <>\n"
 "Language: en_US\n"
@@ -17,36 +17,11 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 2.0\n"
 
-#: feedback/filters.py:120
-msgid "Unread"
-msgstr "Lukemattomat"
-
-#: feedback/filters.py:121
-#| msgid "No response"
-msgid "Responded"
-msgstr "Vastattu"
-
-#: feedback/filters.py:122
-msgid "Has response message"
-msgstr "Omaa vastausviestin"
-
-#: feedback/filters.py:123
-msgid "Automatically accepted"
-msgstr "Automaattisesti hyväksytyt"
-
-#: feedback/filters.py:124
-msgid "Upload ok"
-msgstr "Lähetys on onnistunut"
-
-#: feedback/filters.py:125
-msgid "Upload has error"
-msgstr "Lähetys on epäonnistunut"
-
-#: feedback/filters.py:139
+#: feedback/filters.py:147
 msgid "Oldest first"
 msgstr "Vanhemmat ensin"
 
-#: feedback/filters.py:140
+#: feedback/filters.py:148
 msgid "Newest first"
 msgstr "Uudemmat ensin"
 
@@ -62,19 +37,57 @@ msgstr ""
 "Joku muu on päivittänyt lomaketta. Katso {older_versions_link} mikä on "
 "muuttunut."
 
-#: feedback/models.py:157
+#: feedback/models.py:89
+#| msgid "older versions"
+msgid "Newest versions"
+msgstr "Uusimmat versiot"
+
+#: feedback/models.py:90
+msgid "Unread"
+msgstr "Lukematon"
+
+#: feedback/models.py:91
+msgid "Read"
+msgstr "Luettu"
+
+#: feedback/models.py:92
+msgid "Graded"
+msgstr "Arvosteltu"
+
+#: feedback/models.py:93
+#| msgid "Automatically accepted"
+msgid "Automatically graded"
+msgstr "Automaattisesti arvosteltu"
+
+#: feedback/models.py:94
+msgid "Manually graded"
+msgstr "Käsin arvosteltu"
+
+#: feedback/models.py:95
+msgid "Responded"
+msgstr "Vastattu"
+
+#: feedback/models.py:96
+msgid "Upload ok"
+msgstr "Lähetys on onnistunut"
+
+#: feedback/models.py:97
+msgid "Upload has error"
+msgstr "Lähetys on epäonnistunut"
+
+#: feedback/models.py:173
 msgid "No response"
 msgstr "Ei vastausta"
 
-#: feedback/models.py:158
+#: feedback/models.py:174
 msgid "Rejected"
 msgstr "Hylätty"
 
-#: feedback/models.py:159
+#: feedback/models.py:175
 msgid "Accepted"
 msgstr "Hyväksytty"
 
-#: feedback/models.py:160
+#: feedback/models.py:176
 msgid "Good"
 msgstr "Hyvä"
 
@@ -174,7 +187,6 @@ msgstr "Valitse kurssi"
 
 #: feedback/templates/manage/base.html:113
 #: feedback/templates/manage/feedback_unread.html:12
-#| msgid "Older feedbacks"
 msgid "Filter feedbacks"
 msgstr "Rajaa palautteita"
 
@@ -188,10 +200,6 @@ msgstr "Tyhjennä välimuisti"
 
 #: feedback/templates/manage/feedback_list.html:12
 #, python-format
-#| msgid ""
-#| "\n"
-#| "\t\t\tFeedback is %(status)s\n"
-#| "\t\t"
 msgid "Feedback for %(course)s"
 msgstr "Palauteet kurssilla '%(course)s'"
 
@@ -208,13 +216,15 @@ msgid "No feedback found"
 msgstr "Yhtään palauttetta ei löytynyt"
 
 #: feedback/templates/manage/feedback_unread.html:6
-#| msgid "Older feedbacks"
 msgid "Unread Feedback"
 msgstr "Lukemattomat palautteet"
 
 #: feedback/templates/manage/feedback_unread.html:31
 msgid "No unread feedback."
 msgstr "Ei lukemattomia palautteita"
+
+#~ msgid "Has response message"
+#~ msgstr "Omaa vastausviestin"
 
 #~ msgid "User list"
 #~ msgstr "Käyttäjälista"
