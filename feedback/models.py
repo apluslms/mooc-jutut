@@ -343,6 +343,11 @@ class Feedback(models.Model):
         super().__init__(*args, **kwargs)
         self.__changed_fields = set()
 
+    def __str__(self):
+        return 'Feedback by {} to {} at {}'.format(
+            self.student, self.exercise_path, self.timestamp
+        )
+
     def save(self, update_fields=None, **kwargs):
         if update_fields is not None and self.__changed_fields:
             update_fields = tuple(set(update_fields) | self.__changed_fields)

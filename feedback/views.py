@@ -11,6 +11,7 @@ from django.views.generic import FormView, UpdateView, ListView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse
 from django.core.exceptions import SuspiciousOperation
+from django.utils.functional import cached_property
 
 from lib.postgres import PgAvg
 from lib.mixins import CSRFExemptMixin
@@ -234,7 +235,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 # Feedback management (admin)
 # ---------------------------
 
-class ManageSiteMixin:
+class ManageSiteMixin(LoginRequiredMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['sitelist'] = CachedSites.get
@@ -246,25 +247,27 @@ class ManageSiteMixin:
 
 
 class ManageCourseMixin(ManageSiteMixin):
+    @cached_property
+    def course(self):
+        return get_object_or_404(Course, pk=self.kwargs['course_id'])
+
     def get_context_data(self, **kwargs):
-        course = kwargs['course']
+        course = kwargs.get('course')
+        if not course:
+            kwargs['course'] = course = self.course
         kwargs.setdefault('site', course.namespace)
         context = super().get_context_data(**kwargs)
         context['course_notresponded'] = CachedNotrespondedCount.get(course)
         return context
 
 
-class ManageSiteListView(LoginRequiredMixin,
-                         ManageSiteMixin,
-                         ListView):
+class ManageSiteListView(ManageSiteMixin, ListView):
     model = Site
     template_name = "manage/site_list.html"
     context_object_name = "sites"
 
 
-class ManageCourseListView(LoginRequiredMixin,
-                           ManageSiteMixin,
-                           ListView):
+class ManageCourseListView(ManageSiteMixin, ListView):
     model = Course
     template_name = "manage/course_list.html"
     context_object_name = "courses"
@@ -282,47 +285,77 @@ class ManageCourseListView(LoginRequiredMixin,
         return super().get_context_data(site=self._site, **kwargs)
 
 
-class ManageClearCacheView(LoginRequiredMixin,
-                           ManageCourseMixin,
-                           TemplateView):
+class ManageClearCacheView(ManageCourseMixin, TemplateView):
     template_name = "manage/cache_cleared.html"
-
-    def get_context_data(self, **kwargs):
-        course = get_object_or_404(Course, pk=self.kwargs['course_id'])
-        return super().get_context_data(course=course)
 
     def get(self, *args, **kwargs):
         clear_cache()
         return super().get(*args, **kwargs)
 
 
-def get_feedback_dict(obj, get_form=None, extra=None):
-    if get_form:
-        form = get_form(obj)
-    else:
-        form = obj.get_form_obj(dummy=True)
+def get_feedback_dict(feedback, get_form, response_form_class,
+                      get_post_url=None, get_older_url=None):
+    form = get_form(feedback)
     if settings.JUTUT_OBLY_ACCEPT_ON and not form.is_dummy_form:
         augment_form_with_optional_field_info(form)
         augment_form_with_optional_answers_info(form, use_cleaned_data=False)
-        min_grade = obj.MAX_GRADE if is_grade_restricted_to_good(form) else 0
+        min_grade = feedback.MAX_GRADE if is_grade_restricted_to_good(form) else 0
     else:
         min_grade = 0
     data = {
-        'feedback': obj,
+        'form': response_form_class(instance=feedback),
+        'feedback': feedback,
         'feedback_form': form,
         'min_grade': min_grade,
     }
-    if extra:
-        data.update(extra)
+    if get_post_url:
+        data['post_url'] = get_post_url(feedback)
+    if get_older_url:
+        data['older_url'] = get_older_url(feedback)
     return data
 
 
-class ManageNotRespondedListView(LoginRequiredMixin,
-                                 ManageCourseMixin,
-                                 ListView):
+def update_context_for_feedbacks(request, context, course=None, feedbacks=None, get_form=None, post_url=True, older_url=True):
+    # defaults for parameters
+    if not course:
+        course = context['course']
+    if not feedbacks:
+        feedbacks = context['object_list']
+    if not get_form:
+        get_form = lambda o: o.get_form_obj(dummy=True)
+
+    # get_post_url
+    if post_url:
+        posturl_r = get_url_reverse_resolver('feedback:respond',
+                                             ('feedback_id',),
+                                             query=urlencode({"success_url": request.get_full_path()}))
+        get_post_url = lambda o: posturl_r(feedback_id=o.id)
+    else:
+        get_post_url = None
+
+    # get_older_url
+    if older_url:
+        course_id = course.id
+        older_r = get_url_reverse_resolver('feedback:byuser',
+                                           ('course_id', 'user_id', 'exercise_id'))
+        get_older_url = lambda o: older_r(course_id=course_id, user_id=o.student.id, exercise_id=o.exercise.id)
+    else:
+        get_older_url = None
+
+    # set context
+    context['feedbacks'] = (
+        get_feedback_dict(obj,
+                          get_form=get_form,
+                          response_form_class=ResponseForm,
+                          get_post_url=get_post_url,
+                          get_older_url=get_older_url)
+        for obj in feedbacks
+    )
+
+
+class ManageNotRespondedListView(ManageCourseMixin, ListView):
     model = Feedback
     template_name = "manage/feedback_unread.html"
-    form_class = ResponseForm
     paginate_by = 10
 
     def get_queryset(self):
@@ -331,53 +364,34 @@ class ManageNotRespondedListView(LoginRequiredMixin,
         course_id = kw.get('course_id')
         if course_id is not None:
             self._exercise = None
-            self._course = get_object_or_404(Course, pk=course_id)
+            self.course = get_object_or_404(Course, pk=course_id)
             self._path_filter = path_filter = self.kwargs.get('path_filter', '').strip('/')
             return Feedback.objects.get_notresponded(course_id=course_id, path_filter=path_filter)
 
         exercise_id = kw.get('exercise_id')
         if exercise_id is not None:
             self._exercise = get_object_or_404(Exercise.objects.with_course(), pk=exercise_id)
-            self._course = self._exercise.course
+            self.course = self._exercise.course
             self._path_filter = ''
             return Feedback.objects.get_notresponded(exercise_id)
 
         raise Http404
 
     def get_context_data(self, **kwargs):
-        course = self._course
-        context = super().get_context_data(course=course, **kwargs)
-        posturl_r = get_url_reverse_resolver('feedback:respond',
-            ('feedback_id',),
-            urlencode({"success_url": self.request.path}))
-        older_r = get_url_reverse_resolver('feedback:byuser',
-            ('course_id', 'user_id', 'exercise_id'))
-        context['feedbacks'] = (
-            get_feedback_dict(obj,
-                extra={
-                    'form': self.form_class(instance=obj),
-                    'older_url': older_r(course_id=course.id,
-                                         user_id=obj.student.id,
-                                         exercise_id=obj.exercise.id),
-                    'post_url': posturl_r(feedback_id=obj.id)
-                }
-            ) for obj in context['object_list']
-        )
+        context = super().get_context_data(course=self.course, **kwargs)
         context['exercise'] = self._exercise
         context['path_filter'] = self._path_filter
+        update_context_for_feedbacks(self.request, context)
         return context
 
 
-class ManageFeedbacksListView(LoginRequiredMixin,
-                              ManageCourseMixin,
-                              ListView):
+class ManageFeedbacksListView(ManageCourseMixin, ListView):
     model = Feedback
     template_name = "manage/feedback_list.html"
-    form_class = ResponseForm
     paginate_by = 10
 
     def get_queryset(self):
-        self.course = course = get_object_or_404(Course, pk=self.kwargs['course_id'])
+        course = self.course
         queryset = Feedback.objects.filter(exercise__course=course)
         self.feedback_filter = filter = FeedbackFilter(self.request.GET, queryset, course=course)
         queryset = filter.qs
@@ -386,63 +400,38 @@ class ManageFeedbacksListView(LoginRequiredMixin,
         return queryset
 
     def get_context_data(self, **kwargs):
-        course = self.course
-        context = super().get_context_data(course=course, **kwargs)
-        posturl_r = get_url_reverse_resolver('feedback:respond',
-            ('feedback_id',),
-            urlencode({"success_url": self.request.path}))
-        older_r = get_url_reverse_resolver('feedback:byuser',
-            ('course_id', 'user_id', 'exercise_id'))
+        context = super().get_context_data(course=self.course, **kwargs)
         context['feedback_filter'] = self.feedback_filter
-        context['feedbacks'] = (
-            get_feedback_dict(obj,
-                extra={
-                    'form': self.form_class(instance=obj),
-                    'older_url': older_r(course_id=course.id,
-                                         user_id=obj.student.id,
-                                         exercise_id=obj.exercise.id),
-                    'post_url': posturl_r(feedback_id=obj.id)
-                }
-            ) for obj in context['object_list']
-        )
+        update_context_for_feedbacks(self.request, context)
         return context
 
 
-class UserListView(LoginRequiredMixin,
-                   ManageCourseMixin,
-                   ListView):
+class UserListView(ManageCourseMixin, ListView):
     model = Student
     template_name = "manage/user_list.html"
     context_object_name = "students"
 
     def get_queryset(self):
-        course_id = self.kwargs.get('course_id')
-        self._course = course = get_object_or_404(Course, pk=course_id)
-        return self.model.objects.get_students_on_course(course)
-
-    def get_context_data(self, **kwargs):
-        return super().get_context_data(course=self._course, **kwargs)
+        return self.model.objects.get_students_on_course(self.course)
 
 
-class UserFeedbackListView(LoginRequiredMixin,
-                           ManageCourseMixin,
-                           ListView):
+class UserFeedbackListView(ManageCourseMixin, ListView):
     model = Feedback
     template_name = "manage/user_feedback_list.html"
     context_object_name = "feedbacks"
 
     def get_queryset(self):
-        self.course = course = get_object_or_404(Course, pk=self.kwargs['course_id'])
+        course = self.course
         self.student = student = get_object_or_404(Student, pk=self.kwargs['user_id'])
         return self.model.objects.feedback_exercises_for(course, student)
 
     def get_context_data(self, **kwargs):
-        context = super().get_context_data(course=self.course, **kwargs)
+        course = self.course
+        context = super().get_context_data(**kwargs)
         feedbacks = list(context['feedbacks'])
         exercises = list(set(f['exercise_id'] for f in feedbacks))
         exercises = Exercise.objects.filter(pk__in=exercises)
         exercises = {e.id: e for e in exercises}
-        course = self.course
         def get_feedback(f):
             f['exercise'] = exercise = exercises[f['exercise_id']]
             f['exercise_path'] = Feedback.get_exercise_path(exercise, f['path_key'])
@@ -452,40 +441,26 @@ class UserFeedbackListView(LoginRequiredMixin,
         return context
 
 
-class UserFeedbackView(LoginRequiredMixin,
-                       ManageCourseMixin,
-                       TemplateView):
+class UserFeedbackView(ManageCourseMixin, TemplateView):
     model = Feedback
-    form_class = ResponseForm
     template_name = "manage/user_feedback.html"
 
     def get_context_data(self, **kwargs):
-        course = get_object_or_404(Course, pk=self.kwargs['course_id'])
-
-        context = super().get_context_data(course=course, **kwargs)
+        context = super().get_context_data(**kwargs)
 
         student_id = self.kwargs['user_id']
         exercise_id = self.kwargs['exercise_id']
         student = get_object_or_404(Student, pk=student_id)
-        exercise = get_object_or_404(Exercise.objects.with_course(), pk=exercise_id, course=course)
-        feedbacks = self.model.objects.all().filter(
-            student = student,
-            exercise = exercise,
-        ).order_by('-timestamp')
-        form_cache = FormCache()
-        posturl_r = get_url_reverse_resolver('feedback:respond',
-            ('feedback_id',),
-            urlencode({"success_url": self.request.path}))
-        context['feedbacks'] = (
-            get_feedback_dict(
-                obj_with_attrs(obj, exercise=exercise),
-                get_form=form_cache.get,
-                extra={
-                    'form': self.form_class(instance=obj),
-                    'post_url': posturl_r(feedback_id=obj.id)
-                }
-            ) for obj in feedbacks
+        exercise = get_object_or_404(Exercise.objects.with_course(), pk=exercise_id, course=self.course)
+        feedbacks = (
+            obj_with_attrs(obj, student=student, exercise=exercise)
+            for obj in self.model.objects.all()
+                .filter(student=student, exercise=exercise)
+                .order_by('-timestamp')
         )
+        form_cache = FormCache()
+        update_context_for_feedbacks(self.request, context,
+            feedbacks=feedbacks, get_form=form_cache.get, older_url=False)
         context['student'] = student
         context['exercise'] = exercise
         return context
@@ -506,12 +481,12 @@ class RespondFeedbackMixin:
     def get_context_data(self, **kwargs):
         feedback = self.object
         context = super().get_context_data(course=feedback.exercise.course, **kwargs)
-        context.update(get_feedback_dict(feedback))
+        update_context_for_feedbacks(self.request, context, feedbacks=[feedback], post_url=False)
+        context.update(next(context['feedbacks']))
         success_url = self.request.GET.get(self.success_url_param)
         if success_url:
-            me = self.request.path
-            params = '?' + urlencode({self.success_url_param: success_url})
-            context['post_url'] = urljoin(me, params)
+            context['post_url'] = urljoin(self.request.path,
+                                          '?'+urlencode({self.success_url_param: success_url}))
         return context
 
     def form_valid(self, form):
@@ -531,7 +506,7 @@ class RespondFeedbackMixin:
         return url
 
 
-class RespondFeedbackView(LoginRequiredMixin,
+class RespondFeedbackView(#LoginRequiredMixin from ManageCourseMixin
                           RespondFeedbackMixin,
                           ManageCourseMixin,
                           UpdateView):
