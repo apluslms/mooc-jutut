@@ -5,8 +5,12 @@ from django.core.urlresolvers import reverse
 from django.utils.timezone import now as timezone_now
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import mark_safe
+from django_colortag.forms import ColorTagForm
 
-from .models import Feedback
+from .models import (
+    Feedback,
+    FeedbackTag,
+)
 from .utils import update_response_to_aplus
 
 
@@ -104,3 +108,13 @@ class ResponseForm(forms.ModelForm):
         instance.save(update_fields=self._meta.fields + ('response_time', 'response_by'))
         self.original_fields(instance, update=True)
         return instance
+
+
+class FeedbackTagForm(ColorTagForm):
+    class Meta(ColorTagForm.Meta):
+        model = FeedbackTag
+
+    def _get_validation_exclusions(self):
+        exclude = super()._get_validation_exclusions()
+        exclude.remove('course')
+        return exclude

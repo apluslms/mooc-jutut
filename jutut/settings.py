@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'bootstrapform',
     # libs
     'django_lti_login',
+    'django_colortag',
     'aplus_client',
     'dynamic_forms',
     'django_dictiterators',

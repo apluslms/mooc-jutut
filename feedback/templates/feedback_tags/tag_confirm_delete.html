@@ -1,0 +1,23 @@
+{% extends "manage/base.html" %}
+{% load i18n %}
+{% load colortag %}
+
+{% block content %}
+	<h1>{% trans "Confirm feedback tag removal" %}</h1>
+
+	<div class="row">
+		<div class="col-xs-12">
+			<form action="" method="post">
+				{% csrf_token %}
+				<p class="alert alert-warning">
+					{% blocktrans with tag=tag|colortag_button:'static' course=course %}
+					Are you sure you want to remove feedback tag {{tag}} from course {{course}}?
+					This tag will be removed from all feedbacks it was associated with.
+					{% endblocktrans %}
+				</p>
+				<input class="btn btn-danger" type="submit" value="{% trans 'Confirm' %}" />
+				<a class="btn btn-default" href="{% url 'feedback:tags' course_id=course.id %}">{% trans "Cancel" %}</a>
+			</form>
+		</div>
+	</div>
+{% endblock %}

@@ -9,6 +9,7 @@ from django.contrib.postgres import fields as pg_fields
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import get_language, ugettext_lazy as _
+from django_colortag.models import ColorTag
 
 from lib.helpers import Enum
 from aplus_client.django.models import (
@@ -359,3 +360,14 @@ class Feedback(models.Model):
         return self.older_versions.filter(
             superseded_by = None,
         ).update(superseded_by=self)
+
+
+class FeedbackTag(ColorTag):
+    course = models.ForeignKey(Course,
+                               related_name="tags",
+                               on_delete=models.CASCADE)
+    feedbacks = models.ManyToManyField(Feedback,
+                                       related_name="tags")
+
+    class Meta(ColorTag.Meta):
+        unique_together = ('course', 'slug')

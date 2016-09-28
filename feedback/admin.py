@@ -1,3 +1,14 @@
 from django.contrib import admin
+from django_colortag.admin import ColorTagAdmin
 
-# TODO: add models to admin
+from .models import (
+    FeedbackTag,
+)
+
+
+class FeedbackTagAdmin(ColorTagAdmin):
+    fields = ColorTagAdmin.fields + (
+        'course',
+    )
+
+admin.site.register(FeedbackTag, FeedbackTagAdmin)

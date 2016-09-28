@@ -7,7 +7,7 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadReque
 from django.utils.text import slugify
 from django.utils.timezone import now as timezone_now
 from django.shortcuts import get_object_or_404
-from django.views.generic import FormView, UpdateView, ListView, TemplateView
+from django.views.generic import FormView, UpdateView, ListView, DeleteView, TemplateView
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse
 from django.core.exceptions import SuspiciousOperation
@@ -15,6 +15,7 @@ from django.utils.functional import cached_property
 
 from lib.postgres import PgAvg
 from lib.mixins import CSRFExemptMixin
+from lib.views import ListCreateView
 from aplus_client.django.views import AplusGraderMixin
 from dynamic_forms.models import Form
 
@@ -25,6 +26,7 @@ from .models import (
     Student,
     Form,
     Feedback,
+    FeedbackTag,
 )
 from .cached import (
     FormCache,
@@ -34,7 +36,10 @@ from .cached import (
     CachedNotrespondedCount,
     clear_cache,
 )
-from .forms import ResponseForm
+from .forms import (
+    ResponseForm,
+    FeedbackTagForm,
+)
 from .filters import FeedbackFilter
 from .utils import (
     get_url_reverse_resolver,
@@ -528,3 +533,33 @@ def respond_feedback_view_select(normal_view, ajax_view):
         view = ajax_view if request.is_ajax() else normal_view
         return view(request, *args, **kwargs)
     return dispatch
+
+
+class FeedbackTagMixin(ManageCourseMixin):
+    model = FeedbackTag
+    form_class = FeedbackTagForm
+    pk_url_kwarg = 'tag_id'
+    context_object_name = "tag"
+
+    def get_success_url(self):
+        return reverse('feedback:tags', kwargs={'course_id': self.course.id})
+
+
+class FeedbackTagEditView(FeedbackTagMixin, UpdateView):
+    template_name = "feedback_tags/tag_edit.html"
+
+
+class FeedbackTagDeleteView(FeedbackTagMixin, DeleteView):
+    template_name = "feedback_tags/tag_confirm_delete.html"
+
+
+class FeedbackTagListView(FeedbackTagMixin, ListCreateView):
+    template_name = "feedback_tags/tag_list.html"
+    context_object_name = "tags"
+
+    def get_queryset(self):
+        return self.model.objects.filter(course=self.course)
+
+    def get_form_kwargs(self):
+        self.object = self.model(course=self.course)
+        return super().get_form_kwargs()

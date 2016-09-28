@@ -1,0 +1,47 @@
+{% extends "manage/base.html" %}
+{% load i18n %}
+{% load colortag %}
+
+{% block content %}
+	<h1>{% trans "List of feedback tags" %}</h1>
+
+	<div class="row">
+		<div class="col-md-7">
+			<table class="table table-condensed table-striped">
+				<thead>
+					<tr>
+						<th>{% trans "Feedback tag" %}</th>
+						<th>{% trans "Slug" %}</th>
+						<th>{% trans "Description" %}</th>
+						<th>{% trans "Actions" %}</th>
+				</thead>
+				<tbody>
+					{% for tag in tags %}
+						<tr>
+							<td>{{ tag|colortag_button:'static,no_tooltip' }}</td>
+							<td>{{ tag.slug }}</td>
+							<td>{{ tag.description }}</td>
+							<td>
+								<a class="btn btn-default btn-xs"
+									href="{% url 'feedback:tags-edit' course_id=course.id tag_id=tag.id %}"
+									>
+									<span class="glyphicon glyphicon-edit"></span>
+									{% trans "edit" %}
+								</a>
+								<a class="btn btn-danger btn-xs"
+									href="{% url 'feedback:tags-remove' course_id=course.id tag_id=tag.id %}"
+									>
+									<span class="glyphicon glyphicon-remove"></span>
+									{% trans "remove" %}
+								</a>
+							</td>
+						</tr>
+					{% endfor %}
+				</tbody>
+			</table>
+		</div>
+		<div class="col-lg-4 col-lg-offset-1 col-md-5 col-sm-6">
+			{% include "feedback_tags/_tag_form.html" with action="add" %}
+		</div>
+	</div>
+{% endblock %}

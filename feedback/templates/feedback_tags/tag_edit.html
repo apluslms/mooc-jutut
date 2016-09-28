@@ -1,0 +1,12 @@
+{% extends "manage/base.html" %}
+{% load i18n %}
+
+{% block content %}
+	<h1>{% trans "Edit feedback tag" %}</h1>
+
+	<div class="row">
+		<div class="col-lg-4 col-md-5 col-sm-6">
+			{% include "feedback_tags/_tag_form.html" with action="edit" %}
+		</div>
+	</div>
+{% endblock %}

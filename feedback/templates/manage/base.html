@@ -5,6 +5,8 @@
 
 {% block meta %}
 {{ block.super }}
+	{# django_colortag #}
+	<link rel="stylesheet" href="{% static "django_colortag.css" %}">
 	{# project additions #}
 	<link rel="stylesheet" href="{% static "feedback.css" %}">
 
@@ -117,6 +119,7 @@
 								>{% trans "More" %} <span class="caret"></span></a>
 							<ul class="dropdown-menu">
 								<li><a href="{% url "feedback:list" course_id=course.id %}">{% trans "Filter feedbacks" %}</a></li>
+								<li><a href="{% url "feedback:tags" course_id=course.id %}">{% trans "Manage feedback tags" %}</a></li>
 								<li><a href="{% url "feedback:user-list" course_id=course.id %}">{% trans "Student list" %}</a></li>
 								<li role="separator" class="divider"></li>
 								<li><a href="{% url "feedback:clear-cache" course_id=course.id %}">{% trans "Clear cache" %}</a></li>
