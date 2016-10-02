@@ -34,7 +34,7 @@ class FormCache:
 class Cached:
     def __init__(self, prefix=None, timeout=None):
         self.prefix = prefix or self.__class__.__name__
-        self.timeout = timeout or 60 * 5
+        self.timeout = timeout or 60 * 60
 
     def get_suffix(self, *args):
         return '-'.join(str(x) for x in args)
@@ -82,7 +82,7 @@ class CachedNotrespondedCount(Cached):
 
     def get_obj(self, course):
         return Feedback.objects.get_notresponded(course_id=course.id).count()
-CachedNotrespondedCount = CachedNotrespondedCount()
+CachedNotrespondedCount = CachedNotrespondedCount(timeout=60*10)
 
 @receiver(post_save, sender=Feedback)
 def post_course_save(sender, instance, **kwargs):
