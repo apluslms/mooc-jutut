@@ -123,7 +123,7 @@ class FeedbackQuerySet(models.QuerySet):
         else:
             search = ''.join(('%', '%'.join(shlex.split(search)), '%'))
         return self.extra(
-            where=['form_data::text like %s'],
+            where=['form_data::text ilike %s'],
             params=[search],
         )
 
