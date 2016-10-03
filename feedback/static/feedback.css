@@ -43,6 +43,7 @@ body {
 	padding: 0.4em;
 }
 .panel.response-panel .panel-footer {
+	position: relative; /* required for overlay to work */
 	padding: 0.4em;
 }
 .panel.response-panel .form-group {
@@ -53,7 +54,7 @@ body {
 }
 
 /* response panel overlay */
-.response-panel .panel-body .overlay {
+.response-panel .overlay {
 	display: none;
 	z-index: 100;
 	position: absolute;

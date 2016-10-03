@@ -4,7 +4,7 @@ $(function() {
 	var form_changed = function() {
 		var form = $(this);
 		var sts = $('#' + form.data('state-id'));
-		var footer = $('#' + form.data('footer-id'));
+		var panel = form.closest('.response-panel');
 		var changed = false;
 		form.find('textarea').each(function() {
 			changed = this.value != this.defaultValue;
@@ -14,14 +14,14 @@ $(function() {
 			sts.removeClass(sts.data('orig-style'));
 			sts.addClass('label-default');
 			sts.text('not saved');
-			footer.find('.response-by').hide();
-			footer.find('.reset-button').show();
+			panel.find('.response-by').hide();
+			panel.find('.reset-button').show();
 		} else {
 			sts.removeClass('label-default');
 			sts.addClass(sts.data('orig-style'));
 			sts.text(sts.data('orig-text'));
-			footer.find('.reset-button').hide();
-			footer.find('.response-by').show();
+			panel.find('.reset-button').hide();
+			panel.find('.response-by').show();
 		}
 	};
 
@@ -45,7 +45,6 @@ $(function() {
 		// create new form-group and select it
 		var dst = src.after('<div class="form-group buttons-for-radio"><div class="col-xs-12"><div class="btn-group btn-group-justified" role="group"></div></div></div>').next();
 		var cont = dst.find('.btn-group');
-		var panel = src.closest('.panel');
 		// for every input radio, create new button
 		src.find('input[type="radio"]').each(function() {
 			var radio_pure = this;
@@ -125,7 +124,7 @@ $(function() {
 						// submission was ok
 						console.log(" -> was good");
 						add_status_tag(panel, "Saved", "success");
-						new_panel.find('.panel-body').each(show_noedit_overlay);
+						new_panel.each(show_noedit_overlay);
 					} else {
 						console.log(" -> had errors");
 						add_status_tag(panel, "Not saved", "warning");
@@ -176,10 +175,20 @@ $(function() {
 		dom.find('.reset-button[data-form-id]').on('click', on_reset_button);
 		dom.find('[data-toggle="tooltip"]').tooltip();
 		dom.find('.replace-with-buttons').each(replace_with_buttons);
-		dom.find('.panel-body.disabled').each(show_noedit_overlay);
+		dom.find('.response-panel.disabled').each(show_noedit_overlay);
 	};
 
 	/* on page load forms got inserted */
 	on_form_insert();
+
+	/* setup jquery ajax with csrf token */
+	$.ajaxSetup({
+		beforeSend: function(xhr, settings) {
+			var csrftoken = Cookies.get('csrftoken');
+			if (!this.crossDomain && csrftoken) {
+				xhr.setRequestHeader("X-CSRFToken", csrftoken);
+			}
+		}
+	});
 });
 

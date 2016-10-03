@@ -10,9 +10,48 @@
 		post_url
 {% endcomment %}
 
-<div class="panel panel-primary response-panel" id="{{ form.auto_id|fill_format_string:"panel" }}">
+<div
+	class="panel panel-primary response-panel {{ feedback.waiting_for_response|yesno:',disabled' }}"
+	id="{{ form.auto_id|fill_format_string:"panel" }}"
+	>
 	<div class="panel-heading">
-		Response
+		{% if form.has_expired %}
+			<span
+				id="{{ form.auto_id|fill_format_string:"state" }}"
+				class="label label-default"
+				>{% trans "Conflict" %}</span>
+		{% else %}
+			{% with grade=form.had.response_grade_text color=form.had.valid_response_grade|grade_color %}
+				<span
+					id="{{ form.auto_id|fill_format_string:"state" }}"
+					class="label label-{{ color }}"
+					data-orig-style="label-{{ color }}"
+					data-orig-text="{{ grade }}"
+					>{{ grade }}</span>
+			{% endwith %}
+			<button
+				class="btn btn-danger btn-xs reset-button"
+				data-form-id="{{ form.auto_id|fill_format_string:"form" }}"
+				style="display: none;"
+				>{% trans "Reset" %}</button>
+			{% if form.had.responded %}
+				<span class="response-by">
+					{% if form.instance.response_by %}
+						{% blocktrans with time=form.instance.response_time user=form.instance.response_by.email %}{{time}} by {{user}}{% endblocktrans %}
+					{% else %}
+						<span rel="tooltip"
+							class="label label-info"
+							data-toggle="tooltip"
+							data-trigger="hover click"
+							data-placement="top"
+							title="{% trans "This feedback was automatically accepted" %}"
+							>{% trans "auto" %}</span>
+						{{ form.instance.response_time }}
+					{% endif %}
+				</span>
+			{% endif %}
+		{% endif %}
+
 		{% with upl=feedback.response_uploaded %}
 			{% if feedback.responded and not upl.ok %}
 				<span rel="tooltip"
@@ -22,16 +61,15 @@
 					data-placement="top"
 					data-html="true"
 					title="{% blocktrans with count=upl.attempts when=upl.when|date:'Y-m-d H:i:s' code=upl.code %}Upload is <b>not</b> ok.<br>Tried {{count}} times.<br>Last tried {{when}} with status {{code}}.{% endblocktrans %}"
-					>upload status {{ upl.code }}
+					>{% blocktrans with code=upl.code %}upload status {{code}}{% endblocktrans %}
 				</span>
 			{% endif %}
 		{% endwith %}
 	</div>
 
-	<div class="panel-body {{ feedback.waiting_for_response|yesno:',disabled' }}">
+	<div class="panel-body">
 		<form
 			id="{{ form.auto_id|fill_format_string:"form" }}"
-			data-footer-id="{{ form.auto_id|fill_format_string:"footer" }}"
 			data-state-id="{{ form.auto_id|fill_format_string:"state" }}"
 			data-panel-id="{{ form.auto_id|fill_format_string:"panel" }}"
 			action="{{ post_url }}"
@@ -108,42 +146,8 @@
 		</div>
 	</div>
 
-	<div class="panel-footer" id="{{ form.auto_id|fill_format_string:"footer" }}">
-		{% if form.has_expired %}
-			<span
-				id="{{ form.auto_id|fill_format_string:"state" }}"
-				class="label label-default"
-				>Conflict</span>
-		{% else %}
-			{% with grade=form.had.response_grade_text color=form.had.valid_response_grade|grade_color %}
-				<span
-					id="{{ form.auto_id|fill_format_string:"state" }}"
-					class="label label-{{ color }}"
-					data-orig-style="label-{{ color }}"
-					data-orig-text="{{ grade }}"
-					>{{ grade }}</span>
-			{% endwith %}
-			<button
-				class="btn btn-danger btn-xs reset-button"
-				data-form-id="{{ form.auto_id|fill_format_string:"form" }}"
-				style="display: none;"
-				>Reset</button>
-			{% if form.had.responded %}
-				<span class="response-by">
-					{% if form.instance.response_by %}
-						{% blocktrans with time=form.instance.response_time user=form.instance.response_by.email %}{{time}} by {{user}}{% endblocktrans %}
-					{% else %}
-						<span rel="tooltip"
-							class="label label-info"
-							data-toggle="tooltip"
-							data-trigger="hover click"
-							data-placement="top"
-							title="{% trans "This feedback was automatically accepted" %}"
-							>{% trans "auto" %}</span>
-						{{ form.instance.response_time }}
-					{% endif %}
-				</span>
-			{% endif %}
-		{% endif %}
+	<div class="panel-footer">
+		Footer
+		<div class="overlay"></div>
 	</div>
 </div>
