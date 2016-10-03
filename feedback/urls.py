@@ -16,6 +16,7 @@ RespondFeedbackView_view = views.respond_feedback_view_select(
     views.RespondFeedbackView.as_view(),
     views.RespondFeedbackViewAjax.as_view()
 )
+FeedbackTagView_view = views.FeedbackTagView.as_view()
 
 
 PATH_REGEX = r'[\w\d\-./]'
@@ -81,6 +82,12 @@ urlpatterns = [
     url(r'^manage/respond/(?P<feedback_id>\d+)/$',
         RespondFeedbackView_view,
         name='respond'),
+    url(r'^manage/tag/(?P<feedback_id>\d+)/$',
+        views.FeedbackTagView.as_view(),
+        name='tag-list'),
+    url(r'^manage/tag/(?P<feedback_id>\d+)/(?P<tag_id>\d+)/$',
+        views.FeedbackTagView.as_view(),
+        name='tag'),
 
     # support for old urls
     url(r'^manage/notresponded/course/(?P<course_id>\d+)/$',

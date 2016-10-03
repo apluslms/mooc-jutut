@@ -3,13 +3,15 @@ import django_filters
 from django import forms
 from django.contrib.postgres import fields as pg_fields
 from django.utils.translation import ugettext_lazy as _
+from django_colortag.filters import ColortagChoiceFilter
 
 from lib.helpers import Enum
 
 from .models import (
-    Feedback,
-    Exercise,
     Student,
+    Exercise,
+    Feedback,
+    FeedbackTag,
 )
 
 EMPTY_VALUES = ([], (), {}, '', None, slice(None, None, None))
@@ -136,6 +138,7 @@ class FeedbackFilter(django_filters.FilterSet):
     response_grade = MultipleChoiceFilter(choices=Feedback.GRADE_CHOICES,
                                           extra_filter=lambda q: q.exclude(response_time=None),
                                           widget=forms.CheckboxSelectMultiple())
+    tags = ColortagChoiceFilter(queryset=FeedbackTag.objects.none())
     exercise = django_filters.ModelChoiceFilter(queryset=Exercise.objects.none())
     student = django_filters.ModelChoiceFilter(queryset=Student.objects.none())
     timestamp = DateTimeFromToRangeFilter()
@@ -159,6 +162,7 @@ class FeedbackFilter(django_filters.FilterSet):
             'response_by',
             'response_grade',
             'flags',
+            'tags',
         )
         filter_overrides = {
             # hack to make django_filters not to complain about jsonfield
@@ -180,6 +184,7 @@ class FeedbackFilter(django_filters.FilterSet):
         course = self._course
         form.fields['exercise'].queryset = Exercise.objects.filter(course=course).all()
         form.fields['student'].queryset = Student.objects.using_namespace(course.namespace).all()
+        form.fields['tags'].queryset = FeedbackTag.objects.filter(course=course).all()
         return form
 
     @staticmethod

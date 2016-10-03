@@ -61,4 +61,5 @@ $(function () {
 		widget.addClass('hidden');
 	};
 	$("#id_feedbackfilter_response_grade, #id_feedbackfilter_flags, #id_feedbackfilter_order_by").each(covert_checkboxes_to_buttons);
+	$('.colortag-choice').each(django_colortag_choice);
 });

@@ -1,5 +1,23 @@
 /* Feedback form automation */
 $(function() {
+	/* append error notification */
+	var append_error_info = function(selection, msg, klass=null) {
+		selection.each(function() {
+			var icon = $('<span class="' + (klass||'') + ' label label-danger"><span class="glyphicon glyphicon-alert"></span></span>');
+			icon.tooltip({ title: msg });
+			$(this).append(icon);
+		});
+	};
+
+	/* append done notification */
+	var append_done_info = function(selection, msg, klass=null) {
+		selection.each(function() {
+			var icon = $('<span class="' + (klass||'') + ' label label-success"><span class="glyphicon glyphicon-ok "></span></span>');
+			icon.tooltip({ title: msg });
+			$(this).append(icon);
+		});
+	};
+
 	/* update things when something in form has changed */
 	var form_changed = function() {
 		var form = $(this);
@@ -163,6 +181,52 @@ $(function() {
 		});
 	};
 
+	/* color tags */
+	var ajax_set_tag_state = function() {
+		var me = $(this);
+		var container = me.parent();
+		var errorname = 'error-' + me.data('tagpk');
+		var active = me.hasClass('colortag-active');
+		// first, make change
+		if (active) me.removeClass('colortag-active');
+		else me.addClass('colortag-active');
+		// get previous or new defer object
+		var defer = container.data('rlock') || $.when();
+		// connect to defer chain
+		container.data('rlock', defer.then(function() {
+			var spinner = $('<span class="updating glyphicon glyphicon-refresh gly-spin"></span>');
+			container.find('.uploadok, .'+errorname).remove(); // clear old done and error notifications
+			container.append(spinner); // add spinner
+			var promise = $.Deferred(); // this promise is fulfilled when ajax request is completed, thus we get serialized updates per response
+			$.ajax({
+				type: active ? 'DELETE' : 'PUT',
+				url: me.data('tagurl'),
+				timeout: 10000,
+				success: function(data, textStatus, xhr) {
+					append_done_info(container, "Update of '" + me.text() + "' ok.", 'uploadok');
+				},
+				error: function(xhr, textStatus, error) {
+					// if there was error, revert change
+					if (active) me.addClass('colortag-active');
+					else me.removeClass('colortag-active');
+					// display and log error
+					var name = me.text();
+					append_error_info(container, (textStatus == 'timeout') ?
+						( "Update of '" + name + "' timeouted." ) :
+						( "Update of '" + name + "' failed. Server returned " + xhr.status + ". Check js/server logs." ),
+						errorname
+					);
+					console.log("Tag update failed '" + textStatus + "' return code " + xhr.status + " with data: " + xhr.responseText);
+				},
+				complete: function() {
+					spinner.remove(); // remove spinner
+					promise.resolve(); // always resolve promise, no failures
+				},
+			});
+			return promise;
+		}));
+	}
+
 
 	/* call for inserted forms */
 	var on_form_insert = function(dom=null) {
@@ -176,6 +240,7 @@ $(function() {
 		dom.find('[data-toggle="tooltip"]').tooltip();
 		dom.find('.replace-with-buttons').each(replace_with_buttons);
 		dom.find('.response-panel.disabled').each(show_noedit_overlay);
+		dom.find('.colortag').on('click', ajax_set_tag_state);
 	};
 
 	/* on page load forms got inserted */

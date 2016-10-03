@@ -7,7 +7,7 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadReque
 from django.utils.text import slugify
 from django.utils.timezone import now as timezone_now
 from django.shortcuts import get_object_or_404
-from django.views.generic import FormView, UpdateView, ListView, DeleteView, TemplateView
+from django.views.generic import FormView, UpdateView, ListView, DeleteView, TemplateView, View
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse
 from django.core.exceptions import SuspiciousOperation
@@ -33,6 +33,7 @@ from .cached import (
     CachedForm,
     CachedSites,
     CachedCourses,
+    CachedTags,
     CachedNotrespondedCount,
     clear_cache,
 )
@@ -298,8 +299,19 @@ class ManageClearCacheView(ManageCourseMixin, TemplateView):
         return super().get(*args, **kwargs)
 
 
+def get_tag_list(tags, feedback, get_tag_url=None):
+    active = feedback.tags.all()
+    return (
+        obj_with_attrs(tag,
+                       is_active=(tag in active),
+                       data_attrs=({'url': get_tag_url(feedback, tag)} if get_tag_url else None))
+        for tag in tags
+    )
+
+
 def get_feedback_dict(feedback, get_form, response_form_class,
-                      get_post_url=None, get_older_url=None):
+                      get_post_url=None, get_older_url=None,
+                      tags=None, get_tag_url=None):
     form = get_form(feedback)
     if settings.JUTUT_OBLY_ACCEPT_ON and not form.is_dummy_form:
         augment_form_with_optional_field_info(form)
@@ -310,6 +322,7 @@ def get_feedback_dict(feedback, get_form, response_form_class,
     data = {
         'form': response_form_class(instance=feedback),
         'feedback': feedback,
+        'feedback_tags': set(feedback.tags.all()),
         'feedback_form': form,
         'min_grade': min_grade,
     }
@@ -317,6 +330,8 @@ def get_feedback_dict(feedback, get_form, response_form_class,
         data['post_url'] = get_post_url(feedback)
     if get_older_url:
         data['older_url'] = get_older_url(feedback)
+    if tags:
+        data['tags'] = get_tag_list(tags, feedback, get_tag_url)
     return data
 
 
@@ -347,13 +362,20 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
     else:
         get_older_url = None
 
-    # set context
+    # get_tag_url
+    tags = CachedTags.get(course)
+    tagurl_r = get_url_reverse_resolver('feedback:tag', ('feedback_id', 'tag_id'))
+    get_tag_url = lambda f, t: tagurl_r(feedback_id=f.id, tag_id=t.id)
+
+    # set feedbacks context
     context['feedbacks'] = (
         get_feedback_dict(obj,
                           get_form=get_form,
                           response_form_class=ResponseForm,
                           get_post_url=get_post_url,
-                          get_older_url=get_older_url)
+                          get_older_url=get_older_url,
+                          tags=tags,
+                          get_tag_url=get_tag_url)
         for obj in feedbacks
     )
 
@@ -563,3 +585,32 @@ class FeedbackTagListView(FeedbackTagMixin, ListCreateView):
     def get_form_kwargs(self):
         self.object = self.model(course=self.course)
         return super().get_form_kwargs()
+
+
+class FeedbackTagView(LoginRequiredMixin, View):
+    @cached_property
+    def tag_objects(self):
+        kwargs = self.kwargs
+        feedback_id = kwargs['feedback_id']
+        tag_id = kwargs.get('tag_id')
+        feedback = get_object_or_404(Feedback, id=feedback_id)
+        tag = get_object_or_404(FeedbackTag, id=tag_id) if tag_id is not None else None
+        return (feedback, tag)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data()
+        feedback, tag = self.tag_objects
+        context['feedback'] = feedback
+        return context
+
+    def put(self, *args, **kwargs):
+        feedback, tag = self.tag_objects
+        if feedback.exercise.course != tag.course:
+            return HttpResponseBadRequest("Tag and feedback are not part of same course")
+        feedback.tags.add(tag)
+        return HttpResponse("ok")
+
+    def delete(self, *args, **kwargs):
+        feedback, tag = self.tag_objects
+        feedback.tags.remove(tag)
+        return HttpResponse("ok")

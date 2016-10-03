@@ -1,6 +1,7 @@
 {% load i18n %}
 {% load bootstrap %}
 {% load feedback %}
+{% load colortag %}
 {% comment %}
 	expects to be used under bootstrapped.html
 	expects from context:
@@ -147,7 +148,9 @@
 	</div>
 
 	<div class="panel-footer">
-		Footer
+		{% for tag in tags %}
+			{{ tag|colortag_button }}
+		{% endfor %}
 		<div class="overlay"></div>
 	</div>
 </div>

@@ -7,6 +7,7 @@ from .models import (
     Course,
     Form,
     Feedback,
+    FeedbackTag,
 )
 
 
@@ -88,6 +89,20 @@ CachedNotrespondedCount = CachedNotrespondedCount(timeout=60*10)
 def post_course_save(sender, instance, **kwargs):
     feedback = instance
     CachedNotrespondedCount.clear(feedback.exercise.course)
+
+
+class CachedTags(Cached):
+    def get_suffix(self, course):
+        return course.id
+
+    def get_obj(self, course):
+        return list(course.tags.all())
+CachedTags = CachedTags()
+
+@receiver(post_save, sender=FeedbackTag)
+def post_tag_save(sender, instance, **kwargs):
+    tag = instance
+    CachedTags.clear(tag.course)
 
 
 class CachedForm(Cached):
