@@ -90,6 +90,7 @@ class FeedbackQuerySet(models.QuerySet):
         ('NEWEST', 'n', _("Newest versions")),
         ('UNREAD', 'u', _("Unread")),
         ('READ', 'r', _("Read")),
+        ('UNGRADED', 'q', _("Ungraded")),
         ('GRADED', 'g', _("Graded")),
         ('AUTO', 'a', _("Automatically graded")),
         ('MANUAL', 'm', _("Manually graded")),
@@ -100,8 +101,9 @@ class FeedbackQuerySet(models.QuerySet):
 
     FILTERS = {
         FILTER_FLAGS.NEWEST: Q(superseded_by=None),
-        FILTER_FLAGS.UNREAD: Q(response_time=None),
-        FILTER_FLAGS.READ: ~Q(response_time=None),
+        FILTER_FLAGS.UNREAD: Q(response_time=None) & Q(tags=None),
+        FILTER_FLAGS.READ: ~(Q(response_time=None) & Q(tags=None)),
+        FILTER_FLAGS.UNGRADED: Q(response_time=None),
         FILTER_FLAGS.GRADED: ~Q(response_time=None),
         FILTER_FLAGS.RESPONDED: ~Q(response_time=None) & ~Q(response_msg='') & ~Q(response_msg=None),
         FILTER_FLAGS.AUTO: ~Q(response_time=None) & Q(response_by=None),
