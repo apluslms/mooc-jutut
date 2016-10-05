@@ -7,6 +7,8 @@
 {{ block.super }}
 	{# django_colortag #}
 	<link rel="stylesheet" href="{% static "django_colortag.css" %}">
+	{# dynamic_forms #}
+	<link rel="stylesheet" href="{% static "dynamic_forms.css" %}">
 	{# project additions #}
 	<link rel="stylesheet" href="{% static "feedback.css" %}">
 
@@ -16,9 +18,10 @@
 
 {% block scripts %}
 {{ block.super }}
+	{# dynamic_forms #}
+	<script src="{% static "dynamic_forms.js" %}"></script>
 	{# nav bar code #}
 	<script src="{% static "nav.js" %}"></script>
-
 	{# project additions #}
 	<script src="{% static "feedback.js" %}"></script>
 {% endblock %}

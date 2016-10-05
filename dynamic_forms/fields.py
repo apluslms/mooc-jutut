@@ -1,8 +1,10 @@
 from functools import lru_cache
 from django.forms import Widget, Field, CharField, TextInput
+from django.forms.widgets import Textarea
 from django.forms.utils import flatatt
 from django.forms.boundfield import BoundField
 from django.utils.functional import cached_property
+from django.utils.html import format_html
 
 
 class LabelWidget(Widget):
@@ -62,6 +64,9 @@ class EnchantedBoundField(BoundField):
                 data = [fmt(v, map_.get(v)) for v in data]
             else:
                 data = fmt(data, map_.get(data))
+        if isinstance(self.field.widget, Textarea):
+            return format_html('<span class="textarea">{}</span>', data)
+
         return data
 
     @property
