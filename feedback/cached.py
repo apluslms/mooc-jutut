@@ -1,5 +1,5 @@
 from django.core.cache import cache
-from django.db.models.signals import post_save
+from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 
 from .models import (
@@ -86,9 +86,16 @@ class CachedNotrespondedCount(Cached):
 CachedNotrespondedCount = CachedNotrespondedCount(timeout=60*10)
 
 @receiver(post_save, sender=Feedback)
-def post_course_save(sender, instance, **kwargs):
+def notresponded_post_feedback_save(sender, instance, **kwargs):
     feedback = instance
     CachedNotrespondedCount.clear(feedback.exercise.course)
+
+@receiver(m2m_changed, sender=FeedbackTag.feedbacks.through)
+def notresponded_post_feedback_tag_change(sender, instance, action, reverse, **kwargs):
+    if action not in ('post_add', 'post_remove', 'post_clear'):
+        return
+    course = instance.exercise.course if reverse else instance.course
+    CachedNotrespondedCount.clear(course)
 
 
 class CachedTags(Cached):
