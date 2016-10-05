@@ -121,11 +121,23 @@
 								aria-haspopup="true" aria-expanded="false"
 								>{% trans "More" %} <span class="caret"></span></a>
 							<ul class="dropdown-menu">
-								<li><a href="{% url "feedback:list" course_id=course.id %}">{% trans "Filter feedbacks" %}</a></li>
-								<li><a href="{% url "feedback:tags" course_id=course.id %}">{% trans "Manage feedback tags" %}</a></li>
-								<li><a href="{% url "feedback:user-list" course_id=course.id %}">{% trans "Student list" %}</a></li>
+								<li><a href="{% url "feedback:list" course_id=course.id %}">
+									<i class="glyphicon glyphicon-filter"></i>
+									{% trans "Filter feedbacks" %}
+								</a></li>
+								<li><a href="{% url "feedback:tags" course_id=course.id %}">
+									<i class="glyphicon glyphicon-tags"></i>
+									{% trans "Manage feedback tags" %}
+								</a></li>
+								<li><a href="{% url "feedback:user-list" course_id=course.id %}">
+									<i class="glyphicon glyphicon-list"></i>
+									{% trans "Student list" %}
+								</a></li>
 								<li role="separator" class="divider"></li>
-								<li><a href="{% url "feedback:clear-cache" course_id=course.id %}">{% trans "Clear cache" %}</a></li>
+								<li><a href="{% url "feedback:clear-cache" course_id=course.id %}">
+									<i class="glyphicon glyphicon-trash"></i>
+									{% trans "Clear cache" %}
+								</a></li>
 								<!-- <li><a href="#">Action</a></li>
 								<li><a href="#">Another action</a></li>
 								<li><a href="#">Something else here</a></li>
