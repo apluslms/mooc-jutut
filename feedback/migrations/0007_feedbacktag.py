@@ -22,7 +22,7 @@ class Migration(migrations.Migration):
                 ('slug', models.SlugField(help_text='Slug key for tag. If left blank, one is created from name', max_length=20)),
                 ('description', models.CharField(blank=True, help_text='Describe the usage or meaning of this tag', max_length=155)),
                 ('color', colorfield.fields.ColorField(default='#CD0000', help_text='Color that is used as background for this tag', max_length=10)),
-                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='feedbacktags', to='feedback.Course')),
+                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tags', to='feedback.Course')),
                 ('feedbacks', models.ManyToManyField(related_name='tags', to='feedback.Feedback')),
             ],
             options={
