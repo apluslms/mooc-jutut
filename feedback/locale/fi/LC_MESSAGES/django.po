@@ -164,11 +164,11 @@ msgstr "Vahvista"
 #: feedback/templates/feedback_tags/tag_list.html:6
 #| msgid "Filter feedbacks"
 msgid "List of feedback tags"
-msgstr "Palaute tägi lista"
+msgstr "Luettelo palautetägeistä"
 
 #: feedback/templates/feedback_tags/tag_list.html:13
 msgid "Feedback tag"
-msgstr "Palaute tägi"
+msgstr "Palautetägi"
 
 #: feedback/templates/feedback_tags/tag_list.html:14
 msgid "Slug"
@@ -286,7 +286,7 @@ msgstr "Rajaa palautteita"
 #: feedback/templates/manage/base.html:122
 #| msgid "Older feedbacks"
 msgid "Manage feedback tags"
-msgstr "Hallitse palaute tägejä"
+msgstr "Hallitse palautetägejä"
 
 #: feedback/templates/manage/base.html:123
 msgid "Student list"
