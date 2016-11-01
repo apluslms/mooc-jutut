@@ -12,7 +12,7 @@
 {% endcomment %}
 
 <div
-	class="panel panel-primary response-panel {{ feedback.waiting_for_response|yesno:',disabled' }}"
+	class="panel panel-primary response-panel"
 	id="{{ form.auto_id|fill_format_string:"panel" }}"
 	>
 	{% with state=form.has_expired|yesno:"error-conflict,default" %}
@@ -36,6 +36,11 @@
 				data-form-id="{{ form.auto_id|fill_format_string:"form" }}"
 				{{ state|on_state:"edit-new" }}
 				>{% trans "Reset" %}</button>
+			<button
+				class="btn btn-danger btn-xs cancel-button"
+				data-textarea-id="{{ form.auto_id|fill_format_string:"response_msg" }}"
+				{{ state|on_state:"edit-old" }}
+				>{% trans "Cancel" %}</button>
 			{% if form.had.responded %}
 				<span
 					class="response-by"
@@ -91,14 +96,19 @@
 				{{ field }}
 			{% endfor %}
 
+			<div id="{{ form.auto_id|fill_format_string:'span_box' }}" class="col-xs-12" style="display: none;"></div>
+			<div id="{{ form.auto_id|fill_format_string:'edit_box' }}">
+
 			{% with f=form.response_msg %}
 				{% include "_errors_box.html" with errors=f.errors %}
 				<div class="form-group {% if f.errors %}has-error{% endif %}">
 					<div class="col-xs-12">
 						<textarea
 							id={{ f.id_for_label }}
-							class="form-control track-change"
+							class="form-control {{ feedback.waiting_for_response|yesno:'track-change,textarea' }}"
 							name="response_msg"
+							data-texttarget="#{{ form.auto_id|fill_format_string:'edit_box' }}"
+							data-spantarget="#{{ form.auto_id|fill_format_string:'span_box' }}"
 							placeholder="{{ f.label }}"
 							autocomplete="off"
 							{{ form.disabled|yesno:'disabled,' }}
@@ -143,19 +153,14 @@
 				</div>
 				{# javascript will add buttons for above here #}
 			{% endwith %}
+
+			</div>
 		</form>
-		<div class="overlay">
-			<button class="btn btn-default pull-right edit-btn">
-				<span class="glyphicon glyphicon-pencil"></span>
-				{% trans "Edit" %}
-			</button>
-		</div>
 	</div>
 
 	<div class="panel-footer">
 		{% for tag in tags %}
 			{{ tag|colortag_button }}
 		{% endfor %}
-		<div class="overlay"></div>
 	</div>
 </div>

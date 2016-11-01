@@ -56,6 +56,22 @@ $(function() {
 		});
 	};
 
+	/* Functions to track form edit state and to cacel it */
+	var enter_edit_state = function() {
+		var stateful = $(this).closest('.response-panel').find('.stateful');
+		stateful.trigger('state_change', ['edit-old']);
+	}
+	var on_cancel_button = function() {
+		var me = $(this);
+		$('#' + me.data('textarea-id')).each(function() {
+			var ta = $(this);
+			var stateful = ta.closest('.response-panel').find('.stateful');
+			stateful.trigger('state_change', ['default']);
+			ta.trigger('exit_edit');
+			ta.closest('form').each(function() { this.reset(); });
+		});
+	};
+
 	/* Buttons that replace radio select */
 	var on_submit_button = function(e) {
 		e.preventDefault();
@@ -90,15 +106,6 @@ $(function() {
 		});
 		// hide original form-group
 		src.hide();
-	};
-
-	/* disable respone panel */
-	var show_noedit_overlay = function() {
-		var overlay = $(this).find('.overlay');
-		overlay.show();
-		overlay.find('button.edit-btn').on('click', function() {
-			overlay.hide();
-		});
 	};
 
 	/* clear status tags from response form */
@@ -140,7 +147,6 @@ $(function() {
 						// submission was ok
 						console.log(" -> was good");
 						add_status_tag(panel, "Saved", "success");
-						new_panel.each(show_noedit_overlay);
 					} else {
 						console.log(" -> had errors");
 						add_status_tag(panel, "Not saved", "warning");
@@ -240,8 +246,9 @@ $(function() {
 		// Just hook to events
 		dom.find('form.ajax-form').submit(ajax_submit);
 		dom.find('textarea.track-change').on('change keyup paste', on_textarea_change);
+		dom.find('textarea.textarea').on('enter_edit', enter_edit_state);
 		dom.find('.reset-button[data-form-id]').on('click', on_reset_button);
-		dom.find('.response-panel.disabled').each(show_noedit_overlay);
+		dom.find('.cancel-button').on('click', on_cancel_button);
 		dom.find('.colortag').on('click', ajax_set_tag_state);
 		dom.find('.stateful').on('state_change', on_state_change);
 	};

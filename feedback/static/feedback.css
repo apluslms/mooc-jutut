@@ -42,12 +42,8 @@ body {
 }
 
 /* response panel */
-.panel.response-panel .panel-body {
-	position: relative; /* required for overlay to work */
-	padding: 0.4em;
-}
+.panel.response-panel .panel-body,
 .panel.response-panel .panel-footer {
-	position: relative; /* required for overlay to work */
 	padding: 0.4em;
 }
 .panel.response-panel .form-group {
@@ -56,18 +52,8 @@ body {
 .panel.response-panel .form-group:last-child {
 	margin-bottom: 0;
 }
-
-/* response panel overlay */
-.response-panel .overlay {
-	display: none;
-	z-index: 100;
-	position: absolute;
-	top: 0;
-	left: 0;
-	width: 100%;
-	height: 100%;
-	background-color: rgba(0,0,0,0.3);
-	padding: 0.6em;
+.panel.response-panel span.textarea {
+	min-height: 3em;
 }
 
 /* spin animation, src: http://bootsnipp.com/snippets/featured/glyphicon-animate-rotation-and-flip */
