@@ -112,7 +112,7 @@
 							placeholder="{{ f.label }}"
 							autocomplete="off"
 							{{ form.disabled|yesno:'disabled,' }}
-							rows="2"
+							rows="{{ f.value|countlines:'2,16' }}"
 							>{{ f.value|default:'' }}</textarea>
 					</div>
 				</div>
