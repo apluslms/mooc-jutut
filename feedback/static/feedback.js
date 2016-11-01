@@ -18,34 +18,42 @@ $(function() {
 		});
 	};
 
-	/* update things when something in form has changed */
+	/* update visible and hidden objects in stateful element */
+	var on_state_change = function(e, new_state) {
+		var me = $(this);
+		var cur_state = me.data('state') || 'default';
+		if (new_state != cur_state) {
+			var elems = me.find('[data-onstate]');
+			elems.filter(function() {
+				return cur_state.startsWith(this.dataset.onstate);
+			}).hide();
+			elems.filter(function() {
+				return new_state.startsWith(this.dataset.onstate);
+			}).show();
+			me.data('state', new_state);
+		}
+	}
+
+	/* Functions to track form changes and to reset them */
 	var form_changed = function() {
 		var form = $(this);
-		var sts = $('#' + form.data('state-id'));
-		var panel = form.closest('.response-panel');
+		var stateful = form.closest('.response-panel').find('.stateful');
 		var changed = false;
 		form.find('textarea').each(function() {
 			changed = this.value != this.defaultValue;
 			return !changed;
 		});
-		if (changed) {
-			sts.removeClass(sts.data('orig-style'));
-			sts.addClass('label-default');
-			sts.text('not saved');
-			panel.find('.response-by').hide();
-			panel.find('.reset-button').show();
-		} else {
-			sts.removeClass('label-default');
-			sts.addClass(sts.data('orig-style'));
-			sts.text(sts.data('orig-text'));
-			panel.find('.reset-button').hide();
-			panel.find('.response-by').show();
-		}
+		stateful.trigger('state_change', [(changed)?'edit-new':'default']);
 	};
-
-	/* react to edit in textarea */
 	var on_textarea_change = function() {
-		$(this).closest('form').each(function() { form_changed.call(this); });
+		$(this).closest('form').each(form_changed);
+	};
+	var on_reset_button = function() {
+		var me = $(this);
+		$('#' + me.data('form-id')).each(function() {
+			this.reset();
+			form_changed.call(this);
+		});
 	};
 
 	/* Buttons that replace radio select */
@@ -82,16 +90,6 @@ $(function() {
 		});
 		// hide original form-group
 		src.hide();
-	};
-;
-
-	/* hook reset button to also hide itself and update form state */
-	var on_reset_button = function() {
-		var me = $(this);
-		$('#' + me.data('form-id')).each(function() {
-			this.reset();
-			form_changed.call(this);
-		});
 	};
 
 	/* disable respone panel */
@@ -245,6 +243,7 @@ $(function() {
 		dom.find('.reset-button[data-form-id]').on('click', on_reset_button);
 		dom.find('.response-panel.disabled').each(show_noedit_overlay);
 		dom.find('.colortag').on('click', ajax_set_tag_state);
+		dom.find('.stateful').on('state_change', on_state_change);
 	};
 
 	/* on page load forms got inserted */

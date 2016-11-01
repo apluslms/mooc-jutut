@@ -1,4 +1,5 @@
 from django import template
+from django.forms.utils import flatatt
 
 
 register = template.Library()
@@ -28,3 +29,14 @@ def force_int(string):
         return int(string)
     except ValueError:
         return None
+
+
+@register.filter
+def on_state(cur_state, on_state='default'):
+    attrs = {
+        'data-onstate': on_state,
+    }
+    if not on_state.startswith(cur_state):
+        attrs['style'] = "display: none;" # hide
+
+    return flatatt(attrs)
