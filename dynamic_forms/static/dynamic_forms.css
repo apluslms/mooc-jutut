@@ -8,6 +8,7 @@ span.textarea {
 	white-space: pre-wrap;
 	border: 1px solid transparent;
 	border-radius: 4px;
+	min-height: 1em;
 }
 
 span.textarea.codeblock {
@@ -28,8 +29,8 @@ div.textarea {
 div.textarea .hovermenu {
 	display: none;
 	position: absolute;
-	top: 3px;
-	right: 3px;
+	top: -6px;
+	right: 0px;
 }
 
 div.textarea:hover .hovermenu {

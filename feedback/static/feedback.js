@@ -234,11 +234,15 @@ $(function() {
 			dom = $(document);
 		}
 
+		// Modify
+		dom.each(dynamic_forms_textareas);
+		dom.find('[data-toggle="tooltip"]').tooltip();
+		dom.find('.replace-with-buttons').each(replace_with_buttons);
+
+		// Just hook to events
 		dom.find('form.ajax-form').submit(ajax_submit);
 		dom.find('textarea.track-change').on('change keyup paste', on_textarea_change);
 		dom.find('.reset-button[data-form-id]').on('click', on_reset_button);
-		dom.find('[data-toggle="tooltip"]').tooltip();
-		dom.find('.replace-with-buttons').each(replace_with_buttons);
 		dom.find('.response-panel.disabled').each(show_noedit_overlay);
 		dom.find('.colortag').on('click', ajax_set_tag_state);
 	};

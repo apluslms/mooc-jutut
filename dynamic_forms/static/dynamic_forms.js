@@ -1,11 +1,33 @@
 function dynamic_forms_textarea() {
 	var $ = jQuery;
-	var container = $('<div class="textarea"></div>');
-	var span = $(this);
-	span.replaceWith(container);
-	container.append(span);
+
+	// setup
+	var base = $(this);
+	var span = base, spanbox = base, textbox = base;
+	var editable = base.is('textarea');
+	if (editable) {
+		if (base.data('texttarget')) {
+			textbox = $(base.data('texttarget')).first();
+		}
+		textbox.hide();
+		span = $('<span class="textarea"></span>');
+		span.text(base.val());
+		if (base.data('spantarget')) {
+			spanbox = $(base.data('spantarget')).first();
+			spanbox.show();
+		} else {
+			spanbox = $('<div></div>');
+			spanbox.insertAfter(textbox);
+		}
+	} else {
+		spanbox = $('<div></div>');
+		span.replaceWith(spanbox);
+	}
+	spanbox.addClass('textarea');
+	spanbox.append(span);
+
 	var menu = $('<div class="hovermenu btn-group"></div>');
-	container.append(menu);
+	spanbox.append(menu);
 
 	var addButton = function(symbol, text, action) {
 		var btn = $('<button class="btn btn-primary btn-xs" type="button"><span class="glyphicon glyphicon-'+symbol+'"></span> '+text+'</button>"');
@@ -13,6 +35,22 @@ function dynamic_forms_textarea() {
 		btn.on('click', action);
 		return btn;
 	};
+
+	// edit
+	if (editable) {
+		var turn_edit_on = function() {
+			spanbox.hide();
+			textbox.show();
+			base.trigger('enter_edit');
+		};
+		var turn_edit_off = function() {
+			textbox.hide();
+			spanbox.show();
+		};
+		addButton('edit', 'Edit', turn_edit_on);
+		span.on('dblclick', turn_edit_on);
+		base.on('exit_edit', turn_edit_off);
+	}
 
 	// copy
 	addButton('copy', 'Copy', function() {
@@ -38,7 +76,7 @@ function dynamic_forms_textarea() {
 		}
 	});
 
-	// textarea
+	// mono
 	addButton('font', 'Mono', function() {
 		$(this).toggleClass('active');
 		span.toggleClass('codeblock');
@@ -46,9 +84,5 @@ function dynamic_forms_textarea() {
 }
 
 function dynamic_forms_textareas() {
-	jQuery(this).find('span.textarea').each(dynamic_forms_textarea);
+	jQuery(this).find('span.textarea, textarea.textarea').each(dynamic_forms_textarea);
 }
-
-jQuery(function($) {
-	$('span.textarea').each(dynamic_forms_textarea);
-});
