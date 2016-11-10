@@ -118,7 +118,6 @@ class FeedbackFilterForm(forms.Form):
         placeholder = type('nulldatetime', (datetime.time,),
             {'date': lambda s: None,'time': lambda s: s})()
         initial['timestamp'] = slice(placeholder, placeholder)
-        initial['order_by'] = 'timestamp'
         kwargs.setdefault('auto_id', 'id_feedbackfilter_%s')
         super().__init__(*args, initial=initial, **kwargs)
 
@@ -132,6 +131,12 @@ class FeedbackFilterForm(forms.Form):
 
 
 class FeedbackFilter(django_filters.FilterSet):
+    ORDER_BY_CHOICE = (
+            ('timestamp', _('Oldest first')),
+            ('-timestamp', _('Newest first')),
+    )
+    ORDER_BY_DEFAULT = '-timestamp'
+
     flags = django_filters.MultipleChoiceFilter(choices=Feedback.objects.get_queryset().FILTER_FLAGS.choices,
                                                 widget=forms.CheckboxSelectMultiple(),
                                                 method='filter_flags')
@@ -145,10 +150,8 @@ class FeedbackFilter(django_filters.FilterSet):
     path_key = django_filters.CharFilter(lookup_expr='istartswith')
     form_data = django_filters.CharFilter(method='filter_form_data')
 
-    order_by = OrderingFilter(choices=(
-        ('timestamp', _('Oldest first')),
-        ('-timestamp', _('Newest first')),
-    ))
+    order_by = OrderingFilter(choices=ORDER_BY_CHOICE,
+                              initial=ORDER_BY_DEFAULT)
 
     class Meta:
         model = Feedback
@@ -174,6 +177,9 @@ class FeedbackFilter(django_filters.FilterSet):
         self._course = course
         if not any(any(bool(x) for x in data.getlist(k)) for k in self._meta.fields):
             data = None
+        else:
+            data = data.copy()
+            data.setdefault('order_by', self.ORDER_BY_DEFAULT)
         super().__init__(data, *args, **kwargs)
 
     @property

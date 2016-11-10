@@ -423,10 +423,7 @@ class ManageFeedbacksListView(ManageCourseMixin, ListView):
         course = self.course
         queryset = Feedback.objects.filter(exercise__course=course)
         self.feedback_filter = filter = FeedbackFilter(self.request.GET, queryset, course=course)
-        queryset = filter.qs
-        if not queryset.ordered:
-            queryset.order_by('timestamp')
-        return queryset
+        return filter.qs
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(course=self.course, **kwargs)
