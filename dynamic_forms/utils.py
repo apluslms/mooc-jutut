@@ -1,5 +1,6 @@
 from hashlib import sha1
 from collections import Iterable
+from itertools import chain as iterchain
 
 
 def freeze(data):
@@ -23,3 +24,14 @@ def hashsum(data, hash_func=None):
             hash_func.update(str(data).encode('utf-8'))
     recurse(data)
     return hash_func
+
+
+def cleaned_css_classes(css_classes, ignore=None):
+    cleaned = (
+        c.strip() for c in
+        iterchain.from_iterable(x.split(' ') for x in css_classes.split(','))
+    )
+    if not ignore:
+        return [c for c in cleaned if c]
+    else:
+        return [c for c in cleaned if c and c not in ignore]

@@ -1,10 +1,11 @@
 from functools import lru_cache
 from django.forms import Widget, Field, CharField, TextInput
-from django.forms.widgets import Textarea
-from django.forms.utils import flatatt
 from django.forms.boundfield import BoundField
+from django.forms.utils import flatatt
+from django.forms.widgets import Textarea
 from django.utils.functional import cached_property
 from django.utils.html import format_html
+from django.utils.safestring import mark_safe
 
 
 class LabelWidget(Widget):
@@ -17,7 +18,7 @@ class LabelWidget(Widget):
             attrs['class'] = attrs['class'].replace('form-control', '') # fix bootstrap lib
         if hasattr(self, 'initial'):
             value = self.initial
-        return '<span %s>%s</span>' % (flatatt(attrs), value or '')
+        return format_html('<span {}>{}</span>', flatatt(attrs), mark_safe(value or ''))
 
 
 class LabelField(Field):

@@ -1,5 +1,4 @@
 from collections import OrderedDict
-from itertools import chain as iterchain
 from django import forms
 from django.core.validators import RegexValidator
 from django.forms.utils import pretty_name
@@ -11,7 +10,10 @@ from .fields import (
     LabelField,
     get_enchanted_field,
 )
-from .utils import freeze
+from .utils import (
+    freeze,
+    cleaned_css_classes,
+)
 
 
 def auto_type_for_enums(default, many=None, few=None, short=None):
@@ -182,6 +184,8 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
         forms.MultipleChoiceField: forms.TypedMultipleChoiceField,
     }
 
+    IGNORED_CSS_CLASSES = ('form-group',)
+
     # this can be used to test if form is dummy or not
     is_dummy_form = False
 
@@ -273,8 +277,9 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                 # css classes
                 css_classes = prop.get('htmlClass')
                 if css_classes:
-                    extra_vars['extra_css_classes'] = list(
-                        iterchain.from_iterable(x.split(' ') for x in css_classes.split(','))
+                    extra_vars['extra_css_classes'] = cleaned_css_classes(
+                        css_classes,
+                        ignore=cls.IGNORED_CSS_CLASSES,
                     )
 
                 # make sure required is false for disabled fields FIXME: this is probably bad idea
@@ -287,6 +292,13 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
 
                 ## final field_class manipulation
 
+                # clean field widget classes
+                if 'class' in widget_attrs:
+                    widget_attrs['class'] = ' '.join(cleaned_css_classes(
+                        widget_attrs['class'],
+                        ignore=cls.IGNORED_CSS_CLASSES,
+                    ))
+
                 # add type check for integer choices
                 if type_ == 'integer' and field_class in cls.COERCE_FIELD_MAP:
                     field_class = cls.COERCE_FIELD_MAP[field_class]
@@ -296,6 +308,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
 
                 # enchant field so we can suppoer features otherwise unavailable
                 field_class = get_enchanted_field(field_class, extra=freeze(extra_vars))
+
 
                 # initialize classes and add fields
                 try:
