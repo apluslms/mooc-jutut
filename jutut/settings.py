@@ -158,10 +158,14 @@ USE_I18N = True
 USE_L10N = True
 USE_TZ = True
 
-LANGUAGES = [
+LANGUAGES = (
     ('fi', _('Finnish')),
     ('en', _('English')),
-]
+)
+
+LOCALE_PATHS = (
+    'locale',
+)
 
 
 # Static files (CSS, JavaScript, Images)
