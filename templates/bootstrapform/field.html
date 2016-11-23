@@ -1,3 +1,4 @@
+{% load i18n %}
 {% load bootstrap %}
 {% comment %}
 	Overwrite of django-bootstrap-form's field.html
@@ -10,6 +11,12 @@
 <div class="form-group{% if field.errors %} has-error{% endif %}">
 	{% if field|is_checkbox %}
 		<div class="{{ field.css_classes }} {{ classes.single_value }}">
+			{% if field.help_text %}
+				<div class="help-block">
+					{{ field.help_text|safe }}
+				</div>
+			{% endif %}
+
 			<div class="checkbox">
 				{% if field.auto_id and field.label %}
 					<label {% if field.field.required and form.required_css_class %}class="{{ form.required_css_class }}"{% endif %}>
@@ -19,19 +26,22 @@
 				{% for error in field.errors %}
 					<span class="help-block {{ form.error_css_class }}">{{ error }}</span>
 				{% endfor %}
-
-				{% if field.help_text %}
-					<div class="help-block">
-						{{ field.help_text|safe }}
-					</div>
-				{% endif %}
 			</div>
 		</div>
 	{% elif field|is_radio %}
 		{% if field.auto_id and field.label %}
-			<label class="control-label {{ classes.label }} {% if field.field.required %}{{ form.required_css_class }}{% endif %}">{{ field.label }}:</label>
+			<label class="control-label {{ classes.label }} {% if field.field.required %}{{ form.required_css_class }}{% endif %}">
+				{{ field.label }}:
+				{% if field.field.required %}<span class="text-danger required-label">{% trans "(*) Required" %}</span>{% endif %}
+			</label>
 		{% endif %}
 		<div class="{{ field.css_classes }} {{ classes.value }}">
+			{% if field.help_text %}
+				<div class="help-block">
+					{{ field.help_text|safe }}
+				</div>
+			{% endif %}
+
 			{% for choice in field %}
 				<div class="radio">
 					<label>
@@ -44,30 +54,27 @@
 			{% for error in field.errors %}
 				<span class="help-block {{ form.error_css_class }}">{{ error }}</span>
 			{% endfor %}
-
-			{% if field.help_text %}
-			<div class="help-block">
-				{{ field.help_text|safe }}
-			</div>
-			{% endif %}
 		</div>
 	{% else %}
 		{% if field.auto_id and field.label %}
-			<label class="control-label {{ classes.label }} {% if field.field.required %}{{ form.required_css_class }}{% endif %}" for="{{ field.auto_id }}">{{ field.label }}:</label>
+			<label class="control-label {{ classes.label }} {% if field.field.required %}{{ form.required_css_class }}{% endif %}" for="{{ field.auto_id }}">
+				{{ field.label }}:
+				{% if field.field.required %}<span class="text-danger required-label">{% trans "(*) Required" %}</span>{% endif %}
+			</label>
 		{% endif %}
 
 		<div class="{{ field.css_classes }} {{ classes.value }} {% if field|is_multiple_checkbox %}multiple-checkbox{% endif %}">
-			{{ field }}
-
-			{% for error in field.errors %}
-				<span class="help-block {{ form.error_css_class }}">{{ error }}</span>
-			{% endfor %}
-
 			{% if field.help_text %}
 				<div class="help-block">
 					{{ field.help_text|safe }}
 				</div>
 			{% endif %}
+
+			{{ field }}
+
+			{% for error in field.errors %}
+				<span class="help-block {{ form.error_css_class }}">{{ error }}</span>
+			{% endfor %}
 		</div>
 	{% endif %}
 </div>

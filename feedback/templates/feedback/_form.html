@@ -1,33 +1,62 @@
 {% load i18n %}
+{% load bootstrap %}
+{% load feedback %}
+{% get_current_language as LANGUAGE_CODE %}
 
-<div id="exercise">
-
-	{# Form #}
-	<form action="{{post_url}}" method="post">
-
-		{# warning state http://getbootstrap.com/css/#forms-control-validation #}
-		{{ form.as_div }}
-
-		{# <div class="form-group"> #}
-		<p>
-		<input type="submit"
-		       value="{% if not feedback %}{% trans 'Submit' %}{% else %}{% trans 'Submit update' %}{% endif %}"
-		       class="btn btn-primary" />
-		</p>
-		{# </div> #}
-	</form>
+<div id="exercise" class="jutut-exercise" lang="{{ LANGUAGE_CODE }}">
 
 	{# Response #}
-	{% if feedback and feedback.responded %}
+	{% if feedback.response_msg %}
 		<div class="alert alert-info">
-		<h4>{% trans "Staff response" %}</h4>
-		{% if feedback.response_msg %}
+			<p><strong>{% trans "Staff response" %}</strong></p>
 			<p>{{ feedback.response_msg }}</p>
-		{% endif %}
-		<p>{% blocktrans with status=feedback.response_grade_text.lower %}
-			Feedback is {{ status }}
-		{% endblocktrans%}</p>
 		</div>
 	{% endif %}
+
+	{# Form #}
+	<form
+		id="{{ form.auto_id|fill_format_string:"form" }}"
+		action="{{post_url}}"
+		method="post"
+		class="form">
+
+		{{ form|bootstrap }}
+
+		<div class="only-when-edited alert alert-warning" style="display: none;">
+			{% trans "This feedback has unsaved changes!" %}
+		</div>
+
+		<div class="form-group">
+			<div class="btn-toolbar">
+				<input
+					type="submit"
+					value="{% if not feedback %}{% trans 'Submit' %}{% else %}{% trans 'Submit update' %}{% endif %}"
+					class="btn btn-primary">
+				<input
+					type="reset"
+					value="{% trans "Reset changes" %}"
+					class="only-when-edited btn btn-danger">
+			</div>
+		</div>
+	</form>
+
+	{# UI interaction #}
+	<script>
+		(function($) {
+			var f = $('#{{ form.auto_id|fill_format_string:"form" }}'),
+				o = f.find('.only-when-edited'),
+				i = f.serialize(), s = false;
+			f.find(':input').on('change input', function() {
+				var n = f.serialize() !== i;
+				if (s !== n) o.toggle(s = n);
+			});
+			f.find("input[type='reset']").on('click', function(e) {
+				e.preventDefault();
+				f.each(function(){this.reset();});
+				o.hide(); s = false;
+			});
+			o.hide();
+		})(jQuery);
+	</script>
 </div>
 

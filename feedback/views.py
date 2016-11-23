@@ -160,7 +160,9 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 
     def get_context_data(self, *args, **kwargs):
         context = super().get_context_data(*args, **kwargs)
-        context['post_url'] = self.post_url or ''
+        context['post_url'] = self.post_url
+        context['jutut_path'] = self.path_key
+        context['aplus_path'] = self.submission_url
         return context
 
     def form_valid(self, form):
