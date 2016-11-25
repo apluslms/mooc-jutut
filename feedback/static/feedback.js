@@ -232,15 +232,23 @@ $(function() {
 	}
 
 
+	/* test for broken apple mobile devices */
+	var is_apple_mobile = function() {
+		var ua = navigator.userAgent;
+		var re = /(iPad|iPod|iPhone);/i;
+		return re.test(ua);
+	}
+
 	/* call for inserted forms */
 	var on_form_insert = function(dom=null) {
 		if (dom === null) {
 			dom = $(document);
 		}
+		var nohover = is_apple_mobile();
 
 		// Modify
 		dom.each(dynamic_forms_textareas);
-		dom.find('[data-toggle="tooltip"]').tooltip();
+		!nohover && dom.find('[data-toggle="tooltip"]').tooltip();
 		dom.find('.replace-with-buttons').each(replace_with_buttons);
 
 		// Just hook to events
