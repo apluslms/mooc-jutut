@@ -1,5 +1,5 @@
 import logging
-from urllib.parse import urljoin
+from urllib.parse import urljoin, urlencode
 from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.forms import CharField
@@ -61,19 +61,29 @@ def obj_with_attrs(obj, **kwargs):
     return obj
 
 
-def get_url_reverse_resolver(urlname, kwargs, query=None):
+def get_url_reverse_resolver(urlname, kwargs, data_func, query=None, query_func=None):
     """
     Django doesn't support caching url reverse resolving,
     thus we hack around it
+
+    Expects the url pointed by the urlname to contain only keyword arguments
+    and that the url doesn't contain `/<some numbers>/  parts.
     """
-    if not isinstance(kwargs, dict):
-        kwargs = {n: i*100+i for i, n in enumerate(kwargs, 2)}
-    url = str(reverse(urlname, kwargs=kwargs))
-    for n, i in kwargs.items():
+    replace_map = {n: i*100+i for i, n in enumerate(kwargs, 2)}
+    url = str(reverse(urlname, kwargs=replace_map))
+    for n, i in replace_map.items():
         url = url.replace('/{}/'.format(i), '/{{{}}}/'.format(n))
-    if query:
-        url = urljoin(url, '?'+query)
-    return url.format
+
+    def resolver(*sources):
+        data = dict(zip(kwargs, data_func(*sources)))
+        location = url.format(**data)
+        qdict = query or ()
+        if query_func:
+            qdict = dict(qdict, **query_func(*sources))
+        if qdict:
+            location = urljoin(location, '?' + urlencode(qdict))
+        return location
+    return resolver
 
 
 ## Augment dynamicform to tell us few jutut specifig things

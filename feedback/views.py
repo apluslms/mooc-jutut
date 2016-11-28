@@ -345,29 +345,29 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
         feedbacks = context['object_list']
     if not get_form:
         get_form = lambda o: o.get_form_obj(dummy=True)
+    course_id = course.id
 
     # get_post_url
-    if post_url:
-        posturl_r = get_url_reverse_resolver('feedback:respond',
-                                             ('feedback_id',),
-                                             query=urlencode({"success_url": request.get_full_path()}))
-        get_post_url = lambda o: posturl_r(feedback_id=o.id)
-    else:
-        get_post_url = None
+    get_post_url = get_url_reverse_resolver(
+        'feedback:respond',
+        ('feedback_id',),
+        lambda f: (f.id,),
+        query={"success_url": request.get_full_path()},
+    ) if post_url else None
 
     # get_older_url
-    if older_url:
-        course_id = course.id
-        older_r = get_url_reverse_resolver('feedback:byuser',
-                                           ('course_id', 'user_id', 'exercise_id'))
-        get_older_url = lambda o: older_r(course_id=course_id, user_id=o.student.id, exercise_id=o.exercise.id)
-    else:
-        get_older_url = None
+    get_older_url = get_url_reverse_resolver(
+        'feedback:list',
+        ('course_id',),
+        lambda f: (course_id,),
+        query_func=lambda f: {'student': f.student.id, 'exercise': f.exercise.id},
+    ) if older_url else None
 
     # get_tag_url
     tags = CachedTags.get(course)
-    tagurl_r = get_url_reverse_resolver('feedback:tag', ('feedback_id', 'tag_id'))
-    get_tag_url = lambda f, t: tagurl_r(feedback_id=f.id, tag_id=t.id)
+    get_tag_url = get_url_reverse_resolver('feedback:tag',
+                                           ('feedback_id', 'tag_id'),
+                                           lambda f, t: (f.id, t.id))
 
     # set feedbacks context
     context['feedbacks'] = (
