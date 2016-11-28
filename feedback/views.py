@@ -313,6 +313,7 @@ def get_tag_list(tags, feedback, get_tag_url=None):
 
 def get_feedback_dict(feedback, get_form, response_form_class,
                       get_post_url=None, get_older_url=None,
+                      get_all_feedbacks_url=None,
                       tags=None, get_tag_url=None):
     form = get_form(feedback)
     if settings.JUTUT_OBLY_ACCEPT_ON and not form.is_dummy_form:
@@ -332,6 +333,8 @@ def get_feedback_dict(feedback, get_form, response_form_class,
         data['post_url'] = get_post_url(feedback)
     if get_older_url:
         data['older_url'] = get_older_url(feedback)
+    if get_all_feedbacks_url:
+        data['all_feedbacks_url'] = get_all_feedbacks_url(feedback)
     if tags:
         data['tags'] = get_tag_list(tags, feedback, get_tag_url)
     return data
@@ -363,6 +366,14 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
         query_func=lambda f: {'student': f.student.id, 'exercise': f.exercise.id},
     ) if older_url else None
 
+    # all_feedbacks_url
+    get_all_feedbacks_url = get_url_reverse_resolver(
+        'feedback:list',
+        ('course_id',),
+        lambda o: (course_id,),
+        query_func=lambda f: {'student': f.student.id},
+    )
+
     # get_tag_url
     tags = CachedTags.get(course)
     get_tag_url = get_url_reverse_resolver('feedback:tag',
@@ -376,6 +387,7 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
                           response_form_class=ResponseForm,
                           get_post_url=get_post_url,
                           get_older_url=get_older_url,
+                          get_all_feedbacks_url=get_all_feedbacks_url,
                           tags=tags,
                           get_tag_url=get_tag_url)
         for obj in feedbacks
