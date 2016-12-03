@@ -294,6 +294,10 @@ class Feedback(models.Model):
         return not self.responded and not self.superseded_by_id
 
     @property
+    def waiting_for_response_msg(self):
+        return not self.response_msg and not self.superseded_by_id
+
+    @property
     def can_be_responded(self):
         return bool(self.submission_url)
 

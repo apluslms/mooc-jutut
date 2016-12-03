@@ -105,7 +105,7 @@
 					<div class="col-xs-12">
 						<textarea
 							id={{ f.id_for_label }}
-							class="form-control {{ feedback.waiting_for_response|yesno:'track-change,textarea' }}"
+							class="form-control {{ feedback.waiting_for_response_msg|yesno:'track-change,textarea' }}"
 							name="response_msg"
 							data-texttarget="#{{ form.auto_id|fill_format_string:'edit_box' }}"
 							data-spantarget="#{{ form.auto_id|fill_format_string:'span_box' }}"
