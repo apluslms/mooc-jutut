@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-11-24 19:32+0200\n"
+"POT-Creation-Date: 2016-12-11 13:01+0200\n"
 "PO-Revision-Date: 2016-11-23 20:19+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: English <>\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 2.0\n"
 
-#: feedback/filters.py:150
+#: feedback/filters.py:149
 msgid "Oldest first"
 msgstr "Vanhemmat ensin"
 
-#: feedback/filters.py:151
+#: feedback/filters.py:150
 msgid "Newest first"
 msgstr "Uudemmat ensin"
 
@@ -226,9 +226,10 @@ msgstr "Tämä kenttä <b>ei</b> ollut pakollinen"
 msgid "optional"
 msgstr "valinnainen"
 
-#: feedback/templates/manage/_filter_bar.html:5
-msgid "Filter options"
-msgstr "Rajausvalinnat"
+#: feedback/templates/manage/_filter_bar.html:6
+#, python-format
+msgid "Filter options (%(number)s active)"
+msgstr "Rajausvalinnat (%(number)s aktiivista)"
 
 #: feedback/templates/manage/_response_panel.html:23
 msgid "Conflict"

@@ -14,7 +14,15 @@ from .models import (
     FeedbackTag,
 )
 
-EMPTY_VALUES = ([], (), {}, '', None, slice(None, None, None))
+
+PRIMITIVE_TYPES = (int, float, str)
+EMPTY_VALUES = ('', slice(None, None, None))
+
+def is_empty_value(value):
+    return (
+        not isinstance(value, PRIMITIVE_TYPES) and not value or # complex type is False
+        value in EMPTY_VALUES # simple type is False
+    )
 
 
 class DateInput(forms.DateInput):
@@ -103,7 +111,7 @@ class OrderingFilter(django_filters.filters.ChoiceFilter):
         super().__init__(*args, **kwargs)
 
     def filter(self, qs, value):
-        if value in EMPTY_VALUES:
+        if is_empty_value(value):
             return qs
 
         return qs.order_by(value)
@@ -127,7 +135,13 @@ class FeedbackFilterForm(forms.Form):
             return False
         elif self.errors:
             return None
-        return any(v not in EMPTY_VALUES for v in self.cleaned_data.values())
+        return any(not is_empty_value(v) for v in self.cleaned_data.values())
+
+    @property
+    def number_of_filters(self):
+        if not hasattr(self, 'cleaned_data'):
+            return 0
+        return sum((1 for v in self.cleaned_data.values() if not is_empty_value(v)))
 
 
 class FeedbackFilter(django_filters.FilterSet):

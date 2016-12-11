@@ -2,7 +2,8 @@
 
 <div class="panel panel-{{ feedback_filter.form.contains_data|yesno:'success,default,danger' }}">
 	<div class="panel-heading" data-toggle="collapse" data-target="#filter-panel" role="button" style="cursor: pointer;">
-		<h3 class="panel-title">{% trans "Filter options" %}
+		<h3 class="panel-title">
+			{% blocktrans with number=feedback_filter.form.number_of_filters %}Filter options ({{number}} active){% endblocktrans %}
 			<span class="glyphicon glyphicon-menu-down pull-right"></span>
 		</h3>
 	</div>
