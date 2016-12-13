@@ -29,6 +29,11 @@ class StudentManager(NamespacedApiObject.Manager):
                  .distinct()
                  .all() )
 
+    def get_students_on_courses(self, courses):
+        return ( self.all()
+                 .filter(feedbacks__exercise__course__in=courses)
+                 .distinct() )
+
 
 class Student(NamespacedApiObject):
     objects = StudentManager()
