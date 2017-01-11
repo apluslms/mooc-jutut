@@ -53,3 +53,8 @@ def on_state(cur_state, on_state='default'):
         attrs['style'] = "display: none;" # hide
 
     return flatatt(attrs)
+
+
+@register.filter
+def studenttags_for_course(user, course):
+    return user.tags.all().filter(course=course).order_by('name')

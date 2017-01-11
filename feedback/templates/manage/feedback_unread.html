@@ -23,7 +23,7 @@
 
 	{% foreachdict in feedbacks %}
 		<div class="panel panel-default feedback-response-panel">
-			{% include "manage/_feedback_heading.html" with course=course user=feedback.student only %}
+			{% include "manage/_feedback_heading.html" with user=feedback.student %}
 			{% include "manage/_feedback_response.html" %}
 		</div>
 	{% empty %}

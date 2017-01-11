@@ -9,6 +9,7 @@ from lib.helpers import Enum
 
 from .models import (
     Student,
+    StudentTag,
     Exercise,
     Feedback,
     FeedbackTag,
@@ -158,6 +159,7 @@ class FeedbackFilter(django_filters.FilterSet):
                                           extra_filter=lambda q: q.exclude(response_time=None),
                                           widget=forms.CheckboxSelectMultiple())
     tags = ColortagChoiceFilter(queryset=FeedbackTag.objects.none())
+    student_tags = ColortagChoiceFilter(queryset=StudentTag.objects.none(), name='student__tags')
     exercise = django_filters.ModelChoiceFilter(queryset=Exercise.objects.none())
     student = django_filters.ModelChoiceFilter(queryset=Student.objects.none())
     timestamp = DateTimeFromToRangeFilter()
@@ -180,6 +182,7 @@ class FeedbackFilter(django_filters.FilterSet):
             'response_grade',
             'flags',
             'tags',
+            'student_tags'
         )
         filter_overrides = {
             # hack to make django_filters not to complain about jsonfield
@@ -205,6 +208,7 @@ class FeedbackFilter(django_filters.FilterSet):
         form.fields['exercise'].queryset = Exercise.objects.filter(course=course).all()
         form.fields['student'].queryset = Student.objects.get_students_on_course(course)
         form.fields['tags'].queryset = FeedbackTag.objects.filter(course=course).all()
+        form.fields['student_tags'].queryset = StudentTag.objects.filter(course=course).all()
         return form
 
     @staticmethod

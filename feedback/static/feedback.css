@@ -8,7 +8,10 @@ body {
 }
 
 /* labels in panel headers and footers */
-.panel-heading .label, .panel-footer .label {
+.panel-heading .label {
+	font-size: 80%;
+}
+.panel-footer .label {
 	font-size: 100%;
 }
 

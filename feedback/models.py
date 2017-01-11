@@ -41,10 +41,39 @@ class Student(NamespacedApiObject):
     username = models.CharField(max_length=128)
     full_name = models.CharField(max_length=128)
     student_id = models.CharField(max_length=25, null=True, blank=True)
+    tags = models.ManyToManyField('StudentTag', related_name="students")
 
     def __str__(self):
         extra = ", {}".format(self.student_id) if self.student_id else ""
         return "{:s} ({:s}{})".format(self.full_name, self.username, extra)
+
+
+class StudentTag(NamespacedApiObject, ColorTag):
+    course = models.ForeignKey('Course', related_name="student_tags")
+
+    @classmethod
+    def update_from_api(cls, client, course):
+        course_api = client.load_data(course.url)
+        tags = {}
+        students = {}
+
+        for tagging in course_api["taggings"]:
+            tag = tags.get(tagging.tag.id)
+            if not tag:
+                tag, _ = cls.objects.get_or_create(tagging.tag, course=course)
+                tags[tag.api_id] = tag
+
+            student = students.get(tagging.user.id)
+            if not student:
+                student, _ = Student.objects.get_or_create(tagging.user)
+                students[student.api_id] = student
+
+            student.tags.add(tag)
+
+        return list(tags.values())
+
+    def __str__(self):
+        return self.name
 
 
 class Course(NamespacedApiObject):

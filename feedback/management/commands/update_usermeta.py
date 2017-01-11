@@ -4,7 +4,7 @@ from django.core.management.base import BaseCommand, CommandError
 from aplus_client.client import AplusTokenClient
 
 from ..command_utils import get_courses
-from ...models import Student, Feedback
+from ...models import Student, StudentTag, Feedback
 
 class Command(BaseCommand):
     help = 'Reload submission data from aplus'
@@ -37,3 +37,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.NOTICE("Working on {}, {}".format(student, student.url)))
             student.update_using(client)
             student.save()
+
+        for course in courses:
+            self.stdout.write(self.style.NOTICE("Updating tags for course {}, {}".format(course, course.url)))
+            StudentTag.update_from_api(client, course)
