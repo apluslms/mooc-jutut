@@ -41,6 +41,7 @@ class Form(models.Model):
 
     class Meta:
         abstract = 'dynamic_forms' not in settings.INSTALLED_APPS
+        ordering = ('id',)
         verbose_name = _("Form")
         verbose_name_plural = _("Forms")
 
@@ -65,3 +66,5 @@ class Form(models.Model):
             self.sha1 = hashsum(freeze(self.form_spec)).hexdigest()
         return super().save(**kwargs)
 
+    def __str__(self):
+        return "<Form {}, {} fields, sha1:{}>".format(self.pk, len(self.form_spec), self.sha1)
