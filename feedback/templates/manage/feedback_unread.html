@@ -5,7 +5,6 @@
 {% block content %}
 	<h1>{% trans "Unread Feedback" %}</h1>
 	<h3>{{ course }}
-		{% if exercise %}| {{ exercise }}{% endif %}
 		{% if feedback_filter == None %}
 			<a href="{% url "feedback:list" course_id=course.id %}"
 				class="btn btn-success btn-sm pull-right"

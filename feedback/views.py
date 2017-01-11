@@ -400,27 +400,13 @@ class ManageNotRespondedListView(ManageCourseMixin, ListView):
     paginate_by = 10
 
     def get_queryset(self):
-        kw = self.kwargs
-
-        course_id = kw.get('course_id')
-        if course_id is not None:
-            self._exercise = None
-            self.course = get_object_or_404(Course, pk=course_id)
-            self._path_filter = path_filter = self.kwargs.get('path_filter', '').strip('/')
-            return Feedback.objects.get_notresponded(course_id=course_id, path_filter=path_filter)
-
-        exercise_id = kw.get('exercise_id')
-        if exercise_id is not None:
-            self._exercise = get_object_or_404(Exercise.objects.with_course(), pk=exercise_id)
-            self.course = self._exercise.course
-            self._path_filter = ''
-            return Feedback.objects.get_notresponded(exercise_id)
-
-        raise Http404
+        course_id = self.kwargs['course_id']
+        self.course = get_object_or_404(Course, pk=course_id)
+        self._path_filter = path_filter = self.kwargs.get('path_filter', '').strip('/')
+        return Feedback.objects.get_notresponded(course_id=course_id, path_filter=path_filter)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(course=self.course, **kwargs)
-        context['exercise'] = self._exercise
         context['path_filter'] = self._path_filter
         update_context_for_feedbacks(self.request, context)
         return context
@@ -538,8 +524,8 @@ class RespondFeedbackMixin:
     def get_success_url(self):
         url = self.request.GET.get(self.success_url_param)
         if not url:
-            url = reverse('feedback:notresponded-exercise', kwargs={
-                'exercise_id': self.object.form.exercise.id,
+            url = reverse('feedback:notresponded-course', kwargs={
+                'course_id': self.object.form.exercise.course.id,
             })
         return url
 
