@@ -8,7 +8,6 @@ from django.utils.text import slugify
 from django.utils.timezone import now as timezone_now
 from django.shortcuts import get_object_or_404
 from django.views.generic import FormView, UpdateView, ListView, DeleteView, TemplateView, View
-from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.urlresolvers import reverse
 from django.core.exceptions import SuspiciousOperation
 from django.utils.functional import cached_property
@@ -42,6 +41,13 @@ from .forms import (
     FeedbackTagForm,
 )
 from .filters import FeedbackFilter
+from .permissions import (
+    ManagePermissionsRequiredMixin,
+    AdminOrSiteStaffPermission,
+    AdminOrCourseStaffPermission,
+    AdminOrFeedbackStaffPermission,
+    AdminOrTagStaffPermission,
+)
 from .utils import (
     get_url_reverse_resolver,
     obj_with_attrs,
@@ -243,18 +249,31 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 # Feedback management (admin)
 # ---------------------------
 
-class ManageSiteMixin(LoginRequiredMixin):
+class ManageSiteMixin(ManagePermissionsRequiredMixin):
+    permission_classes = [AdminOrSiteStaffPermission]
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['sitelist'] = CachedSites.get
+        user = self.request.user
+        if user.is_superuser or user.is_staff:
+            context['sitelist'] = CachedSites.get
+        else:
+            visible_sites = self.visible_sites
+            context['sitelist'] = [site for site in CachedSites.get() if site.id in visible_sites]
         site = context.get('site', None)
         if site:
             context['sitename'] = '.'.join(site.domain.split('.', 2)[:2])
-            context['courselist'] = CachedCourses.get(site)
+            if user.is_superuser or user.is_staff:
+                context['courselist'] = CachedCourses.get(site)
+            else:
+                visible_courses = self.visible_courses
+                context['courselist'] = [course for course in CachedCourses.get(site) if course.id in visible_courses]
         return context
 
 
 class ManageCourseMixin(ManageSiteMixin):
+    permission_classes = [AdminOrCourseStaffPermission]
+
     @cached_property
     def course(self):
         return get_object_or_404(Course, pk=self.kwargs['course_id'])
@@ -274,6 +293,13 @@ class ManageSiteListView(ManageSiteMixin, ListView):
     template_name = "manage/site_list.html"
     context_object_name = "sites"
 
+    def get_queryset(self):
+        qs = self.model.objects.all()
+        user = self.request.user
+        if not user.is_superuser and not user.is_staff:
+            qs = qs.filter(id__in=self.visible_sites)
+        return qs
+
 
 class ManageCourseListView(ManageSiteMixin, ListView):
     model = Course
@@ -286,7 +312,11 @@ class ManageCourseListView(ManageSiteMixin, ListView):
             self._site = site = get_object_or_404(Site, pk=site_id)
             qs = self.model.objects.using_namespace(site)
         else:
+            self._site = None
             qs = self.model.objects
+        user = self.request.user
+        if not user.is_superuser and not user.is_staff:
+            qs = qs.filter(id__in=self.visible_courses)
         return qs.all().order_by('namespace', 'api_id')
 
     def get_context_data(self, **kwargs):
@@ -490,12 +520,13 @@ class UserFeedbackView(ManageCourseMixin, TemplateView):
         return context
 
 
-class RespondFeedbackMixin:
+class RespondFeedbackMixin(ManagePermissionsRequiredMixin):
     model = Feedback
     form_class = ResponseForm
     context_object_name = 'feedback'
     pk_url_kwarg = 'feedback_id'
     success_url_param = 'success_url'
+    permission_classes = [AdminOrFeedbackStaffPermission]
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -529,16 +560,22 @@ class RespondFeedbackMixin:
             })
         return url
 
+    @cached_property
+    def object(self):
+        return self.get_object()
 
-class RespondFeedbackView(#LoginRequiredMixin from ManageCourseMixin
-                          RespondFeedbackMixin,
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+
+class RespondFeedbackView(RespondFeedbackMixin,
                           ManageCourseMixin,
                           UpdateView):
     template_name = "manage/response_form.html"
 
 
-class RespondFeedbackViewAjax(LoginRequiredMixin,
-                              RespondFeedbackMixin,
+class RespondFeedbackViewAjax(RespondFeedbackMixin,
                               UpdateView):
     template_name = "manage/response_form_ajax.html"
 
@@ -584,7 +621,9 @@ class FeedbackTagListView(FeedbackTagMixin, ListCreateView):
         return super().get_form_kwargs()
 
 
-class FeedbackTagView(LoginRequiredMixin, View):
+class FeedbackTagView(ManagePermissionsRequiredMixin, View):
+    permission_classes = [AdminOrTagStaffPermission]
+
     @cached_property
     def tag_objects(self):
         kwargs = self.kwargs

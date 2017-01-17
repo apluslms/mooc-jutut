@@ -46,6 +46,9 @@ class Course(NamespacedApiObject):
     html_url = models.CharField(max_length=255)
     language = models.CharField(max_length=5)
 
+    staff = models.ManyToManyField(settings.AUTH_USER_MODEL,
+                                   related_name="courses")
+
     def __str__(self):
         return "{} - {}".format(self.code, self.name)
 
