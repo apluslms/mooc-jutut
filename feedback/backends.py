@@ -23,7 +23,7 @@ def clear_old_courses(sender, **kwargs):
     request = kwargs.get('request', None)
     user = kwargs.get('user', None)
     if request and user:
-        if user.last_login + CLEAR_COURSES_DELTA < timezone.now():
+        if user.last_login and user.last_login + CLEAR_COURSES_DELTA < timezone.now():
             user.courses.clear()
 
 
