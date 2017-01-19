@@ -203,7 +203,7 @@ class FeedbackFilter(django_filters.FilterSet):
         form = super().form
         course = self._course
         form.fields['exercise'].queryset = Exercise.objects.filter(course=course).all()
-        form.fields['student'].queryset = Student.objects.using_namespace(course.namespace).all()
+        form.fields['student'].queryset = Student.objects.get_students_on_course(course)
         form.fields['tags'].queryset = FeedbackTag.objects.filter(course=course).all()
         return form
 
