@@ -35,7 +35,7 @@ class Student(NamespacedApiObject):
 
     username = models.CharField(max_length=128)
     full_name = models.CharField(max_length=128)
-    student_id = models.CharField(max_length=25, blank=True)
+    student_id = models.CharField(max_length=25, null=True, blank=True)
 
     def __str__(self):
         extra = ", {}".format(self.student_id) if self.student_id else ""
