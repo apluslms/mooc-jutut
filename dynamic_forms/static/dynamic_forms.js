@@ -42,6 +42,12 @@ function dynamic_forms_textarea() {
 			spanbox.hide();
 			textbox.show();
 			base.trigger('enter_edit');
+			// move focus to end
+			textbox.find('textarea').focus().each(function() {
+				var len = this.value.length;
+				this.selectionStart = len;
+				this.selectionEnd = len;
+			});
 		};
 		var turn_edit_off = function() {
 			textbox.hide();
