@@ -18,7 +18,7 @@
 				<tbody>
 					{% for tag in tags %}
 						<tr>
-							<td>{{ tag|colortag_button:'static,no_tooltip' }}</td>
+							<td>{{ tag|colortag:'no_tooltip' }}</td>
 							<td>{{ tag.slug }}</td>
 							<td>{{ tag.description }}</td>
 							<td>
