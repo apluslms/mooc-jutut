@@ -1,13 +1,13 @@
 # Copyright (C) 2016 Jaakko Kantojärvi, Learning + Technology Research Group, Aalto University
 # This file is distributed under the same license as the mooc-jutut package.
 #
-# Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>, 2016.
+# Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>, 2016, 2017.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-12-11 13:01+0200\n"
-"PO-Revision-Date: 2016-11-23 20:19+0200\n"
+"POT-Creation-Date: 2017-02-05 22:29+0200\n"
+"PO-Revision-Date: 2017-02-05 22:30+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: English <>\n"
 "Language: en_US\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 2.0\n"
 
-#: feedback/filters.py:149
+#: feedback/filters.py:150
 msgid "Oldest first"
 msgstr "Vanhemmat ensin"
 
-#: feedback/filters.py:150
+#: feedback/filters.py:151
 msgid "Newest first"
 msgstr "Uudemmat ensin"
 
@@ -37,63 +37,63 @@ msgstr ""
 "Joku muu on päivittänyt lomaketta. Katso {older_versions_link} mikä on "
 "muuttunut."
 
-#: feedback/models.py:90
+#: feedback/models.py:129
 msgid "Newest versions"
 msgstr "Uusimmat versiot"
 
-#: feedback/models.py:91
+#: feedback/models.py:130
 msgid "Unread"
 msgstr "Lukematon"
 
-#: feedback/models.py:92
+#: feedback/models.py:131
 msgid "Read"
 msgstr "Luettu"
 
-#: feedback/models.py:93
+#: feedback/models.py:132
 msgid "Ungraded"
 msgstr "Ei arvosteltu"
 
-#: feedback/models.py:94
+#: feedback/models.py:133
 msgid "Graded"
 msgstr "Arvosteltu"
 
-#: feedback/models.py:95
+#: feedback/models.py:134
 msgid "Automatically graded"
 msgstr "Automaattisesti arvosteltu"
 
-#: feedback/models.py:96
+#: feedback/models.py:135
 msgid "Manually graded"
 msgstr "Käsin arvosteltu"
 
-#: feedback/models.py:97
+#: feedback/models.py:136
 msgid "Unresponded"
 msgstr "Vastaamaton"
 
-#: feedback/models.py:98
+#: feedback/models.py:137
 msgid "Responded"
 msgstr "Vastattu"
 
-#: feedback/models.py:99
+#: feedback/models.py:138
 msgid "Upload ok"
 msgstr "Lähetys on onnistunut"
 
-#: feedback/models.py:100
+#: feedback/models.py:139
 msgid "Upload has error"
 msgstr "Lähetys on epäonnistunut"
 
-#: feedback/models.py:178
+#: feedback/models.py:217
 msgid "No response"
 msgstr "Ei vastausta"
 
-#: feedback/models.py:179
+#: feedback/models.py:218
 msgid "Rejected"
 msgstr "Hylätty"
 
-#: feedback/models.py:180
+#: feedback/models.py:219
 msgid "Accepted"
 msgstr "Hyväksytty"
 
-#: feedback/models.py:181
+#: feedback/models.py:220
 msgid "Good"
 msgstr "Hyvä"
 
@@ -288,7 +288,7 @@ msgid "More"
 msgstr "Lisää"
 
 #: feedback/templates/manage/base.html:126
-#: feedback/templates/manage/feedback_unread.html:12
+#: feedback/templates/manage/feedback_unread.html:11
 msgid "Filter feedbacks"
 msgstr "Rajaa palautteita"
 
@@ -301,10 +301,14 @@ msgid "Student list"
 msgstr "Opiskelijalista"
 
 #: feedback/templates/manage/base.html:139
+msgid "Update Student tags"
+msgstr "Päivitä opiskelijatägit"
+
+#: feedback/templates/manage/base.html:143
 msgid "Clear cache"
 msgstr "Tyhjennä välimuisti"
 
-#: feedback/templates/manage/base.html:161
+#: feedback/templates/manage/base.html:158
 msgid "Language"
 msgstr "Kieli"
 
@@ -329,6 +333,25 @@ msgstr "Yhtään palauttetta ei löytynyt"
 msgid "Unread Feedback"
 msgstr "Lukemattomat palautteet"
 
-#: feedback/templates/manage/feedback_unread.html:31
+#: feedback/templates/manage/feedback_unread.html:30
 msgid "No unread feedback."
 msgstr "Ei lukemattomia palautteita"
+
+#: feedback/templates/manage/update_studenttags.html:6
+msgid "Update student tags"
+msgstr "Päivitä opiskelijatägit"
+
+#: feedback/templates/manage/update_studenttags.html:14
+#| msgid "Update Student tags"
+msgid "Update tags now"
+msgstr "Päivitä tägit nyt"
+
+#: feedback/templates/manage/update_studenttags.html:18
+msgid "Updated"
+msgstr "Päivitetty"
+
+#: feedback/templates/manage/update_studenttags.html:25
+msgid "This user is not authenticated using LTI and doesn't have api token."
+msgstr ""
+"Käyttäjä ei ole kirjautunut LTI:n kautta, joten sillä ei ole api avainta."
+
