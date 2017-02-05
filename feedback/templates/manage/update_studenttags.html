@@ -1,0 +1,29 @@
+{% extends "manage/base.html" %}
+{% load i18n %}
+{% load colortag %}
+
+{% block content %}
+<h1>{% trans "Update student tags" %}</h1>
+
+{% if has_token %}
+	{% if all_tags == None %}
+		<form method="POST">
+			{% csrf_token %}
+			<button class="btn btn-primary" type="submit">
+				<span class="glyphicon glyphicon-transfer"></span>
+				{% trans 'Update tags now' %}
+			</button>
+		</form>
+	{% else %}
+		<p>{% trans "Updated" %}:
+		{% for tag in all_tags %}
+			{{ tag|colortag }}
+		{% endfor %}
+		</p>
+	{% endif %}
+{% else %}
+	<p>{% trans "This user is not authenticated using LTI and doesn't have api token." %}</p>
+{% endif %}
+
+
+{% endblock %}

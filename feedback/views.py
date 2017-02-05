@@ -23,6 +23,7 @@ from .models import (
     Course,
     Exercise,
     Student,
+    StudentTag,
     Form,
     Feedback,
     FeedbackTag,
@@ -329,6 +330,24 @@ class ManageClearCacheView(ManageCourseMixin, TemplateView):
     def get(self, *args, **kwargs):
         clear_cache()
         return super().get(*args, **kwargs)
+
+
+class ManageUpdateStudenttagsView(ManageCourseMixin, TemplateView):
+    template_name = "manage/update_studenttags.html"
+
+    def get(self, request, *args, **kwargs):
+        kwargs['has_token'] = request.user.has_api_token(self.course.namespace)
+        return super().get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        course = self.course
+        client = request.user.get_api_client(course.namespace)
+        tags = None
+        if client:
+            tags = StudentTag.update_from_api(client, course)
+        kwargs['has_token'] = bool(client)
+        kwargs['all_tags'] = tags
+        return super().get(request, *args, **kwargs)
 
 
 def get_tag_list(tags, feedback, get_tag_url=None):
