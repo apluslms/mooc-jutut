@@ -96,6 +96,10 @@ class ResponseForm(forms.ModelForm):
             raise forms.ValidationError(mark_safe(msg))
         return data_changed_check
 
+    def clean_response_msg(self):
+        """Return validated and cleaned response_msg. Called by self.full_clean()"""
+        return self.cleaned_data['response_msg'].strip()
+
     def save(self):
         user = self._user
         if user is None:
@@ -105,9 +109,17 @@ class ResponseForm(forms.ModelForm):
         instance = super().save(commit=False)
         instance.response_time = timezone_now()
         instance.response_by = user
-        update_response_to_aplus(instance)
+
+        if self.has_changed() or not instance.response_uploaded.ok:
+            logger.debug("Instance has changes or is not uploaded, thus requiring upload to aplus.")
+            update_response_to_aplus(instance)
+        else:
+            logger.debug("No changes to response, so no aplus updated needed.")
+
+        # save to db and update form internal state
         instance.save(update_fields=self._meta.fields + ('response_time', 'response_by'))
         self.original_fields(instance, update=True)
+
         return instance
 
 
