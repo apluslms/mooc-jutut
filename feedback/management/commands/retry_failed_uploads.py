@@ -48,7 +48,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.NOTICE("Retrying {} to '{}' having old status {}".format(feedback.id, feedback.submission_url, feedback.response_uploaded)))
 
             update_response_to_aplus(feedback)
-            feedback.save([])
+            feedback.save(update_fields=[])
 
             status = feedback.response_uploaded
             if status.ok:
