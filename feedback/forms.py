@@ -82,6 +82,7 @@ class ResponseForm(forms.ModelForm):
         return data
 
     def clean_data_changed_check(self):
+        """Make sure that feedback is not edited by someone else. Called by self.full_clean()"""
         data_changed_check = self.cleaned_data['data_changed_check']
         if data_changed_check != self.initial['data_changed_check']:
             self.has_expired = True
@@ -93,7 +94,7 @@ class ResponseForm(forms.ModelForm):
             link = '<a href="{url}" target="_blank" class="alert-link">{link_text}</a>'.format(url=url, link_text=_("older versions"))
             msg = _("Someone else has updated this form. See {older_versions_link} for editing.").format(older_versions_link=link)
             raise forms.ValidationError(mark_safe(msg))
-        return self.cleaned_data['data_changed_check']
+        return data_changed_check
 
     def save(self):
         user = self._user
