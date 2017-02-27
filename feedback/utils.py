@@ -45,8 +45,8 @@ def update_response_to_aplus(feedback):
         'feedback': html,
         'grading_payload': '{}'
     }
-    if feedback.response_msg and feedback.response_msg.strip():
-        update_data['notify'] = "true"
+    if feedback.response_notify:
+        update_data['notify'] = feedback.response_notify_aplus
 
     r = client.grade(update_data, timeout=(6.4, 46))
     feedback.response_uploaded = r.status_code

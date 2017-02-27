@@ -223,6 +223,16 @@ class Feedback(models.Model):
     MAX_GRADE = GRADES.ACCEPTED_GOOD
     OK_GRADES = (GRADES.ACCEPTED, GRADES.ACCEPTED_GOOD)
 
+    NOTIFY = Enum(
+        ('NO', 0, _('No notification')),
+        ('NORMAL', 1, _('Normal notification')),
+        ('IMPORTANT', 2, _('Important notification')),
+    )
+    NOTIFY_APLUS = {
+        NOTIFY.NORMAL: 'normal',
+        NOTIFY.IMPORTANT: 'important',
+    }
+
     # identifier
     exercise = models.ForeignKey(Exercise,
                                  related_name='feedbacks',
@@ -250,18 +260,23 @@ class Feedback(models.Model):
     submission_html_url = models.URLField()
 
     # response
-    response_time = models.DateTimeField(null=True)
+    response_time = models.DateTimeField(null=True,
+                                         verbose_name=_("Response time"))
     response_by = models.ForeignKey(settings.AUTH_USER_MODEL,
                                     related_name='responded_feedbacks',
                                     on_delete=models.SET_NULL,
-                                    null=True)
+                                    null=True,
+                                    verbose_name=_("Responder"))
     response_msg = models.TextField(blank=True,
                                     null=True,
                                     default=None,
-                                    verbose_name="Response")
+                                    verbose_name=_("Response message"))
     response_grade = models.PositiveSmallIntegerField(default=GRADES.REJECTED,
                                                       choices=GRADE_CHOICES,
-                                                      verbose_name="Grade")
+                                                      verbose_name=_("Response grade"))
+    response_notify = models.PositiveSmallIntegerField(default=NOTIFY.NO,
+                                                       choices=NOTIFY.choices,
+                                                       verbose_name=_("Response notify"))
 
     # response upload
     _response_upl_code = models.PositiveSmallIntegerField(default=0,
@@ -351,6 +366,10 @@ class Feedback(models.Model):
         if not self.responded:
             return None
         return self.response_grade
+
+    @property
+    def response_notify_aplus(self):
+        return self.NOTIFY_APLUS.get(self.response_notify, '')
 
     @property
     def older_versions(self):

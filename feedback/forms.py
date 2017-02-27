@@ -100,6 +100,14 @@ class ResponseForm(forms.ModelForm):
         """Return validated and cleaned response_msg. Called by self.full_clean()"""
         return self.cleaned_data['response_msg'].strip()
 
+    def get_notify(self):
+        old_msg = self.initial['response_msg'] or ''
+        old_msg = "".join(old_msg.split())
+        new_msg = self.cleaned_data['response_msg'] or ''
+        new_msg = "".join(new_msg.split())
+        return Feedback.NOTIFY.NORMAL if old_msg != new_msg else Feedback.NOTIFY.NO
+        # FIXME: add support for instance.NOTIFY.IMPORTANT
+
     def save(self):
         user = self._user
         if user is None:
@@ -109,6 +117,7 @@ class ResponseForm(forms.ModelForm):
         instance = super().save(commit=False)
         instance.response_time = timezone_now()
         instance.response_by = user
+        instance.response_notify = self.get_notify()
 
         if self.has_changed() or not instance.response_uploaded.ok:
             logger.debug("Instance has changes or is not uploaded, thus requiring upload to aplus.")
@@ -117,7 +126,8 @@ class ResponseForm(forms.ModelForm):
             logger.debug("No changes to response, so no aplus updated needed.")
 
         # save to db and update form internal state
-        instance.save(update_fields=self._meta.fields + ('response_time', 'response_by'))
+        fields = self._meta.fields + ('response_time', 'response_by', 'response_notify')
+        instance.save(update_fields=fields)
         self.original_fields(instance, update=True)
 
         return instance
