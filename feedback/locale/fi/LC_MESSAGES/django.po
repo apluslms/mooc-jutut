@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-05 22:29+0200\n"
+"POT-Creation-Date: 2017-02-27 12:12+0200\n"
 "PO-Revision-Date: 2017-02-05 22:30+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: English <>\n"
@@ -25,11 +25,11 @@ msgstr "Vanhemmat ensin"
 msgid "Newest first"
 msgstr "Uudemmat ensin"
 
-#: feedback/forms.py:93
+#: feedback/forms.py:94
 msgid "older versions"
 msgstr "vanhemmista versioista"
 
-#: feedback/forms.py:94
+#: feedback/forms.py:95
 #, python-brace-format
 msgid ""
 "Someone else has updated this form. See {older_versions_link} for editing."
@@ -96,6 +96,38 @@ msgstr "Hyväksytty"
 #: feedback/models.py:220
 msgid "Good"
 msgstr "Hyvä"
+
+#: feedback/models.py:227
+msgid "No notification"
+msgstr "Ei ilmoitusta"
+
+#: feedback/models.py:228
+msgid "Normal notification"
+msgstr "Normaali ilmoitus"
+
+#: feedback/models.py:229
+msgid "Important notification"
+msgstr "Tärkeä ilmoitus"
+
+#: feedback/models.py:264
+msgid "Response time"
+msgstr "Vastausaika"
+
+#: feedback/models.py:269
+msgid "Responder"
+msgstr "Vastaaja"
+
+#: feedback/models.py:273
+msgid "Response message"
+msgstr "Vastausviesti"
+
+#: feedback/models.py:276
+msgid "Response grade"
+msgstr "Arvosana"
+
+#: feedback/models.py:279
+msgid "Response notify"
+msgstr "Ilmoitus vastauksesta"
 
 #: feedback/templates/feedback/_form.html:11
 msgid "Staff response"
@@ -342,7 +374,6 @@ msgid "Update student tags"
 msgstr "Päivitä opiskelijatägit"
 
 #: feedback/templates/manage/update_studenttags.html:14
-#| msgid "Update Student tags"
 msgid "Update tags now"
 msgstr "Päivitä tägit nyt"
 
@@ -354,4 +385,3 @@ msgstr "Päivitetty"
 msgid "This user is not authenticated using LTI and doesn't have api token."
 msgstr ""
 "Käyttäjä ei ole kirjautunut LTI:n kautta, joten sillä ei ole api avainta."
-
