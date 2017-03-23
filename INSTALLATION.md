@@ -22,6 +22,7 @@ Debian:
 Setup environment
 
 ```sh
+dist="prod"
 user="jutut"
 home="/opt/$user"
 src="$home/mooc-jutut"
@@ -38,7 +39,7 @@ sudo -H -u $user git clone https://github.com/Aalto-LeTech/mooc-jutut.git $src
 # install virtual env
 sudo -H -u $user virtualenv --python=python3 $venv
 
-# link system psycopg2 and certifi (you need to rerun this for pip to work if system package version updates)
+# link system python packages (you need to rerun this for pip to work if system package version updates)
 sudo -H -u $user sh -c "
   for p in certifi psycopg2; do
     for d in $venv/lib/python3*; do
@@ -52,9 +53,9 @@ sudo -H -u $user sh -c "
 sudo -H -u $user $pip install -r $src/requirements.txt
 sudo -H -u $user $pip install gunicorn
 
-# configure database
+# configure sql database
 sudo -H -u postgres createuser jutut
-sudo -H -u postgres createdb -O jutut mooc_jutut_prod
+sudo -H -u postgres createdb -O jutut mooc_jutut_$dist
 
 # create tables
 sudo -H -u $user sh -c "cd $src && $python manage.py migrate"
@@ -66,7 +67,7 @@ sudo -H -u $user sh -c "cd $src && $python manage.py compilemessages"
 sudo -H -u $user sh -c "cd $src && $python manage.py collectstatic --noinput"
 ```
 
-Configure nginx (we presume nginx.conf includes conf.d/*)
+Configure nginx (we presume `nginx.conf` includes `conf.d/*`)
 
 ```sh
 fqdn="jutut.cs.hut.fi"
