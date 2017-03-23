@@ -17,6 +17,7 @@
 /local_settings.py
 /local_templates/
 /jutut/local_settings.py
+/jutut/local_settings_celery.py
 /jutut/secret_key.py
 
 /venv/

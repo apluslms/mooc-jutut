@@ -4,6 +4,7 @@ django-bootstrap-form==3.2.1
 git+https://github.com/Aalto-LeTech/django-dictiterators.git@1.0.0#egg=django-dictiterators==1.0.0
 git+https://github.com/Aalto-LeTech/django-colortag.git@1.1.5#egg=django-colortag==1.1.5
 django-filter==0.15.0
+celery==4.0.2
 psycopg2>=2.5.4
 python-memcached==1.58
 raphendyr-django-essentials==1.0.0

@@ -17,7 +17,7 @@ Install software:
 
 Debian:
 
-`sudo apt-get install nginx postgresql memcached git python3 python-virtualenv python3-psycopg2 python3-certifi`
+`sudo apt-get install git nginx postgresql memcached rabbitmq-server python3 python-virtualenv python3-psycopg2 python3-certifi
 
 Setup environment
 
@@ -56,6 +56,18 @@ sudo -H -u $user $pip install gunicorn
 # configure sql database
 sudo -H -u postgres createuser jutut
 sudo -H -u postgres createdb -O jutut mooc_jutut_$dist
+
+# configure message broker
+celery_file="$src/jutut/local_settings_celery.py"
+if ! [ -e "$celery_file" ]; then
+    pass=$(head -c 512 /dev/urandom|sha256sum -|cut -d' ' -f1)
+    sudo rabbitmqctl add_user "$user" "$pass"
+    sudo rabbitmqctl add_vhost "mooc_jutut_$dist/"
+    sudo rabbitmqctl set_permissions -p "mooc_jutut_$dist/" "$user" ".*" ".*" ".*"
+    sudo -H -u $user tee "$celery_file" <<EOF
+CELERY_BROKER_URL="amqp://$user:$pass@localhost:5672/mooc_jutut_$dist/"
+EOF
+fi
 
 # create tables
 sudo -H -u $user sh -c "cd $src && $python manage.py migrate"
@@ -168,11 +180,63 @@ SyslogIdentifier=www-jutut
 StandardOutput=syslog
 StandardError=syslog
 WorkingDirectory=$src/
-Environment="PATH=$venv/bin/x"
+Environment="PATH=$venv/bin/"
 ExecStart=$venv/bin/gunicorn --workers=3 --pid /run/www-jutut/gunicorn.pid --bind unix:/run/www-jutut/gunicorn.sock jutut.wsgi:application
 PIDFile=/run/www-jutut/gunicorn.pid
-ExecReload=/bin/kill -s HUP $MAINPID
-ExecStop=/bin/kill -s TERM $MAINPID
+ExecReload=/bin/kill -s HUP \$MAINPID
+ExecStop=/bin/kill -s TERM \$MAINPID
+RestartSec=15
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# create systemd config for celery worker
+cat > /etc/systemd/system/www-jutut-celery.service <<EOF
+[Unit]
+Description=MOOC Jutut celeryd
+PartOf=nginx.service
+Pequires=www-jutut-gunicorn
+
+[Service]
+User=$user
+Group=nogroup
+SyslogIdentifier=www-jutut-celery
+StandardOutput=syslog
+StandardError=syslog
+WorkingDirectory=$src/
+Environment="PATH=$venv/bin/"
+ExecStart=$venv/bin/celery worker --pidfile=/run/www-jutut/celery.pid --loglevel=info --autoscale=6,1 --app jutut
+PIDFile=/run/www-jutut/celery.pid
+ExecReload=/bin/kill -s HUP \$MAINPID
+ExecStop=/bin/kill -s TERM \$MAINPID
+RestartSec=15
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+EOF
+
+# create systemd config for celery beat
+cat > /etc/systemd/system/www-jutut-celerybeat.service <<EOF
+[Unit]
+Description=MOOC Jutut celeryd beat
+PartOf=nginx.service
+BindsTo=www-jutut-celery
+
+[Service]
+User=$user
+Group=nogroup
+SyslogIdentifier=www-jutut-celery
+StandardOutput=syslog
+StandardError=syslog
+WorkingDirectory=$src/
+Environment="PATH=$venv/bin/"
+ExecStart=$venv/bin/celery beat --pidfile=/run/www-jutut/celerybeat.pid --loglevel=info --schedule=$home/celerybeat-schedule.db --app jutut
+PIDFile=/run/www-jutut/celerybeat.pid
+ExecReload=/bin/kill -s HUP \$MAINPID
+ExecStop=/bin/kill -s TERM \$MAINPID
 RestartSec=15
 Restart=always
 
@@ -181,8 +245,8 @@ WantedBy=multi-user.target
 EOF
 
 ¤ start the service
-systemctl enable www-jutut-gunicorn.service
-systemctl start www-jutut-gunicorn.service
+systemctl enable www-jutut-gunicorn.service www-jutut-celery.service www-jutut-celerybeat.service
+systemctl start www-jutut-gunicorn.service www-jutut-celery.service www-jutut-celerybeat.service
 ```
 
 Check status using:

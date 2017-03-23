@@ -236,9 +236,26 @@ FILTERS_HELP_TEXT_EXCLUDE = False
 FILTERS_HELP_TEXT_FILTER = False
 
 
+## Celery
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_BEAT_SCHEDULE = {
+    'feedback.schedule_failed': {
+        # check database for failed uploads that don't appear to be in queue
+        'task': 'feedback.schedule_failed',
+        'schedule': 30 * 60, # every 30 minutes
+        'args': (),
+    },
+}
+
+
 ################################################################################
 # Do some updates and additions to above settings
 from r_django_essentials.conf import update_settings, update_settings_from_module
+
+# Load local settings for celery (INSTALLATION tells to add rabbitmq password in this file).
+update_settings_from_module(__name__, 'local_settings_celery')
 
 # Load settings from local_settings, secret_key, environment.
 # Make sure app dependencies are included etc.

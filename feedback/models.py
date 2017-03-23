@@ -171,6 +171,23 @@ class FeedbackQuerySet(models.QuerySet):
             params=[search],
         )
 
+    def filter_missed_upload(self, time_gap_min=15):
+        gap = timezone.now() - datetime.timedelta(minutes=time_gap_min)
+        return self.filter(
+            Q(_response_upl_code=0) &
+            ~Q(response_time=None) &
+            Q(response_time__lt=gap)
+        ).order_by('_response_upl_at')
+
+    def filter_failed_upload(self, max_tries=10, time_gap_min=15):
+        gap = timezone.now() - datetime.timedelta(minutes=time_gap_min)
+        return self.filter(
+            ~Q(_response_upl_code=200) &
+            ~Q(_response_upl_code=0) &
+            Q(_response_upl_attempt__lt=max_tries) &
+            Q(_response_upl_at__lt=gap)
+        ).order_by('_response_upl_at')
+
     def feedback_exercises_for(self, course, student):
         q = self.values(
                 'exercise_id',
