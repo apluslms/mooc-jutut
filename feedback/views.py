@@ -7,13 +7,13 @@ from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadReque
 from django.utils.text import slugify
 from django.utils.timezone import now as timezone_now
 from django.shortcuts import get_object_or_404
-from django.views.generic import FormView, UpdateView, ListView, DeleteView, TemplateView, View
+from django.views.generic import FormView, ListView, DetailView, UpdateView, DeleteView, TemplateView, View
 from django.core.urlresolvers import reverse
 from django.core.exceptions import SuspiciousOperation
 from django.utils.functional import cached_property
 
 from lib.postgres import PgAvg
-from lib.mixins import CSRFExemptMixin
+from lib.mixins import CSRFExemptMixin, ConditionalMixin
 from lib.views import ListCreateView
 from aplus_client.django.views import AplusGraderMixin
 from dynamic_forms.models import Form
@@ -361,7 +361,7 @@ def get_tag_list(tags, feedback, get_tag_url=None):
 
 
 def get_feedback_dict(feedback, get_form, response_form_class,
-                      get_post_url=None, get_older_url=None,
+                      get_post_url=None, get_status_url=None, get_older_url=None,
                       get_all_feedbacks_url=None,
                       tags=None, get_tag_url=None):
     form = get_form(feedback)
@@ -380,6 +380,8 @@ def get_feedback_dict(feedback, get_form, response_form_class,
     }
     if get_post_url:
         data['post_url'] = get_post_url(feedback)
+    if get_status_url:
+        data['status_url'] = get_status_url(feedback)
     if get_older_url:
         data['older_url'] = get_older_url(feedback)
     if get_all_feedbacks_url:
@@ -406,6 +408,13 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
         lambda f: (f.id,),
         query={"success_url": request.get_full_path()},
     ) if post_url else None
+
+    # get_status_url
+    get_status_url = get_url_reverse_resolver(
+        'feedback:status',
+        ('feedback_id',),
+        lambda f: (f.id,),
+    )
 
     # get_older_url
     get_older_url = get_url_reverse_resolver(
@@ -435,6 +444,7 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
                           get_form=get_form,
                           response_form_class=ResponseForm,
                           get_post_url=get_post_url,
+                          get_status_url=get_status_url,
                           get_older_url=get_older_url,
                           get_all_feedbacks_url=get_all_feedbacks_url,
                           tags=tags,
@@ -539,13 +549,31 @@ class UserFeedbackView(ManageCourseMixin, TemplateView):
         return context
 
 
-class RespondFeedbackMixin(ManagePermissionsRequiredMixin):
+class FeedbackMixin(ManagePermissionsRequiredMixin):
     model = Feedback
-    form_class = ResponseForm
     context_object_name = 'feedback'
     pk_url_kwarg = 'feedback_id'
-    success_url_param = 'success_url'
     permission_classes = [AdminOrFeedbackStaffPermission]
+
+    @cached_property
+    def object(self):
+        return self.get_object()
+
+    def get_context_data(self, **kwargs):
+        feedback = self.object
+        context = super().get_context_data(course=feedback.exercise.course, **kwargs)
+        update_context_for_feedbacks(self.request, context, feedbacks=[feedback], post_url=False)
+        context.update(next(context['feedbacks']))
+        return context
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(object=self.object)
+        return self.render_to_response(context)
+
+
+class RespondFeedbackMixin(FeedbackMixin):
+    form_class = ResponseForm
+    success_url_param = 'success_url'
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -553,10 +581,7 @@ class RespondFeedbackMixin(ManagePermissionsRequiredMixin):
         return kwargs
 
     def get_context_data(self, **kwargs):
-        feedback = self.object
-        context = super().get_context_data(course=feedback.exercise.course, **kwargs)
-        update_context_for_feedbacks(self.request, context, feedbacks=[feedback], post_url=False)
-        context.update(next(context['feedbacks']))
+        context = super().get_context_data(**kwargs)
         success_url = self.request.GET.get(self.success_url_param)
         if success_url:
             context['post_url'] = urljoin(self.request.path,
@@ -579,14 +604,6 @@ class RespondFeedbackMixin(ManagePermissionsRequiredMixin):
             })
         return url
 
-    @cached_property
-    def object(self):
-        return self.get_object()
-
-    def get(self, request, *args, **kwargs):
-        context = self.get_context_data(object=self.object)
-        return self.render_to_response(context)
-
 
 class RespondFeedbackView(RespondFeedbackMixin,
                           ManageCourseMixin,
@@ -601,6 +618,15 @@ class RespondFeedbackViewAjax(RespondFeedbackMixin,
     def get_success_url(self):
         # skip redirect url resolving for ajax request, as it will be replaced
         return None
+
+
+class ResponseStatusView(ConditionalMixin,
+                         FeedbackMixin,
+                         DetailView):
+    template_name = "manage/_upload_status.html"
+
+    def get_last_modified(self, request):
+        return self.object.response_uploaded.when
 
 
 def respond_feedback_view_select(normal_view, ajax_view):

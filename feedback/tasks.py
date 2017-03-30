@@ -31,6 +31,17 @@ def upload_response(self, feedback_id):
         raise self.retry(countdown=delay)
 
 
+def async_response_upload(feedback):
+    feedback.response_uploaded = 0 # reset upload status
+    def send():
+        # Signature could be used instead, but this way we can call the
+        # returned function and log message at correct time.
+        # Signature would require .delay() instead of ().
+        t = upload_response.delay(feedback.id)
+        logger.debug("Scheduling upload for feedback %d: %s", feedback.id, t.task_id)
+    return send
+
+
 @task(rate_limit="3/m")
 def schedule_failed(self):
     # this will get feedbacks that are

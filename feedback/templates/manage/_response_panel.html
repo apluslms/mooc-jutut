@@ -9,6 +9,7 @@
 		feedback
 		min_grade
 		post_url
+		status_url
 {% endcomment %}
 
 <div
@@ -61,20 +62,7 @@
 				</span>
 			{% endif %}
 
-			{% with upl=feedback.response_uploaded %}
-				{% if feedback.responded and not upl.ok %}
-					<span rel="tooltip"
-						class="label label-danger pull-right"
-						data-toggle="tooltip"
-						data-trigger="hover click"
-						data-placement="top"
-						data-html="true"
-						title="{% blocktrans with count=upl.attempts when=upl.when|date:'Y-m-d H:i:s' code=upl.code %}Upload is <b>not</b> ok.<br>Tried {{count}} times.<br>Last tried {{when}} with status {{code}}.{% endblocktrans %}"
-						{{ state|on_state:"default" }}
-						>{% blocktrans with code=upl.code %}upload status {{code}}{% endblocktrans %}
-					</span>
-				{% endif %}
-			{% endwith %}
+			{% include "manage/_upload_status.html" %}
 		</div>
 	{% endwith %}
 

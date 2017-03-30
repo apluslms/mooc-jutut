@@ -341,7 +341,7 @@ class Feedback(models.Model):
         when = self._response_upl_at
         code = self._response_upl_code
         attempts = self._response_upl_attempt
-        ok = code in (0, 200)
+        ok = code in (200,)
         return ResponseUploaded(ok, when, code, attempts)
 
     @response_uploaded.setter

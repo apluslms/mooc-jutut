@@ -11,7 +11,7 @@ from .models import (
     Feedback,
     FeedbackTag,
 )
-from .utils import update_response_to_aplus
+from .tasks import async_response_upload
 
 
 logger = logging.getLogger("feedback.forms")
@@ -114,21 +114,26 @@ class ResponseForm(forms.ModelForm):
             raise RuntimeError("ResponseForm without user, can't be saved.")
         logger.debug("Saving response data to database and requesing doing update to submission_url")
 
+        # Get the instance and update metadata
         instance = super().save(commit=False)
         instance.response_time = timezone_now()
         instance.response_by = user
         instance.response_notify = self.get_notify()
 
-        if self.has_changed() or not instance.response_uploaded.ok:
-            logger.debug("Instance has changes or is not uploaded, thus requiring upload to aplus.")
-            update_response_to_aplus(instance)
-        else:
-            logger.debug("No changes to response, so no aplus updated needed.")
+        # prepare for upload
+        upload = async_response_upload(instance) if self.has_changed() else None
 
         # save to db and update form internal state
         fields = self._meta.fields + ('response_time', 'response_by', 'response_notify')
         instance.save(update_fields=fields)
         self.original_fields(instance, update=True)
+
+        # if there is upload, do it now after instance is saved
+        if upload:
+            logger.debug("Instance has changes, requesting upload to aplus.")
+            upload()
+        else:
+            logger.debug("No changes to response, so no aplus updated needed.")
 
         return instance
 

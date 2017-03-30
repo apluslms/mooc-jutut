@@ -231,6 +231,46 @@ $(function() {
 		}));
 	}
 
+	/* response status */
+	var update_response_status = function(span, nohover) {
+		var self = $(span);
+		var url = self.data('updateurl');
+		var modified = self.data('last_modified');
+		//alert("" + url + modified);
+		$.ajax({
+			type: 'GET',
+			url: url,
+			timeout: 5000,
+			headers: {
+				'If-Modified-Since': modified,
+			},
+			success: function(data, textStatus, xhr) {
+				var elem = self;
+				if (data) {
+					elem = $(data);
+					self.replaceWith(elem);
+					// new data, do reactions
+					!nohover && elem.filter('[data-toggle="tooltip"]').tooltip();
+					// remember updateurl
+					if (!elem.data('updateurl'))
+						elem.data('updateurl', url);
+					// record last modified
+					elem.data('last_modified', xhr.getResponseHeader("Last-Modified"));
+				}
+				var code = elem.data('code');
+				if (code != '200')
+					elem.each(function() {
+						var this_ = this;
+						setTimeout(update_response_status, 2000, this_, nohover);
+					});
+			},
+			error: function(xhr, textStatus, error) {
+				console.log("Status update failed '" + textStatus + "' return code " + xhr.status + " with data: " + xhr.responseText);
+				setTimeout(update_response_status, 2000, span, nohover);
+			},
+		});
+	}
+
 
 	/* test for broken apple mobile devices */
 	var is_apple_mobile = function() {
@@ -259,6 +299,12 @@ $(function() {
 		dom.find('.cancel-button').on('click', on_cancel_button);
 		dom.find('.colortag').on('click', ajax_set_tag_state);
 		dom.find('.stateful').on('state_change', on_state_change);
+
+		// timeouts
+		dom.find('.upload_status').each(function() {
+			var span = this;
+			setTimeout(update_response_status, 2000, span, nohover);
+		});
 	};
 
 	/* on page load forms got inserted */
