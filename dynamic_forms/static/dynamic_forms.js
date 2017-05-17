@@ -5,6 +5,7 @@ function dynamic_forms_textarea() {
 	var base = $(this);
 	var span = base, spanbox = base, textbox = base;
 	var editable = base.is('textarea');
+	var openurl = base.data('openurl') || false;
 	if (editable) {
 		if (base.data('texttarget')) {
 			textbox = $(base.data('texttarget')).first();
@@ -29,12 +30,19 @@ function dynamic_forms_textarea() {
 	var menu = $('<div class="hovermenu btn-group"></div>');
 	spanbox.append(menu);
 
-	var addButton = function(symbol, text, action) {
-		var btn = $('<button class="btn btn-primary btn-xs" type="button"><span class="glyphicon glyphicon-'+symbol+'"></span> '+text+'</button>"');
+	var addButton = function(symbol, text, action, style='primary') {
+		var btn = $('<button class="btn btn-'+style+' btn-xs" type="button"><span class="glyphicon glyphicon-'+symbol+'"></span> '+text+'</button>"');
 		menu.append(btn);
 		btn.on('click', action);
 		return btn;
 	};
+
+	var addLink = function(symbol, text, url, style='primary') {
+		var btn = $('<a class="btn btn-'+style+' btn-xs" rel="button"><span class="glyphicon glyphicon-'+symbol+'"></span> '+text+'</a>"');
+		btn.attr('href', url);
+		menu.append(btn);
+		return btn;
+	}
 
 	// edit
 	if (editable) {
@@ -53,9 +61,14 @@ function dynamic_forms_textarea() {
 			textbox.hide();
 			spanbox.show();
 		};
-		addButton('edit', 'Edit', turn_edit_on);
+		addButton('edit', 'Edit', turn_edit_on, style='warning');
 		span.on('dblclick', turn_edit_on);
 		base.on('exit_edit', turn_edit_off);
+	}
+
+	// open url
+	if (openurl) {
+		addLink('share', 'Open', openurl, style='success');
 	}
 
 	// copy
