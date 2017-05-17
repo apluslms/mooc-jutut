@@ -17,10 +17,19 @@
 	{% include "_pagination.html" %}
 
 	{% foreachdict in feedbacks %}
-		<div class="panel panel-default feedback-response-panel">
+		{% ifchanged feedback.student %}
+			{% if not forloop.first %}
+				</div>
+			{% endif %}
+			<div class="panel panel-default feedback-response-panel">
 			{% include "manage/_feedback_heading.html" with user=feedback.student %}
-			{% include "manage/_feedback_response.html" %}
-		</div>
+		{% endifchanged %}
+
+		{% include "manage/_feedback_response.html" %}
+
+		{% if forloop.last %}
+			</div>
+		{% endif %}
 	{% empty %}
 		{% if feedback_filter.form.errors %}
 			<p class="alert alert-danger" >{% trans "No feedback shown as there is errors in the filter form" %}</p>

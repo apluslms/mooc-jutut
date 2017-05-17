@@ -8,9 +8,7 @@ body {
 }
 
 /* labels in panel headers and footers */
-.panel-heading .label {
-	font-size: 80%;
-}
+.panel-heading .label,
 .panel-footer .label {
 	font-size: 100%;
 }
@@ -30,29 +28,67 @@ body {
 }
 
 /* feedback/response panel */
-.panel.feedback-response-panel .panel-body {
-	padding-top: 0.4em;
+.panel.feedback-response-panel {
+	border-left: 0;
+	border-right:  0;
+	background: #fbfbfb;
+	margin-bottom: 1em;
+}
+.panel.feedback-response-panel > .panel-heading {
+	padding: 0.4em 0.6em;
+}
+.panel.feedback-response-panel > .panel-heading .panel-title {
+	font-weight: bold;
+	font-size: 14px;
+}
+.panel.feedback-response-panel > .panel-heading .label {
+	font-size: 70%;
+}
+.panel.feedback-response-panel > .panel-body {
+	padding: 0.5em 0 0.2em 0;
+	border-bottom: 1px solid #ccc;
+}
+.panel.feedback-response-panel > .panel-body:last-child {
 	padding-bottom: 0;
 }
-.panel.feedback-response-panel .col-lg-6 {
-	padding-left: 0.4em;
-	padding-right: 0.4em;
+.panel.feedback-response-panel > .panel-body > div {
+	padding: 0;
+}
+@media (min-width: 1200px) /* from bootstrap */ {
+	.panel.feedback-response-panel > .panel-body > div.col-lg-6:nth-child(odd) {
+		padding-right: 0.2em;
+	}
+	.panel.feedback-response-panel > .panel-body > div.col-lg-6:nth-child(even) {
+		padding-left: 0.2em;
+	}
+}
+.panel.feedback-response-panel .panel {
+    margin: 0 0 0.3em 0;
 }
 
 /* feedback panel */
-.feedback-panel .panel-heading {
-	padding: 4px 6px;
+.panel.feedback-panel > .panel-heading {
+	padding: 0.2em;
+}
+.panel.feedback-panel > .panel-heading .panel-title {
+	font-size: 13px;
+}
+.panel.feedback-panel > .panel-heading .badge {
+	font-size: 11px;
+}
+.panel.feedback-panel > .panel-footer {
+	padding: 0.2em 0.2em 0.3em 0.2em;
 }
 
 /* response panel */
-.panel.response-panel .panel-heading {
+.panel.response-panel > .panel-heading {
 	padding: 0.4em 0.4em 0.6em 0.4em;
 }
-.panel.response-panel .panel-body {
+.panel.response-panel > .panel-body {
 	padding: 0.4em;
 }
-.panel.response-panel .panel-footer {
-	padding: 0.1em 0.4em 0.2em 0.4em;
+.panel.response-panel > .panel-footer {
+	padding: 0.2em 0.2em 0.3em 0.2em;
 }
 .panel.response-panel .form-group {
 	margin-bottom: 0.6em;
