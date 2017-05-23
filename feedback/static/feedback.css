@@ -99,6 +99,20 @@ body {
 .panel.response-panel span.textarea {
 	min-height: 3em;
 }
+@media (min-width: 992px) /* from bootstrap */ {
+	body.ok .feedback-panel tr .glyphicon,
+	body.ok .feedback-panel tr .label {
+		opacity: 0.2;
+		transition: opacity 200ms linear;
+	}
+	body.ok .feedback-panel tr:hover .glyphicon,
+	body.ok .feedback-panel tr:hover .label {
+		opacity: 1;
+	}
+}
+body.ios .feedback-panel tr .glyphicon {
+	display: none;
+}
 
 /* spin animation, src: http://bootsnipp.com/snippets/featured/glyphicon-animate-rotation-and-flip */
 .gly-spin {

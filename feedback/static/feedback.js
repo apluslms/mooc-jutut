@@ -281,10 +281,12 @@ $(function() {
 
 	/* call for inserted forms */
 	var on_form_insert = function(dom=null) {
+		var nohover = is_apple_mobile();
 		if (dom === null) {
 			dom = $(document);
+			if (nohover)
+				dom.find('body').removeClass('ok').addClass('ios');;
 		}
-		var nohover = is_apple_mobile();
 
 		// Modify
 		dom.each(dynamic_forms_textareas);
