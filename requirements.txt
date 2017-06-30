@@ -13,3 +13,4 @@ requests==2.10.0
 
 # django_lti_login
 oauthlib==2.0.0
+django-settingsdict>=1.0.1
