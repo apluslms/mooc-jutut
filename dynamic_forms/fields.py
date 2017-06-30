@@ -52,8 +52,13 @@ class EnchantedBoundField(BoundField):
             extra_classes.extend(extra_css_classes)
         return super().css_classes(extra_classes=extra_classes)
 
+    @property
     def has_data(self):
         return self.data is not None
+
+    @property
+    def is_text(self):
+        return isinstance(self.field, CharField)
 
     @cached_property
     def display_data(self):
