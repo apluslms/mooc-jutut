@@ -1,7 +1,7 @@
 import logging
-from django.db import models
-from django.conf import settings
+from django.apps import apps
 from django.contrib.postgres import fields as pg_fields
+from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
@@ -40,7 +40,7 @@ class Form(models.Model):
     form_spec = pg_fields.JSONField()
 
     class Meta:
-        abstract = 'dynamic_forms' not in settings.INSTALLED_APPS
+        abstract = apps.get_containing_app_config(__name__) is None
         ordering = ('id',)
         verbose_name = _("Form")
         verbose_name_plural = _("Forms")
