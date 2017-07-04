@@ -5,8 +5,6 @@ from django.contrib.postgres import fields as pg_fields
 from django.utils.translation import ugettext_lazy as _
 from django_colortag.filters import ColortagChoiceFilter
 
-from lib.helpers import Enum
-
 from .models import (
     Student,
     StudentTag,

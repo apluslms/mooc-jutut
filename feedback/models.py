@@ -10,8 +10,8 @@ from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import get_language, ugettext_lazy as _
 from django_colortag.models import ColorTag
+from r_django_essentials.fields import Enum
 
-from lib.helpers import Enum
 from aplus_client.django.models import (
     ApiNamespace as Site, # mooc-jutut refers api namespaces as sites
     NamespacedApiObject,

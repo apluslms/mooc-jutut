@@ -6,6 +6,7 @@ git+https://github.com/Aalto-LeTech/django-colortag.git@1.1.5#egg=django-colorta
 django-filter==0.15.0
 psycopg2>=2.5.4
 python-memcached==1.58
+raphendyr-django-essentials==1.0.0
 
 # aplus_client
 cachetools==1.1.6
