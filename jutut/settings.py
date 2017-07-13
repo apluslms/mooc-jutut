@@ -41,7 +41,10 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.postgres',
     # 3rd party libs
+    'django_jinja',
+    'django_jinja.contrib._humanize',
     'bootstrapform',
+    'bootstrapform_jinja',
     # libs
     'django_lti_login',
     'aplus_client',
@@ -69,24 +72,80 @@ MIDDLEWARE_CLASSES = [
 # local_templates/module/template_name.html
 TEMPLATES = [
     {
+        # Used for in project jinja files
+        'NAME': 'Jinja2-templates_j2-html',
+        'BACKEND': 'django_jinja.backend.Jinja2',
+        'DIRS': [
+            join(BASE_DIR, 'local_templates_j2'),
+            join(BASE_DIR, 'templates_j2'),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            # Match the template names ending in .html but not the ones in the admin folder.
+            'match_extension': None, # '.jinja', '.html',
+            #'match_regex': r'^(?!admin/).*',
+            'app_dirname': 'templates_j2',
+            'newstyle_gettext': True,
+            'extensions': [
+                'jinja2.ext.i18n',
+                'django_jinja.builtins.extensions.CsrfExtension',
+                #'django_jinja.builtins.extensions.CacheExtension',
+                'django_jinja.builtins.extensions.TimezoneExtension',
+                'django_jinja.builtins.extensions.UrlsExtension',
+                'django_jinja.builtins.extensions.StaticFilesExtension',
+                #'django_jinja.builtins.extensions.DjangoFiltersExtension',
+                'r_django_essentials.jinja2.extensions.I18nExtrasExtension',
+            ],
+            'bytecode_cache': {
+                'name': 'jinja2mem',
+                'backend': 'django_jinja.cache.BytecodeCache',
+                'enabled': True,
+            },
+        }
+    },
+    {
+        # Takes care of '.jinja' tempaltes in tempaltes folder
+        'NAME': 'Jinja2-templates-jinja',
+        'BACKEND': 'django_jinja.backend.Jinja2',
+        'DIRS': [
+            join(BASE_DIR, 'local_templates'),
+            join(BASE_DIR, 'templates'),
+        ],
+        'APP_DIRS': True,
+        'OPTIONS': {
+            # Match the template names ending in .html but not the ones in the admin folder.
+            'match_extension': '.jinja',
+            'app_dirname': 'templates',
+            'newstyle_gettext': True,
+            'extensions': [
+                'jinja2.ext.i18n',
+                'django_jinja.builtins.extensions.CsrfExtension',
+                'django_jinja.builtins.extensions.TimezoneExtension',
+            ],
+            'bytecode_cache': {
+                'name': 'jinja2mem',
+                'backend': 'django_jinja.cache.BytecodeCache',
+                'enabled': True,
+            },
+        }
+    },
+    {
+        # To support DjangoTemplate files
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
         'DIRS': [
             join(BASE_DIR, 'local_templates'),
             join(BASE_DIR, 'templates'),
         ],
+        'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': (
-                "django.template.context_processors.debug",
-                "django.template.context_processors.i18n",
-                "django.template.context_processors.media",
-                "django.template.context_processors.static",
+                'django.template.context_processors.debug',
+                'django.template.context_processors.i18n',
+                'django.template.context_processors.media',
+                'django.template.context_processors.static',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
-            ),
-            'loaders': (
-                'django.template.loaders.filesystem.Loader',
-                'django.template.loaders.app_directories.Loader',
             ),
         },
     },
@@ -167,6 +226,10 @@ CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
         'LOCATION': '127.0.0.1:11211',
+    },
+    'jinja2mem': {
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
+        'LOCATION': 'jinja2mem',
     },
 }
 

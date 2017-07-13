@@ -1,26 +1,25 @@
 {% extends "bootstrapped.html" %}
-{% load i18n %}
 
-{% block title %}{{ block.super }}-Feedback{% endblock %}
+{% block title %}{{ super() }} - Feedback{% endblock %}
 
 {% block meta %}
-	{{ block.super }}
+	{{ super() }}
 	{% if status == "graded" %}
 		<meta name="status" value="graded" />
-		<meta name="points" value="{{ feedback.response_grade|default:0 }}" />
+		<meta name="points" value="{{ feedback.response_grade|default(0, true) }}" />
 		<meta name="max-points" value="{{ feedback.MAX_GRADE }}" />
 	{% else %}
-		<meta name="status" value="{{ status|default:'error' }}" />
+		<meta name="status" value="{{ status|default('error', true) }}" />
 	{% endif %}
-{% endblock %}
+{% endblock meta %}
 
 {% block content %}
 	<div class="panel panel-default">
 		<div class="panel-heading">
-			{% blocktrans with jutut=jutut_path aplus=aplus_path %}Feedback <i>{{jutut}}</i> for <i>{{aplus}}</i>{% endblocktrans %}
+			{{ _("Feedback <i>%(jutut)s</i> for <i>%(aplus)s</i>", jutut=jutut_path, aplus=aplus_path) }}
 		</div>
 		<div class="panel-body">
 			{% include "feedback/_form.html" %}
 		</div>
 	</div>
-{% endblock %}
+{% endblock content %}

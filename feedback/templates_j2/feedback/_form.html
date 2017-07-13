@@ -1,40 +1,33 @@
-{% load i18n %}
-{% load bootstrap %}
-{% load feedback %}
-{% get_current_language as LANGUAGE_CODE %}
+{% set form_id = form.auto_id|format("form") %}
 
-<div id="exercise" class="jutut-exercise" lang="{{ LANGUAGE_CODE }}">
+<div id="exercise" class="jutut-exercise" lang="{{ get_current_language() }}">
 
 	{# Response #}
-	{% if feedback.response_msg %}
+	{% if feedback and feedback.response_msg %}
 		<div class="alert alert-info">
-			<p><strong>{% trans "Staff response" %}</strong></p>
+			<p><strong>{{ _("Staff response") }}</strong></p>
 			<p>{{ feedback.response_msg }}</p>
 		</div>
 	{% endif %}
 
 	{# Form #}
-	<form
-		id="{{ form.auto_id|fill_format_string:"form" }}"
-		action="{{post_url}}"
-		method="post"
-		class="form">
+	<form id="{{ form_id }}" action="{{ post_url }}" method="post" class="form">
 
 		{{ form|bootstrap }}
 
 		<div class="only-when-edited alert alert-warning" style="display: none;">
-			{% trans "This feedback has unsaved changes!" %}
+			{{ _("This feedback has unsaved changes!") }}
 		</div>
 
 		<div class="form-group">
 			<div class="btn-toolbar">
 				<input
 					type="submit"
-					value="{% if not feedback %}{% trans 'Submit' %}{% else %}{% trans 'Submit update' %}{% endif %}"
+					value="{% if feedback %}{{ _('Submit an update') }}{% else %}{{ _('Submit') }}{% endif %}"
 					class="btn btn-primary aplus-submit">
 				<input
 					type="reset"
-					value="{% trans "Reset changes" %}"
+					value="{{ _('Reset changes') }}"
 					class="btn btn-danger only-when-edited">
 			</div>
 		</div>
@@ -43,7 +36,7 @@
 	{# UI interaction #}
 	<script>
 		(function($) {
-			var f = $('#{{ form.auto_id|fill_format_string:"form" }}'),
+			var f = $('#{{ form_id }}'),
 				o = f.find('.only-when-edited'),
 				i = f.serialize(), s = false;
 			f.find(':input').on('change input', function() {
