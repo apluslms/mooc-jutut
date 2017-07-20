@@ -177,6 +177,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
         # input key: django widget key
         'placeholder': 'placeholder',
         'fieldHtmlClass': 'class',
+        'readonly': 'readonly', # Supported with django 1.10 and later
         # labelHtmlClass - not supported, css selectors should be enough
     }
     COERCE_FIELD_MAP = {
@@ -286,9 +287,12 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                 if extra_validators:
                     field_args['validators'] = extra_validators
 
-                # disabled fields shouldn't be required and they shouldn't be able to change value
-                if field_args.get('disabled', False):
+                # disabled and readonly fields shouldn't be required and they shouldn't be able to change value
+                if field_args.get('disabled', False) or widget_attrs.get('readonly', False):
                     field_args['required'] = False
+                    # Django will use initial value for disabled fields
+                    if widget_attrs.get('readonly', False):
+                        field_args['disabled'] = True
 
                 ## Set some defaults
 

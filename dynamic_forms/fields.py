@@ -52,6 +52,12 @@ class EnchantedBoundField(BoundField):
             extra_classes.extend(extra_css_classes)
         return super().css_classes(extra_classes=extra_classes)
 
+    def build_widget_attrs(self, *args, **kwargs):
+        attrs = super().build_widget_attrs(*args, **kwargs)
+        if attrs.get('readonly', False):
+            attrs.pop('disabled')
+        return attrs
+
     @property
     def has_data(self):
         return self.data is not None
