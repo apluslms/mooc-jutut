@@ -282,13 +282,26 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                         ignore=cls.IGNORED_CSS_CLASSES,
                     )
 
-                # make sure required is false for disabled fields FIXME: this is probably bad idea
-                if 'disabled' in field_args:
-                    field_args.setdefault('required', not field_args['disabled'])
-
                 # if any validators, add them to args
                 if extra_validators:
                     field_args['validators'] = extra_validators
+
+                # disabled fields shouldn't be required and they shouldn't be able to change value
+                if field_args.get('disabled', False):
+                    field_args['required'] = False
+
+                ## Set some defaults
+
+                # set sensible default value for required i.e.:
+                #  * fields that provide initial value
+                #  * choice fields
+                # remember that disabled and readonly fields are already market not required.
+                if 'required' not in field_args:
+                    field_args['required'] = (
+                        'initial' in field_args or
+                        field_type in ('select', 'radios', 'radios-inline', 'radiobuttons')
+                    )
+
 
                 ## final field_class manipulation
 
