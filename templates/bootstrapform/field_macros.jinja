@@ -1,63 +1,69 @@
 {% macro render_field_checkbox(form, field, classes) -%}
-	<div class="{{ classes.single_value }}">
+	<div class="{{ field.css_classes() }} {{ classes.single_value }}">
+		{% if field.help_text %}
+			<div class="help-block">
+				{{ field.help_text|safe }}
+			</div>
+		{% endif %}
 		<div class="checkbox">
-			{% if field.auto_id %}
+			{% if field.label and field.auto_id %}
 				<label {% if field.field.required %}class="{{ form.required_css_class or 'required' }}"{% endif %}>
-					{{ field|safe }} <span>{{ field.label }}</span>
+					{{ field|safe }}
+					<span>{{ field.label|escape }}</span>
+					{% if field.field.required %}<span class="text-danger required-label">{{ _("(*) Required") }}</span>{% endif %}
 				</label>
 			{% endif %}
 			{% for error in field.errors %}
 				<span class="help-block {{ form.error_css_class or 'error-msg' }}">{{ error }}</span>
 			{% endfor %}
-			{% if field.help_text %}
-				<p class="help-block">
-					{{ field.help_text|safe }}
-				</p>
-			{% endif %}
 		</div>
 	</div>
 {%- endmacro %}
 
 {% macro render_field_radio(form, field, classes) -%}
-	{% if field.auto_id %}
-		<label class="control-label {{ classes.label }} {% if field.field.required %}{{ form.required_css_class or 'required' }}{% endif %}">{{ field.label }}</label>
+	{% if field.label and field.auto_id %}
+		<label class="control-label {{ classes.label }}{% if field.field.required %} {{ form.required_css_class or 'required' }}{% endif %}">
+			{{ field.label|e }}:
+			{% if field.field.required %}<span class="text-danger required-label">{{ _("(*) Required") }}</span>{% endif %}
+		</label>
 	{% endif %}
-	<div class="{{ classes.value }}">
+	<div class="{{ field.css_classes() }} {{ classes.value }}">
+		{% if field.help_text %}
+			<div class="help-block">
+				{{ field.help_text|safe }}
+			</div>
+		{% endif %}
 		{% for choice in field %}
 			<div class="radio">
 				<label>
 					{{ choice.tag()|safe }}
-					{{ choice.choice_label }}
+					{{ choice.choice_label|escape }}
 				</label>
 			</div>
 		{% endfor %}
 		{% for error in field.errors %}
-			<span class="help-block {{ form.error_css_class or 'error-msg' }}">{{ error }}</span>
+			<span class="help-block {{ form.error_css_class or 'error-msg' }}">{{ error|escape }}</span>
 		{% endfor %}
-
-		{% if field.help_text %}
-		<p class="help-block">
-			{{ field.help_text|safe }}
-		</p>
-		{% endif %}
 	</div>
 {%- endmacro %}
 
 {% macro render_field_standard(form, field, classes) -%}
-	{% if field.auto_id %}
-		<label class="control-label {{ classes.label }} {% if field.field.required %}{{ form.required_css_class or 'required' }}{% endif %}" for="{{ field.auto_id }}">{{ field.label }}</label>
+	{% if field.label and field.auto_id %}
+		<label class="control-label {{ classes.label }}{% if field.field.required %} {{ form.required_css_class or 'required' }}{% endif %}" for="{{ field.auto_id }}">
+			{{ field.label|escape }}:
+			{% if field.field.required %}<span class="text-danger required-label">{{ _("(*) Required") }}</span>{% endif %}
+		</label>
 	{% endif %}
-
-	<div class="{{ classes.value }} {% if field is multiple_checkbox_field %}multiple-checkbox{% endif %}">
+	<div class="{{ field.css_classes() }} {{ classes.value }}{% if field is multiple_checkbox_field %} multiple-checkbox{% endif %}">
+		{% if field.help_text %}
+			<div class="help-block">
+				{{ field.help_text|safe }}
+			</div>
+		{% endif %}
 		{{ field|safe }}
 		{% for error in field.errors %}
-			<span class="help-block {{ form.error_css_class or 'error-msg' }}">{{ error }}</span>
+			<span class="help-block {{ form.error_css_class or 'error-msg' }}">{{ error|escape }}</span>
 		{% endfor %}
-		{% if field.help_text %}
-			<p class="help-block">
-				{{ field.help_text|safe }}
-			</p>
-		{% endif %}
 	</div>
 {%- endmacro %}
 
