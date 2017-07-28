@@ -13,7 +13,7 @@ from .models import Site, Course
 
 CLEAR_COURSES_DELTA = timedelta(days=30)
 
-logger = logging.getLogger('feedback.backends')
+logger = logging.getLogger('feedback.receivers')
 
 
 def clear_old_courses(sender, **kwargs):

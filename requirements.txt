@@ -3,6 +3,7 @@ Django==1.9.7
 django-bootstrap-form==3.2.1
 git+https://github.com/Aalto-LeTech/django-dictiterators.git@1.0.0#egg=django-dictiterators==1.0.0
 git+https://github.com/Aalto-LeTech/django-colortag.git@1.1.5#egg=django-colortag==1.1.5
+git+https://github.com/Aalto-LeTech/django-lti-login.git@2.0.0#egg=django-lti-login==2.0.0
 django-filter==0.15.0
 celery==4.0.2
 psycopg2>=2.5.4
@@ -12,7 +13,3 @@ raphendyr-django-essentials==1.0.0
 # aplus_client
 cachetools==1.1.6
 requests==2.10.0
-
-# django_lti_login
-oauthlib==2.0.0
-django-settingsdict>=1.0.1

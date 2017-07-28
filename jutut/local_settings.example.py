@@ -59,6 +59,9 @@ DATABASES = {
 #    'aplus_client.client': {
 #        'level': 'DEBUG',
 #    },
+#    'django_lti_login': {
+#        'level': 'DEBUG',
+#    },
 #    'django.db.backends': {
 #        'level': 'DEBUG',
 #    },

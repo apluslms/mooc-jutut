@@ -6,4 +6,4 @@ class FeedbackConfig(AppConfig):
 
     def ready(self):
         # load some packages to connect signals
-        from . import backends
+        from . import receivers  # NOQA

@@ -124,9 +124,11 @@ AUTH_PASSWORD_VALIDATORS = [
     { 'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator' },
 ]
 
-# LTI login parameters: our site allows only course staff to enter using lti login
-LTI_ACCEPTED_ROLES = ('Instructor', 'TeachingAssistant')
-LTI_STAFF_ROLES = ('Instructor')
+# LTI login: allow only course staff to enter using lti login
+AUTH_LTI_LOGIN = {
+    'ACCEPTED_ROLES': ('Instructor', 'TeachingAssistant'),
+    'STAFF_ROLES': None, # No one over LTI will get staff rights.
+}
 
 
 ## Internationalization
@@ -183,6 +185,8 @@ LOGGING = {
       'format': '[%(asctime)s: %(levelname)8s %(name)s] %(message)s',
       'colors': {
         'aplus_client.client': {'fg': 'red', 'opts': ('bold',)},
+        'django_lti_login': {'fg': 'yellow'},
+        'feedback.receivers': {'fg': 'yellow'},
         'django.db.backends': {'fg': 'cyan'},
       },
     },
