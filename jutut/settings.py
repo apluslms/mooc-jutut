@@ -45,6 +45,8 @@ INSTALLED_APPS = [
     'django_jinja.contrib._humanize',
     'bootstrapform',
     'bootstrapform_jinja',
+    # js/css/html resources
+    'js_jquery_toggle',
     # libs
     'django_lti_login',
     'aplus_client',

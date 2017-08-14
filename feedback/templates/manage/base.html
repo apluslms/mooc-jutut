@@ -5,8 +5,9 @@
 
 {% block head %}
 {{ block.super }}
-	{# django_colortag #}
-	<link rel="stylesheet" href="{% static "django_colortag.css" %}">
+	{% include 'jquery_toggle.head.html' %}
+	{% include 'django_colortag.head.html' %}
+
 	{# dynamic_forms #}
 	<link rel="stylesheet" href="{% static "dynamic_forms.css" %}">
 	{# project additions #}
