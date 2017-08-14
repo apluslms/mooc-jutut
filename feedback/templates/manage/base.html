@@ -3,7 +3,7 @@
 {% load cache %}
 {% load i18n %}
 
-{% block meta %}
+{% block head %}
 {{ block.super }}
 	{# django_colortag #}
 	<link rel="stylesheet" href="{% static "django_colortag.css" %}">
@@ -14,16 +14,14 @@
 
 	{# language flags, src: https://github.com/usrz/bootstrap-languages @ 81e4a03 #}
 	<link rel="stylesheet" href="{% static "languages.min.css" %}">
-{% endblock %}
 
-{% block scripts %}
-{{ block.super }}
 	{# dynamic_forms #}
 	<script src="{% static "dynamic_forms.js" %}"></script>
 	{# nav bar code #}
 	<script src="{% static "nav.js" %}"></script>
 	{# project additions #}
 	<script src="{% static "feedback.js" %}"></script>
+
 {% endblock %}
 
 

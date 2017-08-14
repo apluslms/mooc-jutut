@@ -7,19 +7,13 @@
 	<meta charset="utf-8" />
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 
-	{% block meta %}
-		{# Put all additional meta rows inside this block. #}
-	{% endblock %}
+	{% block meta %}{% endblock %}
 
 	<title>{% block title %}Jutut{% endblock %}</title>
 
-	{% block scripts %}
-		{# Put all additional scripts inside this block. #}
-	{% endblock %}
+	{% block head %}{% endblock %}
 </head>
 <body class="ok">
-	{% block body  %}
-		{# Body area... #}
-	{% endblock %}
+	{% block body  %}{% endblock %}
 </body>
 </html>

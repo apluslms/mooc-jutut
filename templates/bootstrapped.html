@@ -1,6 +1,6 @@
 {% extends "base.html" %}
 
-{% block meta %}
+{% block head %}
 {{ block.super }}
 	{# to help your life https://www.srihash.org/ #}
 	{# jquery #}
@@ -22,10 +22,7 @@
 		href="https://cdnjs.cloudflare.com/ajax/libs/chosen/1.6.2/chosen.min.css"
 		integrity="sha384-LyyBb0I+LHGahapkyd4O7HxwK+hf1XX8BgDoJAEi8HQ9dXOSHnCq5ecRxacVL7ty"
 		crossorigin="anonymous">
-{% endblock %}
 
-{% block scripts %}
-{{ block.super }}
 	{# jquery #}
 	<script src="https://code.jquery.com/jquery-3.1.0.min.js"
 		integrity="sha384-nrOSfDHtoPMzJHjVTdCopGqIqeYETSXhZDFyniQ8ZHcVy08QesyHcnOUpMpqnmWq"
