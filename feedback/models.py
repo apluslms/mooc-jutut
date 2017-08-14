@@ -395,7 +395,7 @@ class Feedback(models.Model):
             exercise_id = self.exercise_id,
             student_id = self.student_id,
             timestamp__lt = self.timestamp,
-        )
+        ).order_by('timestamp')
 
     @cached_property
     def older_versions_count(self):
