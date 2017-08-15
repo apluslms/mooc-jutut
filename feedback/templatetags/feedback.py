@@ -6,16 +6,24 @@ register = template.Library()
 
 
 @register.filter
-def grade_color(grade):
-    colors = ['danger', 'warning', 'success']
-    if grade is not None:
+def select_from_list(index, list_):
+    if not isinstance(list_, list):
+        list_ = [x.strip() for x in list_.split(',')]
+    if index is not None:
         try:
-            grade = int(grade)
-            if 0 <= grade < len(colors):
-                return colors[grade]
+            index = int(index)
+            if 0 <= index < len(list_):
+                return list_[index]
         except ValueError:
             pass
-    return 'default'
+    return None
+
+
+@register.filter
+def grade_color(grade):
+    colors = ['danger', 'warning', 'success']
+    return select_from_list(grade, colors) or 'default'
+
 
 @register.filter
 def fill_format_string(fmt, value):
