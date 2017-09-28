@@ -142,8 +142,8 @@ $(function() {
 				var new_panel = $(data).find(panel_id);
 				if (new_panel.length > 0) {
 					// update form
-					$(panel_id).replaceWith(new_panel);
-					panel = $(panel_id);
+					panel.replaceWith(new_panel);
+					panel = new_panel;
 					on_form_insert(panel);
 					if (xhr.status == 201) {
 						// submission was ok
@@ -169,19 +169,20 @@ $(function() {
 			},
 			timeout: 10000,
 			error: function(xhr, textStatus, error) {
+				var panel = $(panel_id);
 				clear_status_tags(panel);
-				add_status_tag($(panel_id), "Not saved", "warning");
+				add_status_tag(panel, "Not saved", "warning");
 				if (textStatus == "timeout") {
 					// act on timeout
-					add_status_tag($(panel_id), "Update timeouted!", "danger");
+					add_status_tag(panel, "Update timeouted!", "danger");
 				} else if (xhr.status == 403) {
 					// no authentication
-					add_status_tag($(panel_id), "Not authenticated!", "danger");
+					add_status_tag(panel, "Not authenticated!", "danger");
 					alert("You are not authenticated. Do that in another tab, then open this reponse in another tab and copy input. Then you can refesh this page.");
-					$(panel_id + ' .panel-footer').html('<a href="'+url+'">Link to this responses update page. Open in new tab!</a>');
+					panel.find('.panel-footer').html('<a href="'+url+'">Link to this responses update page. Open in new tab!</a>');
 				} else {
 					// axt on other errors: xhr.status
-					add_status_tag($(panel_id), "Server returned " + xhr.status, "danger");
+					add_status_tag(panel, "Server returned " + xhr.status, "danger");
 				}
 			},
 		});
