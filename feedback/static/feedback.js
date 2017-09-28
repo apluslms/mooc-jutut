@@ -1,25 +1,36 @@
 /* Feedback form automation */
 $(function() {
 	/* append error notification */
-	var append_error_info = function(selection, msg, klass=null) {
+	function append_error_info(selection, msg, klass=null) {
 		selection.each(function() {
 			var icon = $('<span class="' + (klass||'') + ' label label-danger"><span class="glyphicon glyphicon-alert"></span></span>');
 			icon.tooltip({ title: msg });
 			$(this).append(icon);
 		});
-	};
+	}
 
 	/* append done notification */
-	var append_done_info = function(selection, msg, klass=null) {
+	function append_done_info(selection, msg, klass=null) {
 		selection.each(function() {
 			var icon = $('<span class="' + (klass||'') + ' label label-success"><span class="glyphicon glyphicon-ok "></span></span>');
 			icon.tooltip({ title: msg });
 			$(this).append(icon);
 		});
-	};
+	}
+
+	/* clear status tags from response form */
+	function clear_status_tags(panel) {
+		panel.find(".panel-heading .status-tag").remove();
+	}
+
+	/* add status tag to response form */
+	function add_status_tag(panel, text, color) {
+		var html = '<span class="status-tag label label-' + color + ' pull-right">' + text + '</span>';
+		panel.find(".panel-heading").append(html);
+	}
 
 	/* update visible and hidden objects in stateful element */
-	var on_state_change = function(e, new_state) {
+	function on_state_change(e, new_state) {
 		var me = $(this);
 		var cur_state = me.data('state') || 'default';
 		if (new_state != cur_state) {
@@ -35,7 +46,7 @@ $(function() {
 	}
 
 	/* Functions to track form changes and to reset them */
-	var form_changed = function() {
+	function form_changed() {
 		var form = $(this);
 		var stateful = form.closest('.response-panel').find('.stateful');
 		var changed = false;
@@ -44,24 +55,24 @@ $(function() {
 			return !changed;
 		});
 		stateful.trigger('state_change', [(changed)?'edit-new':'default']);
-	};
-	var on_textarea_change = function() {
+	}
+	function on_textarea_change(e) {
 		$(this).closest('form').each(form_changed);
-	};
-	var on_reset_button = function() {
+	}
+	function on_reset_button(e) {
 		var me = $(this);
 		$('#' + me.data('form-id')).each(function() {
 			this.reset();
 			form_changed.call(this);
 		});
-	};
+	}
 
 	/* Functions to track form edit state and to cacel it */
-	var enter_edit_state = function() {
+	function enter_edit_state() {
 		var stateful = $(this).closest('.response-panel').find('.stateful');
 		stateful.trigger('state_change', ['edit-old']);
 	}
-	var on_cancel_button = function() {
+	function on_cancel_button(e) {
 		var me = $(this);
 		$('#' + me.data('textarea-id')).each(function() {
 			var ta = $(this);
@@ -70,10 +81,10 @@ $(function() {
 			ta.trigger('exit_edit');
 			ta.closest('form').each(function() { this.reset(); });
 		});
-	};
+	}
 
 	/* Buttons that replace radio select */
-	var on_submit_button = function(e) {
+	function on_submit_button(e) {
 		e.preventDefault();
 		var button = $(this);
 		var radio = $(button.data('radio'));
@@ -82,7 +93,7 @@ $(function() {
 		button.addClass('active');
 		button.closest('form').submit();
 	}
-	var replace_with_buttons = function() {
+	function replace_with_buttons() {
 		var src = $(this);
 		// create new form-group and select it
 		var dst = src.after('<div class="form-group buttons-for-radio"><div class="col-xs-12"><div class="btn-group btn-group-justified" role="group"></div></div></div>').next();
@@ -106,21 +117,12 @@ $(function() {
 		});
 		// hide original form-group
 		src.hide();
-	};
+	}
 
-	/* clear status tags from response form */
-	var clear_status_tags = function(panel) {
-		panel.find(".panel-heading .status-tag").remove();
-	};
 
-	/* add status tag to response form */
-	var add_status_tag = function(panel, text, color) {
-		var html = '<span class="status-tag label label-' + color + ' pull-right">' + text + '</span>';
-		panel.find(".panel-heading").append(html);
-	};
 
 	/* use ajax to post forms */
-	var ajax_submit = function(e) {
+	function ajax_submit(e) {
 		e.preventDefault();
 		var me = $(this);
 		var url = this.action;
@@ -183,10 +185,10 @@ $(function() {
 				}
 			},
 		});
-	};
+	}
 
 	/* color tags */
-	var ajax_set_tag_state = function() {
+	function ajax_set_tag_state() {
 		var me = $(this);
 		var container = me.parent();
 		var errorname = 'error-' + me.data('tagpk');
@@ -232,7 +234,7 @@ $(function() {
 	}
 
 	/* response status */
-	var update_response_status = function(span, nohover) {
+	function update_response_status(span, nohover) {
 		var self = $(span);
 		var url = self.data('updateurl');
 		var modified = self.data('last_modified');
@@ -273,14 +275,14 @@ $(function() {
 
 
 	/* test for broken apple mobile devices */
-	var is_apple_mobile = function() {
+	function is_apple_mobile() {
 		var ua = navigator.userAgent;
 		var re = /(iPad|iPod|iPhone);/i;
 		return re.test(ua);
 	}
 
 	/* call for inserted forms */
-	var on_form_insert = function(dom=null) {
+	function on_form_insert(dom=null) {
 		var nohover = is_apple_mobile();
 		if (dom === null) {
 			dom = $(document);
@@ -307,7 +309,7 @@ $(function() {
 			var span = this;
 			setTimeout(update_response_status, 2000, span, nohover);
 		});
-	};
+	}
 
 	/* on page load forms got inserted */
 	on_form_insert();
