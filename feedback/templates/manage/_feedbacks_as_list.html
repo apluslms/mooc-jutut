@@ -1,0 +1,46 @@
+{% load i18n %}
+{% load dictiterators %}
+{% load feedback %}
+{% comment %}
+	expects to be used under bootstrapped.html
+	expects from context:
+		feedbacks created with get_feedback_dict
+{% endcomment %}
+
+{% include "_pagination.html" %}
+
+{% foreachdict in feedbacks %}
+	<div class="panel panel-default feedback-response-panel">
+		{% include "manage/_submitter_heading.html" with user=student %}
+
+		<div class="panel-body">
+			{% foreachdict in feedbacks_per_student %}
+				<div class="panel panel-{{ form.had.valid_response_grade|grade_color }} feedback-exercise-panel">
+					{% include "manage/_exercise_heading.html" %}
+
+					{% foreachdict in feedbacks_per_exercise %}
+						<div class="panel-body panel-default feedback-response-body reacts-to-status">
+							<div class="col-lg-6">
+								{% include "manage/_feedback_panel.html" %}
+							</div>
+							<div class="col-lg-6">
+								{% include "manage/_response_panel.html" %}
+							</div>
+						</div>
+					{% endforeachdict %}
+				</div> <!-- /.feedback-response-panel -->
+			{% endforeachdict %}
+		</div> <!-- /.panel-body -->
+	</div> <!-- /.feedback-exercise-panel -->
+{% empty %}
+	{% if feedback_filter.form.errors %}
+		<p class="alert alert-danger" >{% trans "No feedback shown as there is errors in the filter form" %}</p>
+	{% elif not feedback_filter.form.contains_data %}
+		<p class="alert alert-warning">{% trans "No feedback shown as there is no filter selection" %}</p>
+	{% else %}
+		<p class="alert alert-warning">{% trans "No feedback found" %}</p>
+	{% endif %}
+	<!-- <p class="alert alert-success">{% trans "No unread feedback." %}</p> -->
+{% endforeachdict %}
+
+{% include "_pagination.html" %}

@@ -1,51 +1,20 @@
 {% load i18n %}
+{% load humanize %}
+{% load feedback %}
 {% comment %}
 	expects to be used under bootstrapped.html
 	expects from context:
 		feedback
 		feedback_form
 		post_url
-		older_url (optional)
 {% endcomment %}
-<div class="panel panel-success feedback-panel">
-	<div class="panel-heading clearfix">
-		<a rel="external"
-			class="panel-title btn btn-xs btn-link"
-			data-toggle="tooltip"
-			data-trigger="hover"
-			data-placement="top"
-			title="{% trans 'Show exercise in A+' %}"
-			href="{{ feedback.exercise.html_url }}"
-			>{{ feedback.exercise_path }}</a>
-		<div class="btn-toolbar pull-right">
-			<a class="btn btn-default btn-xs"
-				data-toggle="tooltip"
-				data-trigger="hover"
-				data-placement="top"
-				title="{% trans 'Show submission in A+' %}"
-				href="{{ feedback.submission_html_url }}"
-				>
-				{% trans "Show in A+" %}
-			</a>
-			{% if older_url %}
-				<a class="btn btn-default btn-xs"
-					data-toggle="tooltip"
-					data-trigger="hover"
-					data-placement="top"
-					title="{% trans 'Show all feedbacks from this student for this exercise' %}"
-					href="{{ older_url }}"
-					>
-					{% trans "Older feedbacks" %}
-					<span class="badge">{{ feedback.older_versions_count|default:"&#9473;" }}</span>
-				</a>
-			{% endif %}
-		</div>
-	</div>
+<div class="panel panel-default feedback-panel reacts-to-status">
 	<table class="table table-condensed">
 		{% for field in feedback_form %}
 			{% if field.has_data %}
-				<tr class="{{ field.field.required|yesno:',info' }}">
-					<th>
+				{# FIXME: clean this up #}
+				<tr class="{{ field.field.required|yesno:',info' }} {{ field.is_text|yesno:'text,data' }}" style="{{ field.is_text|yesno:',display: none;' }}">
+					<th style="{{ field.is_text|yesno:'display: none;,' }}">
 						{{ field.label|default:field.name }}
 						{% if field.help_text %}
 							<span rel="tooltip"
@@ -82,14 +51,37 @@
 			{% endif %}
 		{% endfor %}
 	</table>
-	<div class="panel-footer">
-		Posted {{ feedback.timestamp }}
-		{% with time=feedback.form_data.timespent %}
-			{# One variable to rule them all! #}
-			{% if time %}
-				{# FIXME: use expected time to set different colors #}
-				<span class="label label-primary pull-right">{{ time }} mins</span>
-			{% endif %}
-		{% endwith %}
+	<div class="panel-footer" title="{% trans 'Show all feedback fields' %}">
+		<span class="show-all-fields" data-up="menu-up" data-down="menu-down"></span>
+		<span
+			rel="tooltip"
+			data-toggle="tooltip"
+			data-trigger="hover"
+			data-placement="bottom"
+			title="{{ feedback.timestamp }}">
+			{{ feedback.timestamp|naturaltime }}
+		</span>
+		<div class="btn-toolbar pull-right" role="toolbar">
+			<div class="btn-group btn-group-xs" role="group">
+				{% with time=feedback.form_data.timespent %}
+					{% if time %}
+						{# FIXME: use expected time to set different colors #}
+						<span class="label label-default">{{ time }} mins</span>
+					{% endif %}
+				{% endwith %}
+			</div>
+			<div class="btn-group btn-group-xs" role="group">
+				<a
+					class="btn btn-primary"
+					data-toggle="tooltip"
+					data-trigger="hover"
+					data-placement="bottom"
+					title="{% trans 'Show submission in A+' %}"
+					href="{{ feedback.submission_html_url }}"
+					>
+					<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+					A+</a>
+			</div>
+		</div>
 	</div>
 </div>

@@ -20,13 +20,45 @@ $(function() {
 
 	/* clear status tags from response form */
 	function clear_status_tags(panel) {
-		panel.find(".panel-heading .status-tag").remove();
+		panel.find(".panel-footer .status-tag").remove();
 	}
 
 	/* add status tag to response form */
 	function add_status_tag(panel, text, color) {
 		var html = '<span class="status-tag label label-' + color + ' pull-right">' + text + '</span>';
-		panel.find(".panel-heading").append(html);
+		panel.find(".panel-footer").append(html);
+	}
+
+	/* show all fields toggle buttons for feedback form */
+	function handle_showall_fields(event, active) {
+		var button = $(this);
+		var panel = button.closest('.feedback-panel');
+		panel.find('.data').toggle(active);
+		panel.find('.text th').toggle(active);
+	}
+	function setup_showall_buttons() {
+		var elem = $(this);
+		var click;
+		if (elem.is('button')) {
+			elem.addClass('btn');
+			click = elem;
+		} else {
+			click = elem.closest('div');
+		}
+
+		elem.makeToggleButton({
+			onicon: elem.data('up'),
+			officon: elem.data('down'),
+			nocolor: true,
+			clickHandler: false,
+		});
+		elem.on('state_change', handle_showall_fields);
+
+		click.on('click', function() {
+			$(this).find('.show-all-fields').each(function() {
+				$(this).triggerHandler('toggle_state');
+			});
+		});
 	}
 
 	/* update visible and hidden objects in stateful element */
@@ -119,7 +151,51 @@ $(function() {
 		src.hide();
 	}
 
+	/* update colors that reflect the feedback status */
+	function get_bootstrap_classes(classes_str) {
+		if (classes_str === undefined) return [];
+		var colors = ['default', 'primary', 'danger', 'warning', 'success', 'info'];
+		var classes = classes_str.split(/\s+/);
+		var matches = [];
+		classes.forEach(function(class_) {
+			var parts = class_.split('-');
+			if (parts.length == 2 && colors.indexOf(parts[1]) >= 0) {
+				matches.push(class_);
+			}
+		});
+		return matches;
+	}
+	function replace_bootstrap_classes(classes, color) {
+		return classes.map(function(class_) {
+			var type_ = class_.split('-', 1)[0];
+			return type_ + '-' + color;
+		});
+	}
+	function update_feedback_status_colors() {
+		var color = get_bootstrap_classes(this.className);
+		if (color.length != 1) {
+			console.log("Invalid element for update_feedback_status_colors: " + this);
+			return;
+		}
+		color = color[0].split('-')[1];
 
+		var elems = $(this).closest('.feedback-response-body').find('.reacts-to-status');
+		elems.each(function() {
+			var old_classes = get_bootstrap_classes(this.className);
+			var new_classes = replace_bootstrap_classes(old_classes, color);
+			$(this).removeClass(old_classes.join(' ')).addClass(new_classes.join(' '));
+		});
+	}
+	function update_group_status(panel) {
+		var color = panel.data('group-color');
+		if (color) {
+			panel.parent().each(function () {
+				var old_classes = get_bootstrap_classes(this.className);
+				var new_classes = replace_bootstrap_classes(old_classes, color);
+				$(this).removeClass(old_classes.join(' ')).addClass(new_classes.join(' '));
+			});
+		}
+	}
 
 	/* use ajax to post forms */
 	function ajax_submit(e) {
@@ -285,7 +361,8 @@ $(function() {
 	/* call for inserted forms */
 	function on_form_insert(dom=null) {
 		var nohover = is_apple_mobile();
-		if (dom === null) {
+		var global = dom === null;
+		if (global) {
 			dom = $(document);
 			if (nohover)
 				dom.find('body').removeClass('ok').addClass('ios');;
@@ -295,6 +372,11 @@ $(function() {
 		dom.each(dynamic_forms_textareas);
 		!nohover && dom.find('[data-toggle="tooltip"]').tooltip();
 		dom.find('.replace-with-buttons').each(replace_with_buttons);
+		dom.find('.feedback-status-label').each(update_feedback_status_colors);
+		dom.find('.show-all-fields').each(setup_showall_buttons);
+		if (!global && dom.prev().is('.panel-heading')) {
+			update_group_status(dom);
+		}
 
 		// Just hook to events
 		dom.find('form.ajax-form').submit(ajax_submit);

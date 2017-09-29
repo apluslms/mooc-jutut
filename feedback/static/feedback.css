@@ -7,6 +7,7 @@ body {
 	margin-right: 0.4em;
 }
 
+
 /* labels in panel headers and footers */
 .panel-heading .label,
 .panel-footer .label {
@@ -28,75 +29,108 @@ body {
 }
 
 /* feedback/response panel */
-.panel.feedback-response-panel {
+.feedback-response-panel {
 	border-left: 0;
 	border-right:  0;
 	background: #fbfbfb;
 	margin-bottom: 1em;
+
+	border-color: #ddd;
 }
-.panel.feedback-response-panel > .panel-heading {
+.feedback-response-panel > .panel-heading {
 	padding: 0.4em 0.6em;
 }
-.panel.feedback-response-panel > .panel-heading .panel-title {
+.feedback-response-panel > .panel-heading .panel-title {
 	font-weight: bold;
 	font-size: 14px;
 }
-.panel.feedback-response-panel > .panel-heading .label {
+.feedback-response-panel > .panel-heading .label {
 	font-size: 70%;
 }
-.panel.feedback-response-panel > .panel-body {
-	padding: 0.5em 0 0.2em 0;
+.feedback-response-panel > .panel-body {
+	padding: 0;
+}
+
+/* Feedback exercise panel */
+.feedback-exercise-panel > .panel-heading {
+	padding: 0.2em;
+}
+.feedback-exercise-panel > .panel-heading .panel-title {
+	font-size: 13px;
+}
+.feedback-exercise-panel > .panel-heading .badge {
+	font-size: 11px;
+}
+
+/* Feedback response body (feedback and response forms) */
+.feedback-response-body {
+	padding: 0.3em 0 0 0;
 	border-bottom: 1px solid #ccc;
 }
-.panel.feedback-response-panel > .panel-body:last-child {
+.feedback-response-body.panel-danger {
+	background: #fcf8f8;
+}
+.feedback-response-body.panel-warning {
+	background: #fefdf6;
+}
+.feedback-response-body.panel-success {
+	background: #f6fbf4;
+}
+.feedback-response-body:last-child {
 	padding-bottom: 0;
 }
-.panel.feedback-response-panel > .panel-body > div {
+.feedback-response-body > div {
 	padding: 0;
 }
 @media (min-width: 1200px) /* from bootstrap */ {
-	.panel.feedback-response-panel > .panel-body > div.col-lg-6:nth-child(odd) {
+	.feedback-response-body > div.col-lg-6:nth-child(odd) {
 		padding-right: 0.2em;
 	}
-	.panel.feedback-response-panel > .panel-body > div.col-lg-6:nth-child(even) {
+	.feedback-response-body > div.col-lg-6:nth-child(even) {
 		padding-left: 0.2em;
 	}
 }
-.panel.feedback-response-panel .panel {
+.feedback-response-body .panel {
     margin: 0 0 0.3em 0;
 }
 
+/* feedback + response hilights */
+.feedback-panel, .response-panel {
+	border-width: 2px;
+}
+.feedback-panel.panel-danger, .response-panel.panel-danger {
+	border-color: #ce828f;
+}
+.feedback-panel.panel-warning, .response-panel.panel-warning {
+	border-color: #e6d270;
+}
+.feedback-panel.panel-success, .response-panel.panel-success {
+	border-color: #a2cf7d;
+}
+
 /* feedback panel */
-.panel.feedback-panel > .panel-heading {
-	padding: 0.2em;
-}
-.panel.feedback-panel > .panel-heading .panel-title {
-	font-size: 13px;
-}
-.panel.feedback-panel > .panel-heading .badge {
-	font-size: 11px;
-}
-.panel.feedback-panel > .panel-footer {
+.feedback-panel > .panel-footer {
 	padding: 0.2em 0.2em 0.3em 0.2em;
+	cursor: pointer;
 }
 
 /* response panel */
-.panel.response-panel > .panel-heading {
+.response-panel > .panel-heading {
 	padding: 0.4em 0.4em 0.6em 0.4em;
 }
-.panel.response-panel > .panel-body {
+.response-panel > .panel-body {
 	padding: 0.4em;
 }
-.panel.response-panel > .panel-footer {
+.response-panel > .panel-footer {
 	padding: 0.2em 0.2em 0.3em 0.2em;
 }
-.panel.response-panel .form-group {
+.response-panel .form-group {
 	margin-bottom: 0.6em;
 }
-.panel.response-panel .form-group:last-child {
+.response-panel .form-group:last-child {
 	margin-bottom: 0;
 }
-.panel.response-panel span.textarea {
+.response-panel span.textarea {
 	min-height: 3em;
 }
 @media (min-width: 992px) /* from bootstrap */ {

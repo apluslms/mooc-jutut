@@ -1,0 +1,45 @@
+{% load i18n %}
+{% comment %}
+	expects to be used under bootstrapped.html
+	expects from context:
+		feedback
+		num_submissions
+		exercise
+		all_student_feedbacks_for_exercise_url
+		all_feedbacks_for_exercise_url
+{% endcomment %}
+<div class="panel-heading clearfix">
+	<span class="panel-title">{{ feedback.exercise_path }}</span>
+	<div class="btn-toolbar pull-right">
+		<a
+			class="btn btn-default btn-xs"
+			data-toggle="tooltip"
+			data-trigger="hover"
+			data-placement="top"
+			title="{% trans 'Show feedbacks for this execise by the student' %}"
+			href="{{ all_student_feedbacks_for_exercise_url }}">
+			<span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
+			{% trans "Exercise and student" %}
+			<span class="badge">{{ num_submissions }}</span>
+		</a>
+		<a
+			class="btn btn-default btn-xs"
+			data-toggle="tooltip"
+			data-trigger="hover"
+			data-placement="top"
+			title="{% trans 'Show all feedbacks for this execise' %}"
+			href="{{ all_feedbacks_for_exercise_url }}">
+			<span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
+			{% trans "Exercise" %}</a>
+		<a rel="external"
+			class="btn btn-default btn-xs"
+			data-toggle="tooltip"
+			data-trigger="hover"
+			data-placement="top"
+			title="{% trans 'Show exercise in A+' %}"
+			href="{{ exercise.html_url }}"
+			>
+			<span class="glyphicon glyphicon-book" aria-hidden="true"></span>
+			A+</a>
+	</div>
+</div>

@@ -18,6 +18,8 @@ from lib.views import ListCreateView
 from aplus_client.django.views import AplusGraderMixin
 from dynamic_forms.models import Form
 
+from django_dictiterators.utils import NestedDictIterator
+
 from .models import (
     Site,
     Course,
@@ -361,8 +363,7 @@ def get_tag_list(tags, feedback, get_tag_url=None):
 
 
 def get_feedback_dict(feedback, get_form, response_form_class,
-                      get_post_url=None, get_status_url=None, get_older_url=None,
-                      get_all_feedbacks_url=None,
+                      get_post_url=None, get_status_url=None,
                       tags=None, get_tag_url=None):
     form = get_form(feedback)
     if settings.JUTUT_OBLY_ACCEPT_ON and not form.is_dummy_form:
@@ -382,16 +383,12 @@ def get_feedback_dict(feedback, get_form, response_form_class,
         data['post_url'] = get_post_url(feedback)
     if get_status_url:
         data['status_url'] = get_status_url(feedback)
-    if get_older_url:
-        data['older_url'] = get_older_url(feedback)
-    if get_all_feedbacks_url:
-        data['all_feedbacks_url'] = get_all_feedbacks_url(feedback)
     if tags:
         data['tags'] = get_tag_list(tags, feedback, get_tag_url)
     return data
 
 
-def update_context_for_feedbacks(request, context, course=None, feedbacks=None, get_form=None, post_url=True, older_url=True):
+def update_context_for_feedbacks(request, context, course=None, feedbacks=None, get_form=None, post_url=True):
     # defaults for parameters
     if not course:
         course = context['course']
@@ -416,20 +413,28 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
         lambda f: (f.id,),
     )
 
-    # get_older_url
-    get_older_url = get_url_reverse_resolver(
+    # all_student_feedbacks_for_exercise_url
+    get_all_student_feedbacks_for_exercise_url = get_url_reverse_resolver(
         'feedback:list',
         ('course_id',),
         lambda f: (course_id,),
         query_func=lambda f: {'student': f.student.id, 'exercise': f.exercise.id},
-    ) if older_url else None
+    )
 
     # all_feedbacks_url
     get_all_feedbacks_url = get_url_reverse_resolver(
         'feedback:list',
         ('course_id',),
         lambda o: (course_id,),
-        query_func=lambda f: {'student': f.student.id},
+        query_func=lambda f: {'student': f.student.id, 'flags': 'n'},
+    )
+
+    # all_feedbacks_for_exercise_url
+    get_all_feedbacks_for_exercise_url = get_url_reverse_resolver(
+        'feedback:list',
+        ('course_id',),
+        lambda o: (course_id,),
+        query_func=lambda f: {'exercise': f.exercise.id, 'flags': 'n'},
     )
 
     # get_tag_url
@@ -438,18 +443,34 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
                                            ('feedback_id', 'tag_id'),
                                            lambda f, t: (f.id, t.id))
 
-    # set feedbacks context
-    context['feedbacks'] = (
-        get_feedback_dict(obj,
-                          get_form=get_form,
-                          response_form_class=ResponseForm,
-                          get_post_url=get_post_url,
-                          get_status_url=get_status_url,
-                          get_older_url=get_older_url,
-                          get_all_feedbacks_url=get_all_feedbacks_url,
-                          tags=tags,
-                          get_tag_url=get_tag_url)
-        for obj in feedbacks
+
+    context['feedbacks'] = NestedDictIterator.from_iterable(
+        feedbacks,
+        (
+            ('student', lambda feedback, iterable: {
+                'feedback': feedback,
+                'student': feedback.student,
+                'all_feedbacks_url': get_all_feedbacks_url(feedback),
+                'feedbacks_per_student': iterable,
+            }),
+            ('exercise', lambda feedback, iterable: {
+                'feedback': feedback,
+                'exercise': feedback.exercise,
+                'num_submissions': Feedback.objects.filter(exercise=feedback.exercise, student=feedback.student).count(),
+                'all_feedbacks_for_exercise_url' : get_all_feedbacks_for_exercise_url(feedback),
+                'all_student_feedbacks_for_exercise_url': get_all_student_feedbacks_for_exercise_url(feedback),
+                'feedbacks_per_exercise': iterable,
+            }),
+        ),
+        partial(
+            get_feedback_dict,
+            get_form=get_form,
+            response_form_class=ResponseForm,
+            get_post_url=get_post_url,
+            get_status_url=get_status_url,
+            tags=tags,
+            get_tag_url=get_tag_url,
+        )
     )
 
 
@@ -543,7 +564,7 @@ class UserFeedbackView(ManageCourseMixin, TemplateView):
         )
         form_cache = FormCache()
         update_context_for_feedbacks(self.request, context,
-            feedbacks=feedbacks, get_form=form_cache.get, older_url=False)
+            feedbacks=feedbacks, get_form=form_cache.get)
         context['student'] = student
         context['exercise'] = exercise
         return context
@@ -563,12 +584,20 @@ class FeedbackMixin(ManagePermissionsRequiredMixin):
         feedback = self.object
         context = super().get_context_data(course=feedback.exercise.course, **kwargs)
         update_context_for_feedbacks(self.request, context, feedbacks=[feedback], post_url=False)
-        context.update(next(context['feedbacks']))
         return context
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(object=self.object)
         return self.render_to_response(context)
+
+
+class SingleFeedbackMixin(FeedbackMixin):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        # unpack single feedback out of feedbacks
+        context['feedbacks'] = feedbacks = context['feedbacks'].get_list(flatten_last=True)
+        context.update(feedbacks[-1])
+        return context
 
 
 class RespondFeedbackMixin(FeedbackMixin):
@@ -612,6 +641,7 @@ class RespondFeedbackView(RespondFeedbackMixin,
 
 
 class RespondFeedbackViewAjax(RespondFeedbackMixin,
+                              SingleFeedbackMixin,
                               UpdateView):
     template_name = "manage/response_form_ajax.html"
 
@@ -621,7 +651,7 @@ class RespondFeedbackViewAjax(RespondFeedbackMixin,
 
 
 class ResponseStatusView(ConditionalMixin,
-                         FeedbackMixin,
+                         SingleFeedbackMixin,
                          DetailView):
     template_name = "manage/_upload_status.html"
 

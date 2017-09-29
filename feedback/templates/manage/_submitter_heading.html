@@ -15,7 +15,10 @@
 		{% endfor %}
 	</span>
 	<div class="btn-group pull-right">
-		<a class="btn btn-primary btn-xs" href="{{ all_feedbacks_url }}">All feedbacks</a>
-		<a class="btn btn-primary btn-xs" href="#">All submissions</a>
+		<a class="btn btn-primary btn-xs" href="{{ all_feedbacks_url }}">
+			<span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
+			{% trans "Student" %}
+		</a>
+		<!-- <a class="btn btn-primary btn-xs" href="#">All submissions in A+</a> -->
 	</div>
 </diV>

@@ -8,10 +8,11 @@
 		{% if feedback_filter == None %}
 			<a href="{% url "feedback:list" course_id=course.id %}"
 				class="btn btn-success btn-sm pull-right"
-				>{% trans "Filter feedbacks" %}</a>
+				>
+				<span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
+				{% trans "Filter feedbacks" %}</a>
 		{% endif %}
 	</h3>
-
 
 	{% if feedback_filter != None %}
 		<div class="col-xs-12">
@@ -19,16 +20,5 @@
 		</div>
 	{% endif%}
 
-	{% include "_pagination.html" %}
-
-	{% foreachdict in feedbacks %}
-		<div class="panel panel-default feedback-response-panel">
-			{% include "manage/_feedback_heading.html" with user=feedback.student %}
-			{% include "manage/_feedback_response.html" %}
-		</div>
-	{% empty %}
-		<p class="alert alert-success">{% trans "No unread feedback." %}</p>
-	{% endforeachdict %}
-
-	{% include "_pagination.html" %}
+	{% include "manage/_feedbacks_as_list.html" %}
 {% endblock %}

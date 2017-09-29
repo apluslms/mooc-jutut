@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load bootstrap %}
+{% load humanize %}
 {% load feedback %}
 {% load colortag %}
 {% comment %}
@@ -13,61 +13,12 @@
 {% endcomment %}
 
 <div
-	class="panel panel-primary response-panel"
+	class="panel panel-default response-panel reacts-to-status"
 	id="{{ form.auto_id|fill_format_string:"panel" }}"
+	 data-group-color="{{ feedback.group_color }}"
 	>
-	{% with state=form.has_expired|yesno:"error-conflict,default" %}
-		<div class="panel-heading stateful" data-state="{{ state }}">
-			<span
-				class="label label-default"
-				{{ state|on_state:"error-conflict" }}
-				>{% trans "Conflict" %}</span>
-			<span
-				class="label label-default"
-				{{ state|on_state:"edit" }}
-				>{% trans "not saved" %}</span>
-			{% with grade=form.had.response_grade_text color=form.had.valid_response_grade|grade_color %}
-				<span
-					class="label label-{{ color }}"
-					{{ state|on_state:"default" }}
-					>{{ grade }}</span>
-			{% endwith %}
-			<button
-				class="btn btn-danger btn-xs reset-button"
-				data-form-id="{{ form.auto_id|fill_format_string:"form" }}"
-				{{ state|on_state:"edit-new" }}
-				>{% trans "Reset" %}</button>
-			<button
-				class="btn btn-danger btn-xs cancel-button"
-				data-textarea-id="{{ form.auto_id|fill_format_string:"response_msg" }}"
-				{{ state|on_state:"edit-old" }}
-				>{% trans "Cancel" %}</button>
-			{% if form.had.responded %}
-				<span
-					class="response-by"
-					{{ state|on_state:"default" }}
-					>
-					{% if form.instance.response_by %}
-						{% blocktrans with time=form.instance.response_time user=form.instance.response_by.email %}{{time}} by {{user}}{% endblocktrans %}
-					{% else %}
-						<span rel="tooltip"
-							class="label label-info"
-							data-toggle="tooltip"
-							data-trigger="hover click"
-							data-placement="top"
-							title="{% trans "This feedback was automatically accepted" %}"
-							>{% trans "auto" %}</span>
-						{{ form.instance.response_time }}
-					{% endif %}
-				</span>
-			{% endif %}
-
-			{% include "manage/_upload_status.html" %}
-		</div>
-	{% endwith %}
-
-	<div class="panel-body">
-		<form
+	<table class="table table-condensed">
+		<tr><td colspan="2"><form
 			id="{{ form.auto_id|fill_format_string:"form" }}"
 			data-state-id="{{ form.auto_id|fill_format_string:"state" }}"
 			data-panel-id="{{ form.auto_id|fill_format_string:"panel" }}"
@@ -84,7 +35,7 @@
 				{{ field }}
 			{% endfor %}
 
-			<div id="{{ form.auto_id|fill_format_string:'span_box' }}" class="col-xs-12" style="display: none;"></div>
+			<div id="{{ form.auto_id|fill_format_string:'span_box' }}" style="display: none;"></div>
 			<div id="{{ form.auto_id|fill_format_string:'edit_box' }}">
 
 			{% with f=form.response_msg %}
@@ -143,12 +94,68 @@
 			{% endwith %}
 
 			</div>
-		</form>
-	</div>
+		</form></td></tr>
+	</table>
 
-	<div class="panel-footer">
+	<div class="panel-body">
 		{% for tag in tags %}
 			{{ tag|colortag_button }}
 		{% endfor %}
 	</div>
+
+	{% with state=form.has_expired|yesno:"error-conflict,default" %}
+		<div class="panel-footer stateful" data-state="{{ state }}">
+			<span
+				class="label label-default"
+				{{ state|on_state:"error-conflict" }}
+				>{% trans "Conflict" %}</span>
+			<span
+				class="label label-default"
+				{{ state|on_state:"edit" }}
+				>{% trans "not saved" %}</span>
+			{% with grade=form.had.response_grade_text color=form.had.valid_response_grade|grade_color %}
+				<span
+					class="feedback-status-label label label-{{ color }}"
+					{{ state|on_state:"default" }}
+					>{{ grade }}</span>
+			{% endwith %}
+			<button
+				class="btn btn-danger btn-xs reset-button"
+				data-form-id="{{ form.auto_id|fill_format_string:"form" }}"
+				{{ state|on_state:"edit-new" }}
+				>{% trans "Reset" %}</button>
+			<button
+				class="btn btn-danger btn-xs cancel-button"
+				data-textarea-id="{{ form.auto_id|fill_format_string:"response_msg" }}"
+				{{ state|on_state:"edit-old" }}
+				>{% trans "Cancel" %}</button>
+			{% if form.had.responded %}
+				<span
+					class="response-by"
+					{{ state|on_state:"default" }}
+					>
+					{% if form.instance.response_by %}
+						<span rel="tooltip"
+							data-toggle="tooltip"
+							data-trigger="hover click"
+							data-placement="bottom"
+							title="{{ form.instance.response_time }}">
+							{% blocktrans with time=form.instance.response_time|naturaltime user=form.instance.response_by.email %}{{time}} by {{user}}{% endblocktrans %}
+						</span>
+					{% else %}
+						<span rel="tooltip"
+							class="label label-info"
+							data-toggle="tooltip"
+							data-trigger="hover click"
+							data-placement="top"
+							title="{% trans "This feedback was automatically accepted" %}"
+							>{% trans "auto" %}</span>
+						{{ form.instance.response_time }}
+					{% endif %}
+				</span>
+			{% endif %}
+
+			{% include "manage/_upload_status.html" %}
+		</div>
+	{% endwith %}
 </div>
