@@ -6,8 +6,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-02-27 12:12+0200\n"
-"PO-Revision-Date: 2017-02-05 22:30+0200\n"
+"POT-Creation-Date: 2017-10-18 18:35+0300\n"
+"PO-Revision-Date: 2017-10-18 18:36+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: English <>\n"
 "Language: en_US\n"
@@ -17,11 +17,11 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 2.0\n"
 
-#: feedback/filters.py:150
+#: feedback/filters.py:148
 msgid "Oldest first"
 msgstr "Vanhemmat ensin"
 
-#: feedback/filters.py:151
+#: feedback/filters.py:149
 msgid "Newest first"
 msgstr "Uudemmat ensin"
 
@@ -81,78 +81,53 @@ msgstr "Lähetys on onnistunut"
 msgid "Upload has error"
 msgstr "Lähetys on epäonnistunut"
 
-#: feedback/models.py:217
+#: feedback/models.py:234
 msgid "No response"
 msgstr "Ei vastausta"
 
-#: feedback/models.py:218
+#: feedback/models.py:235
 msgid "Rejected"
 msgstr "Hylätty"
 
-#: feedback/models.py:219
+#: feedback/models.py:236
 msgid "Accepted"
 msgstr "Hyväksytty"
 
-#: feedback/models.py:220
+#: feedback/models.py:237
 msgid "Good"
 msgstr "Hyvä"
 
-#: feedback/models.py:227
+#: feedback/models.py:244
 msgid "No notification"
 msgstr "Ei ilmoitusta"
 
-#: feedback/models.py:228
+#: feedback/models.py:245
 msgid "Normal notification"
 msgstr "Normaali ilmoitus"
 
-#: feedback/models.py:229
+#: feedback/models.py:246
 msgid "Important notification"
 msgstr "Tärkeä ilmoitus"
 
-#: feedback/models.py:264
+#: feedback/models.py:281
 msgid "Response time"
 msgstr "Vastausaika"
 
-#: feedback/models.py:269
+#: feedback/models.py:286
 msgid "Responder"
 msgstr "Vastaaja"
 
-#: feedback/models.py:273
+#: feedback/models.py:290
 msgid "Response message"
 msgstr "Vastausviesti"
 
-#: feedback/models.py:276
+#: feedback/models.py:293
 msgid "Response grade"
 msgstr "Arvosana"
 
-#: feedback/models.py:279
+#: feedback/models.py:296
 msgid "Response notify"
 msgstr "Ilmoitus vastauksesta"
-
-#: feedback/templates/feedback/_form.html:11
-msgid "Staff response"
-msgstr "Henkilökunnan vastaus"
-
-#: feedback/templates/feedback/_form.html:26
-msgid "This feedback has unsaved changes!"
-msgstr "Palautteessa on tallentamattomia muutoksia!"
-
-#: feedback/templates/feedback/_form.html:33
-msgid "Submit"
-msgstr "Lähetä"
-
-#: feedback/templates/feedback/_form.html:33
-msgid "Submit update"
-msgstr "Lähetä uudestaan"
-
-#: feedback/templates/feedback/_form.html:37
-msgid "Reset changes"
-msgstr "Peru muutokset"
-
-#: feedback/templates/feedback/new.html:20
-#, python-format
-msgid "Feedback <i>%(jutut)s</i> for <i>%(aplus)s</i>"
-msgstr "Palaute <i>%(jutut)s</i> palvelulle <i>%(aplus)s</i>"
 
 #: feedback/templates/feedback_tags/_tag_form.html:8
 msgid "Add new feedback tag"
@@ -173,7 +148,7 @@ msgstr "Tallenna"
 
 #: feedback/templates/feedback_tags/_tag_form.html:24
 #: feedback/templates/feedback_tags/tag_confirm_delete.html:19
-#: feedback/templates/manage/_response_panel.html:43
+#: feedback/templates/manage/_response_panel.html:131
 msgid "Cancel"
 msgstr "Takaisin"
 
@@ -230,65 +205,93 @@ msgstr "muokkaa"
 msgid "remove"
 msgstr "poista"
 
-#: feedback/templates/manage/_feedback_panel.html:17
+#: feedback/templates/manage/_exercise_heading.html:19
+msgid "Show feedbacks for this execise by the student"
+msgstr "Näytä tämän opiskelijan palauteet tähän tehtävään"
+
+#: feedback/templates/manage/_exercise_heading.html:22
+msgid "Exercise and student"
+msgstr "Tehtävä ja opiskelija"
+
+#: feedback/templates/manage/_exercise_heading.html:30
+msgid "Show all feedbacks for this execise"
+msgstr "Näytä kaikki palautteet tähän tehtävään"
+
+#: feedback/templates/manage/_exercise_heading.html:33
+msgid "Exercise"
+msgstr "Tehtävä"
+
+#: feedback/templates/manage/_exercise_heading.html:39
 msgid "Show exercise in A+"
 msgstr "Näytä tehtävä A+:ssa"
 
-#: feedback/templates/manage/_feedback_panel.html:25
-msgid "Show submission in A+"
-msgstr "Näytä palautus A+:ssa"
-
-#: feedback/templates/manage/_feedback_panel.html:28
-msgid "Show in A+"
-msgstr "Näytä A+:ssa"
-
-#: feedback/templates/manage/_feedback_panel.html:35
-msgid "Show all feedbacks from this student for this exercise"
-msgstr "Näytä kaikki opiskelijan aikaisemmat palautteet tähän tehtävään"
-
-#: feedback/templates/manage/_feedback_panel.html:38
-msgid "Older feedbacks"
-msgstr "Vanhemmat palautteet"
-
-#: feedback/templates/manage/_feedback_panel.html:67
+#: feedback/templates/manage/_feedback_panel.html:36
 msgid "This field was <b>not</b> required"
 msgstr "Tämä kenttä <b>ei</b> ollut pakollinen"
 
-#: feedback/templates/manage/_feedback_panel.html:69
+#: feedback/templates/manage/_feedback_panel.html:38
 msgid "optional"
 msgstr "valinnainen"
+
+#: feedback/templates/manage/_feedback_panel.html:54
+msgid "Show all feedback fields"
+msgstr "Näytä kaikki palautekentät"
+
+#: feedback/templates/manage/_feedback_panel.html:79
+msgid "Show submission in A+"
+msgstr "Näytä palautus A+:ssa"
+
+#: feedback/templates/manage/_feedbacks_as_list.html:37
+msgid "No feedback shown as there is errors in the filter form"
+msgstr "Palautteita ei näytetä, sillä lomakkeessa on virhe"
+
+#: feedback/templates/manage/_feedbacks_as_list.html:39
+msgid "No feedback shown as there is no filter selection"
+msgstr "Palautteita ei näytetä, sillä mitään rajoitteita ei ole valittu"
+
+#: feedback/templates/manage/_feedbacks_as_list.html:41
+msgid "No feedback found"
+msgstr "Yhtään palauttetta ei löytynyt"
+
+#: feedback/templates/manage/_feedbacks_as_list.html:43
+msgid "No unread feedback."
+msgstr "Ei lukemattomia palautteita"
 
 #: feedback/templates/manage/_filter_bar.html:6
 #, python-format
 msgid "Filter options (%(number)s active)"
 msgstr "Rajausvalinnat (%(number)s aktiivista)"
 
-#: feedback/templates/manage/_response_panel.html:23
+#: feedback/templates/manage/_response_panel.html:111
 msgid "Conflict"
 msgstr "Ristiriita"
 
-#: feedback/templates/manage/_response_panel.html:27
+#: feedback/templates/manage/_response_panel.html:115
 msgid "not saved"
 msgstr "tallentamaton"
 
-#: feedback/templates/manage/_response_panel.html:38
+#: feedback/templates/manage/_response_panel.html:126
 msgid "Reset"
 msgstr "Peru"
 
-#: feedback/templates/manage/_response_panel.html:50
+#: feedback/templates/manage/_response_panel.html:143
 #, python-format
 msgid "%(time)s by %(user)s"
 msgstr "%(time)s, %(user)s"
 
-#: feedback/templates/manage/_response_panel.html:57
+#: feedback/templates/manage/_response_panel.html:151
 msgid "This feedback was automatically accepted"
 msgstr "Palaute on automaattisesti hyväksytty"
 
-#: feedback/templates/manage/_response_panel.html:58
+#: feedback/templates/manage/_response_panel.html:152
 msgid "auto"
 msgstr "auto"
 
-#: feedback/templates/manage/_response_panel.html:72
+#: feedback/templates/manage/_submitter_heading.html:20
+msgid "Student"
+msgstr "Opiskelija"
+
+#: feedback/templates/manage/_upload_status.html:22
 #, python-format
 msgid ""
 "Upload is <b>not</b> ok.<br>Tried %(count)s times.<br>Last tried %(when)s "
@@ -297,77 +300,65 @@ msgstr ""
 "Lähetyksessä on <b>virhe</b>.<br>Lähettämistä yritetty %(count)s kertaa."
 "<br>Viimeisin yritys %(when)s sai vastauskoodin %(code)s."
 
-#: feedback/templates/manage/_response_panel.html:74
+#: feedback/templates/manage/_upload_status.html:27
 #, python-format
 msgid "upload status %(code)s"
 msgstr "lähetys tila %(code)s"
 
-#: feedback/templates/manage/base.html:53
+#: feedback/templates/manage/_upload_status.html:29
+msgid "Uploading"
+msgstr "Lähettää"
+
+#: feedback/templates/manage/base.html:52
 #, python-format
 msgid "Site: %(name)s"
 msgstr "Sivusto: %(name)s"
 
-#: feedback/templates/manage/base.html:55
+#: feedback/templates/manage/base.html:54
 msgid "Select site"
 msgstr "Valitse sivusto"
 
-#: feedback/templates/manage/base.html:75
+#: feedback/templates/manage/base.html:74
 msgid "Select course"
 msgstr "Valitse kurssi"
 
-#: feedback/templates/manage/base.html:122
+#: feedback/templates/manage/base.html:121
 msgid "More"
 msgstr "Lisää"
 
-#: feedback/templates/manage/base.html:126
-#: feedback/templates/manage/feedback_unread.html:11
+#: feedback/templates/manage/base.html:125
+#: feedback/templates/manage/feedback_unread.html:13
 msgid "Filter feedbacks"
 msgstr "Rajaa palautteita"
 
-#: feedback/templates/manage/base.html:130
+#: feedback/templates/manage/base.html:129
 msgid "Manage feedback tags"
 msgstr "Hallitse palautetägejä"
 
-#: feedback/templates/manage/base.html:134
+#: feedback/templates/manage/base.html:133
 msgid "Student list"
 msgstr "Opiskelijalista"
 
-#: feedback/templates/manage/base.html:139
+#: feedback/templates/manage/base.html:138
 msgid "Update Student tags"
 msgstr "Päivitä opiskelijatägit"
 
-#: feedback/templates/manage/base.html:143
+#: feedback/templates/manage/base.html:142
 msgid "Clear cache"
 msgstr "Tyhjennä välimuisti"
 
-#: feedback/templates/manage/base.html:158
+#: feedback/templates/manage/base.html:157
 msgid "Language"
 msgstr "Kieli"
 
-#: feedback/templates/manage/feedback_list.html:13
+#: feedback/templates/manage/feedback_list.html:12
 #, python-format
 msgid "Feedback for %(course)s"
 msgstr "Palauteet kurssilla '%(course)s'"
 
-#: feedback/templates/manage/feedback_list.html:26
-msgid "No feedback shown as there is errors in the filter form"
-msgstr "Palautteita ei näytetä, sillä lomakkeessa on virhe"
-
-#: feedback/templates/manage/feedback_list.html:28
-msgid "No feedback shown as there is no filter selection"
-msgstr "Palautteita ei näytetä, sillä mitään rajoitteita ei ole valittu"
-
-#: feedback/templates/manage/feedback_list.html:30
-msgid "No feedback found"
-msgstr "Yhtään palauttetta ei löytynyt"
-
 #: feedback/templates/manage/feedback_unread.html:6
 msgid "Unread Feedback"
 msgstr "Lukemattomat palautteet"
-
-#: feedback/templates/manage/feedback_unread.html:30
-msgid "No unread feedback."
-msgstr "Ei lukemattomia palautteita"
 
 #: feedback/templates/manage/update_studenttags.html:6
 msgid "Update student tags"
@@ -385,3 +376,28 @@ msgstr "Päivitetty"
 msgid "This user is not authenticated using LTI and doesn't have api token."
 msgstr ""
 "Käyttäjä ei ole kirjautunut LTI:n kautta, joten sillä ei ole api avainta."
+
+#: feedback/templates_j2/feedback/_form.html:8
+msgid "Staff response"
+msgstr "Henkilökunnan vastaus"
+
+#: feedback/templates_j2/feedback/_form.html:19
+msgid "This feedback has unsaved changes!"
+msgstr "Palautteessa on tallentamattomia muutoksia!"
+
+#: feedback/templates_j2/feedback/_form.html:26
+msgid "Submit an update"
+msgstr "Lähetä uudestaan"
+
+#: feedback/templates_j2/feedback/_form.html:26
+msgid "Submit"
+msgstr "Lähetä"
+
+#: feedback/templates_j2/feedback/_form.html:30
+msgid "Reset changes"
+msgstr "Peru muutokset"
+
+#: feedback/templates_j2/feedback/new.html:19
+#, python-format
+msgid "Feedback <i>%(jutut)s</i> for <i>%(aplus)s</i>"
+msgstr "Palaute <i>%(jutut)s</i> palvelulle <i>%(aplus)s</i>"
