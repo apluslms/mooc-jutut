@@ -1,13 +1,68 @@
 {% set form_id = form.auto_id|format("form_" ~ get_random_string(8)) -%}
-
-<div id="exercise" class="jutut-exercise" lang="{{ get_current_language() }}">
+{#
+  Tempalte for bootstrap glyph
+-#}
+{% macro glyph(name) -%}
+	<span class="glyphicon glyphicon-{{name}}" aria-hidden="true"></span>
+{% endmacro -%}
+{#
+  Staff reponse template
+-#}
+{% macro staff_response(message, index=0) -%}
+	{% if message %}
+		<li class="list-group-item list-group-item-info staff" style="{% if index > 2 %}display: none;{% endif %}">
+			{{ glyph("education") }}
+			<span class="text">{{ message }}</span>
+		</li>
+	{% endif %}
+{% endmacro -%}
+{#
+  Student message template
+-#}
+{% macro student_message(messages, index=0) -%}
+	<li class="list-group-item student" style="{% if index > 2 %}display: none;{% endif %}">
+		{% if messages|length > 1 %}
+			{% for key, text in messages %}
+				{% if not loop.first %}<br>{% endif %}
+				<b>{{ key }}</b><br>
+				<span class="text">{{ text }}</span>
+			{% endfor %}
+		{% else %}
+			{% for key, text in messages %}
+				<span class="text">{{ text }}</span>
+			{% endfor %}
+		{% endif %}
+	</li>
+{% endmacro -%}
+{#
+  Main block
+-#}
+<div id="exercise" class="jutut-exercise jutut-v2" lang="{{ get_current_language() }}">
 
 	{# Response #}
-	{% if feedback and feedback.response_msg %}
-		<div class="alert alert-info">
-			<p><strong>{{ _("Staff response") }}</strong></p>
-			<p>{{ feedback.response_msg }}</p>
-		</div>
+	{% if feedback %}
+		{% set older_count = feedback.older_versions.count() %}
+		{% if feedback.response_msg or older_count > 0 %}
+			<div class="well">
+				<ul class="list-group nav" style="margin-bottom: 0;">
+					{% if feedback.response_msg %}
+						{{ staff_response(feedback.response_msg) }}
+					{% endif %}
+					{{ student_message(feedback.text_feedback) }}
+
+					{% for oldfb in feedback.older_versions %}
+						{{ staff_response(oldfb.response_msg, loop.index) }}
+						{{ student_message(oldfb.text_feedback, loop.index) }}
+					{% endfor %}
+
+					{% if older_count > 2 %}
+						<li class="show-more">
+							{{ glyph("menu-down") }} {{ _("show more") }} {{ glyph("menu-down") }}
+						</li>
+					{% endif %}
+				</ul>
+			</div>
+		{% endif %}
 	{% endif %}
 
 	{# Form #}
@@ -36,6 +91,7 @@
 	{# UI interaction #}
 	<script>
 		(function($) {
+			{# implement edited notification #}
 			var f = $('#{{ form_id }}'),
 				o = f.find('.only-when-edited'),
 				i = f.serialize(), s = false;
@@ -50,6 +106,20 @@
 				o.hide(); s = false;
 			});
 			o.hide();
+			{# implement show more #}
+			var c = f.prev(), m = c.find('.show-more');
+			m.click(function() { c.find('li').show(); m.hide(); });
+			{# inject styles #}
+			if ($('#jutut-v2').length==0)
+				$('<style id="jutut-v2"></style>').appendTo(document.head).text(
+					".jutut-exercise.jutut-v2 .well { padding: 6px; } " +
+					".jutut-exercise.jutut-v2 .show-more { margin: 0 0 -6px; padding: 0; text-align: center; cursor: pointer; } " +
+					".jutut-exercise.jutut-v2 li { margin: 3px 0; border-radius: 4px; } " +
+					".jutut-exercise.jutut-v2 li .text { white-space: pre-wrap; } " +
+					".jutut-exercise.jutut-v2 li.staff { margin-left: 15%; padding-left: 32px; } " +
+					".jutut-exercise.jutut-v2 li.staff .glyphicon { position: absolute; top: 12px; left: 12px; color: #5d5d5d; } " +
+					".jutut-exercise.jutut-v2 li.student { margin-right: 15%;} "
+				);
 		})(jQuery);
 	</script>
 </div>

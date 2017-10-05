@@ -350,6 +350,15 @@ class Feedback(models.Model):
         return self.get_form_class(dummy)(data=self.form_data)
 
     @property
+    def text_feedback(self):
+        form = self.get_form_obj(True)
+        if form.is_dummy_form:
+            return list(self.form_data.items())
+        else:
+            data = self.form_data
+            return [(k, data[k]) for k in form.all_text_fields.keys()]
+
+    @property
     def response_uploaded(self):
         when = self._response_upl_at
         code = self._response_upl_code
@@ -408,11 +417,11 @@ class Feedback(models.Model):
             exercise_id = self.exercise_id,
             student_id = self.student_id,
             timestamp__lt = self.timestamp,
-        ).order_by('timestamp')
+        ).order_by('-timestamp')
 
     @cached_property
-    def older_versions_count(self):
-        return self.older_versions.count()
+    def older_versions_with_message(self):
+        return list(self.older_versions.filter(~models.Q(response_msg='') & ~models.Q(response_msg=None)))
 
     def __getitem__(self, key):
         return self.feedback[key]

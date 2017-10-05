@@ -9,6 +9,7 @@ class DynamicFeedbacForm(DynamicForm):
     def create_form_class_from(cls, data: "list of field structs"):
         form_class = super().create_form_class_from(data)
         fields = form_class.base_fields # NOTE: changed to .declared_fields in future django releases
+        all_text_fields = OrderedDict()
         required_text_fields = OrderedDict()
         optional_text_fields = OrderedDict()
 
@@ -18,7 +19,9 @@ class DynamicFeedbacForm(DynamicForm):
                     required_text_fields[name] = field
                 else:
                     optional_text_fields[name] = field
+                all_text_fields[name] = field
 
+        form_class.all_text_fields = all_text_fields
         form_class.required_text_fields = required_text_fields
         form_class.optional_text_fields = optional_text_fields
         form_class.is_graded = bool(required_text_fields)
