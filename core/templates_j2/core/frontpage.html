@@ -1,0 +1,51 @@
+{% extends "bootstrapped.html" %}
+
+{% block title %}{{ super() }} - {{ _("Frontpage") }}{% endblock %}
+
+{% block styles %}
+	{{ super() }}
+
+	<link rel="stylesheet" href="{{ static("frontpage.css") }}">
+{% endblock styles %}
+
+{% block body %}
+	<div class="header">
+		<div class="container">
+			<h1>MOOC-Jutut</h1>
+			<p class="lead">{{ _("An interactive course feedback and response tool") }}</p>
+			<p class="lead">
+				<a class="btn btn-outline-inverse btn-lg" href="https://github.com/Aalto-LeTech/mooc-jutut">
+					{{ _("View the Github project") }}
+				</a>
+			</p>
+		</div>
+	</div>
+	<div class="featurette">
+		<div class="container">
+			<p class="lead">{% trans %}
+Welcome to your institution's Jutut installation.
+{% endtrans %}</p>
+			<p class="lead">{% trans site=request.build_absolute_uri('/')%}
+Point your A+ exercises with form specs to <code>{{site}}feedback/[course_tag]/[exercise_name]</code> and Jutut will do the rest.
+{% endtrans %}</p>
+		</div>
+	</div>
+	<div class="featurette">
+		<div class="container">
+			<p class="lead">{% trans %}
+To browse and respond feedbacks, login using LTI and you will be forwarded to a correct page.
+{% endtrans %}</p>
+			<p class="lead">{% trans %}
+You may use <code>./manage.py add_lti_key</code> to configure LTI keys for the login.
+{% endtrans %}</p>
+			<p class="lead">
+				<a class="btn btn-outline btn-lg" href="{{ url('feedback:site-list') }}">
+					{{ _("Enter the management site") }}
+				</a>
+				<a class="btn btn-outline btn-lg" href="{{ url('core:servicestatus') }}">
+					{{ _("View status of services") }}
+				</a>
+			</p>
+		</div>
+	</div>
+{% endblock body %}

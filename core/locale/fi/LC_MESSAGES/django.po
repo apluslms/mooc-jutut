@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-18 18:36+0200\n"
+"POT-Creation-Date: 2017-10-25 23:14+0300\n"
 "PO-Revision-Date: 2017-10-18 18:36+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: English <>\n"
@@ -20,3 +20,63 @@ msgstr ""
 #: core/templates/core/statuspage.html:13
 msgid "Service status"
 msgstr "Palvelun tila"
+
+#: core/templates_j2/core/frontpage.html:3
+msgid "Frontpage"
+msgstr "Etusivu"
+
+#: core/templates_j2/core/frontpage.html:15
+msgid "An interactive course feedback and response tool"
+msgstr "Interaktiivinen kurssipalaute ja vastaus-työkalu"
+
+#: core/templates_j2/core/frontpage.html:18
+msgid "View the Github project"
+msgstr "Katso Github projekti"
+
+#: core/templates_j2/core/frontpage.html:25
+msgid ""
+"\n"
+"Welcome to your institution's Jutut installation.\n"
+msgstr ""
+"\n"
+"Tervetuloa instituutiosi Jutut asennukseen.\n"
+
+#: core/templates_j2/core/frontpage.html:28
+#, python-format
+msgid ""
+"\n"
+"Point your A+ exercises with form specs to <code>%(site)sfeedback/"
+"[course_tag]/[exercise_name]</code> and Jutut will do the rest.\n"
+msgstr ""
+"\n"
+"Osoita lomakekuvauksen sisältävät A+ tehtävät osoitteeseen <code>"
+"%(site)sfeedback/[course_tag]/[exercise_name]</code> ja Jutut hoitaa "
+"puolestasi loput.\n"
+
+#: core/templates_j2/core/frontpage.html:35
+msgid ""
+"\n"
+"To browse and respond feedbacks, login using LTI and you will be forwarded "
+"to a correct page.\n"
+msgstr ""
+"\n"
+"Selataksesi palautteita sinun tulee kirjautua sisään LTI:llä. Kirjautumisen "
+"yhteydessä sinut ohjataan oikealle sivulle.\n"
+
+#: core/templates_j2/core/frontpage.html:38
+msgid ""
+"\n"
+"You may use <code>./manage.py add_lti_key</code> to configure LTI keys for "
+"the login.\n"
+msgstr ""
+"\n"
+"Voit lisätä LTI avaimia komennolla <code>./manage.py add_lti_key</code>. "
+"Huomaa myös muut LTI komennot.\n"
+
+#: core/templates_j2/core/frontpage.html:43
+msgid "Enter the management site"
+msgstr "Siirry hallintasivustolle"
+
+#: core/templates_j2/core/frontpage.html:46
+msgid "View status of services"
+msgstr "Katso palveluiden tila"
