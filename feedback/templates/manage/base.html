@@ -3,6 +3,8 @@
 {% load cache %}
 {% load i18n %}
 
+{% block title %}{{ block.super }} - {% trans "Management" %}{% endblock %}
+
 {% block head %}
 {{ block.super }}
 	{% include 'jquery_toggle.head.html' %}

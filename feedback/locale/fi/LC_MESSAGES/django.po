@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-18 18:35+0300\n"
+"POT-Creation-Date: 2017-10-18 18:40+0300\n"
 "PO-Revision-Date: 2017-10-18 18:36+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: English <>\n"
@@ -309,45 +309,49 @@ msgstr "lähetys tila %(code)s"
 msgid "Uploading"
 msgstr "Lähettää"
 
-#: feedback/templates/manage/base.html:52
+#: feedback/templates/manage/base.html:6
+msgid "Management"
+msgstr "Hallinta"
+
+#: feedback/templates/manage/base.html:54
 #, python-format
 msgid "Site: %(name)s"
 msgstr "Sivusto: %(name)s"
 
-#: feedback/templates/manage/base.html:54
+#: feedback/templates/manage/base.html:56
 msgid "Select site"
 msgstr "Valitse sivusto"
 
-#: feedback/templates/manage/base.html:74
+#: feedback/templates/manage/base.html:76
 msgid "Select course"
 msgstr "Valitse kurssi"
 
-#: feedback/templates/manage/base.html:121
+#: feedback/templates/manage/base.html:123
 msgid "More"
 msgstr "Lisää"
 
-#: feedback/templates/manage/base.html:125
+#: feedback/templates/manage/base.html:127
 #: feedback/templates/manage/feedback_unread.html:13
 msgid "Filter feedbacks"
 msgstr "Rajaa palautteita"
 
-#: feedback/templates/manage/base.html:129
+#: feedback/templates/manage/base.html:131
 msgid "Manage feedback tags"
 msgstr "Hallitse palautetägejä"
 
-#: feedback/templates/manage/base.html:133
+#: feedback/templates/manage/base.html:135
 msgid "Student list"
 msgstr "Opiskelijalista"
 
-#: feedback/templates/manage/base.html:138
+#: feedback/templates/manage/base.html:140
 msgid "Update Student tags"
 msgstr "Päivitä opiskelijatägit"
 
-#: feedback/templates/manage/base.html:142
+#: feedback/templates/manage/base.html:144
 msgid "Clear cache"
 msgstr "Tyhjennä välimuisti"
 
-#: feedback/templates/manage/base.html:157
+#: feedback/templates/manage/base.html:159
 msgid "Language"
 msgstr "Kieli"
 
@@ -396,6 +400,10 @@ msgstr "Lähetä"
 #: feedback/templates_j2/feedback/_form.html:30
 msgid "Reset changes"
 msgstr "Peru muutokset"
+
+#: feedback/templates_j2/feedback/new.html:3
+msgid "Feedback"
+msgstr "Palaute"
 
 #: feedback/templates_j2/feedback/new.html:19
 #, python-format
