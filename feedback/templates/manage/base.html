@@ -58,10 +58,12 @@
 								<span class="caret"></span>
 							</a>
 							<ul class="dropdown-menu">
-								{% for site in sitelist %}
-									<li><a
-										href="{% url "feedback:course-list" site_id=site.id %}"
-										>{{site.domain}}</a></li>
+								{% for site_obj in sitelist %}
+									<li {% if site_obj.id == site.id %}class="active"{% endif %}>
+										<a
+											href="{% url "feedback:course-list" site_id=site_obj.id %}"
+											>{{site_obj.domain}}</a>
+									</li>
 								{% endfor %}
 							</ul>
 						</li>
@@ -73,16 +75,16 @@
 									data-toggle="dropdown" role="button"
 									aria-haspopup="true" aria-expanded="false"
 									>
-									{% if course %}{{ course }}{% else %}{% trans "Select course" %}{% endif %}
+									{% if course %}{{ course_name }}{% else %}{% trans "Select course" %}{% endif %}
 									<span class="caret"></span>
 								</a>
 								<ul class="dropdown-menu">
-									{% for course in courselist %}
-										<li>
+									{% for course_obj, course_name in courselist %}
+										<li {% if course_obj.id == course.id %}class="active"{% endif %}>
 											<a
-												href="{% url "feedback:notresponded-course" course_id=course.id %}"
-												title="Show unresponded feedback for {{ course }}"
-												>{{ course }}
+												href="{% url "feedback:notresponded-course" course_id=course_obj.id %}"
+												title="{% blocktrans with name=course_name %}Show unresponded feedback for {{name}}{% endblocktrans %}"
+												>{{ course_name }}
 											</a>
 										</li>
 									{% endfor %}
@@ -92,7 +94,7 @@
 								<li>
 									<a
 										href="{% url "feedback:notresponded-course" course_id=course.id %}"
-										title="Show unresponded feedback for {{ course }}"
+										title="{% blocktrans with name=course_name %}Show unresponded feedback for {{name}}{% endblocktrans %}"
 										>
 										<span class="{% if course_notresponded %}badge{% endif %}">
 											<span class="glyphicon glyphicon-send"></span>
@@ -105,8 +107,8 @@
 							<li>
 								<a
 									href="{% url "feedback:notresponded-course" course_id=course.id %}"
-									title="Show unresponded feedback for {{ course }}"
-									>{{ course }}
+									title="{% blocktrans with name=course_name %}Show unresponded feedback for {{name}}{% endblocktrans %}"
+									>{{ course_name }}
 									<span class="{% if course_notresponded %}badge{% endif %}">
 										<span class="glyphicon glyphicon-send"></span>
 										{{ course_notresponded }}

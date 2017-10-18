@@ -77,8 +77,9 @@ class StudentTag(NamespacedApiObject, ColorTag):
 
 
 class Course(NamespacedApiObject):
-    code = models.CharField(max_length=128)
-    name = models.CharField(max_length=128)
+    code = models.CharField(max_length=255)
+    name = models.CharField(max_length=255)
+    instance_name = models.CharField(max_length=255)
     html_url = models.CharField(max_length=255)
     language = models.CharField(max_length=5)
 

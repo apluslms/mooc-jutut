@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-18 18:40+0300\n"
+"POT-Creation-Date: 2017-10-18 18:46+0300\n"
 "PO-Revision-Date: 2017-10-18 18:36+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: English <>\n"
@@ -37,95 +37,95 @@ msgstr ""
 "Joku muu on päivittänyt lomaketta. Katso {older_versions_link} mikä on "
 "muuttunut."
 
-#: feedback/models.py:129
+#: feedback/models.py:130
 msgid "Newest versions"
 msgstr "Uusimmat versiot"
 
-#: feedback/models.py:130
+#: feedback/models.py:131
 msgid "Unread"
 msgstr "Lukematon"
 
-#: feedback/models.py:131
+#: feedback/models.py:132
 msgid "Read"
 msgstr "Luettu"
 
-#: feedback/models.py:132
+#: feedback/models.py:133
 msgid "Ungraded"
 msgstr "Ei arvosteltu"
 
-#: feedback/models.py:133
+#: feedback/models.py:134
 msgid "Graded"
 msgstr "Arvosteltu"
 
-#: feedback/models.py:134
+#: feedback/models.py:135
 msgid "Automatically graded"
 msgstr "Automaattisesti arvosteltu"
 
-#: feedback/models.py:135
+#: feedback/models.py:136
 msgid "Manually graded"
 msgstr "Käsin arvosteltu"
 
-#: feedback/models.py:136
+#: feedback/models.py:137
 msgid "Unresponded"
 msgstr "Vastaamaton"
 
-#: feedback/models.py:137
+#: feedback/models.py:138
 msgid "Responded"
 msgstr "Vastattu"
 
-#: feedback/models.py:138
+#: feedback/models.py:139
 msgid "Upload ok"
 msgstr "Lähetys on onnistunut"
 
-#: feedback/models.py:139
+#: feedback/models.py:140
 msgid "Upload has error"
 msgstr "Lähetys on epäonnistunut"
 
-#: feedback/models.py:234
+#: feedback/models.py:235
 msgid "No response"
 msgstr "Ei vastausta"
 
-#: feedback/models.py:235
+#: feedback/models.py:236
 msgid "Rejected"
 msgstr "Hylätty"
 
-#: feedback/models.py:236
+#: feedback/models.py:237
 msgid "Accepted"
 msgstr "Hyväksytty"
 
-#: feedback/models.py:237
+#: feedback/models.py:238
 msgid "Good"
 msgstr "Hyvä"
 
-#: feedback/models.py:244
+#: feedback/models.py:245
 msgid "No notification"
 msgstr "Ei ilmoitusta"
 
-#: feedback/models.py:245
+#: feedback/models.py:246
 msgid "Normal notification"
 msgstr "Normaali ilmoitus"
 
-#: feedback/models.py:246
+#: feedback/models.py:247
 msgid "Important notification"
 msgstr "Tärkeä ilmoitus"
 
-#: feedback/models.py:281
+#: feedback/models.py:282
 msgid "Response time"
 msgstr "Vastausaika"
 
-#: feedback/models.py:286
+#: feedback/models.py:287
 msgid "Responder"
 msgstr "Vastaaja"
 
-#: feedback/models.py:290
+#: feedback/models.py:291
 msgid "Response message"
 msgstr "Vastausviesti"
 
-#: feedback/models.py:293
+#: feedback/models.py:294
 msgid "Response grade"
 msgstr "Arvosana"
 
-#: feedback/models.py:296
+#: feedback/models.py:297
 msgid "Response notify"
 msgstr "Ilmoitus vastauksesta"
 
@@ -322,36 +322,43 @@ msgstr "Sivusto: %(name)s"
 msgid "Select site"
 msgstr "Valitse sivusto"
 
-#: feedback/templates/manage/base.html:76
+#: feedback/templates/manage/base.html:78
 msgid "Select course"
 msgstr "Valitse kurssi"
 
-#: feedback/templates/manage/base.html:123
+#: feedback/templates/manage/base.html:86
+#: feedback/templates/manage/base.html:97
+#: feedback/templates/manage/base.html:110
+#, python-format
+msgid "Show unresponded feedback for %(name)s"
+msgstr "Näytä vastaamattomat palautteet kurssille %(name)s"
+
+#: feedback/templates/manage/base.html:125
 msgid "More"
 msgstr "Lisää"
 
-#: feedback/templates/manage/base.html:127
+#: feedback/templates/manage/base.html:129
 #: feedback/templates/manage/feedback_unread.html:13
 msgid "Filter feedbacks"
 msgstr "Rajaa palautteita"
 
-#: feedback/templates/manage/base.html:131
+#: feedback/templates/manage/base.html:133
 msgid "Manage feedback tags"
 msgstr "Hallitse palautetägejä"
 
-#: feedback/templates/manage/base.html:135
+#: feedback/templates/manage/base.html:137
 msgid "Student list"
 msgstr "Opiskelijalista"
 
-#: feedback/templates/manage/base.html:140
+#: feedback/templates/manage/base.html:142
 msgid "Update Student tags"
 msgstr "Päivitä opiskelijatägit"
 
-#: feedback/templates/manage/base.html:144
+#: feedback/templates/manage/base.html:146
 msgid "Clear cache"
 msgstr "Tyhjennä välimuisti"
 
-#: feedback/templates/manage/base.html:159
+#: feedback/templates/manage/base.html:161
 msgid "Language"
 msgstr "Kieli"
 

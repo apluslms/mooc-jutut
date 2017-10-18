@@ -1,4 +1,5 @@
 import logging
+from collections import Counter
 from datetime import timedelta
 from functools import partial
 from urllib.parse import urlsplit, urljoin, urlencode
@@ -267,10 +268,23 @@ class ManageSiteMixin(ManagePermissionsRequiredMixin):
         if site:
             context['sitename'] = '.'.join(site.domain.split('.', 2)[:2])
             if user.is_superuser or user.is_staff:
-                context['courselist'] = CachedCourses.get(site)
+                courselist = CachedCourses.get(site)
             else:
                 visible_courses = self.visible_courses
-                context['courselist'] = [course for course in CachedCourses.get(site) if course.id in visible_courses]
+                courselist = [c for c in CachedCourses.get(site) if c.id in visible_courses]
+            # create names for course list entries. Different instances contain instance_name
+            dup_courses = frozenset(code for code, count in Counter(c.code for c in courselist).items() if count > 1)
+            fmt1 = "{c.code} - {c.name}"
+            fmt2 = "{c.code} - {c.name} ({c.instance_name})"
+            courselist = [
+                (c, (fmt2 if c.code in dup_courses else fmt1).format(c=c))
+                for c in courselist
+            ]
+            context['courselist'] = courselist
+            # use instance name in course name if duplicate is in list
+            course = kwargs.get('course', None)
+            if course and course.code in dup_courses:
+                context['course_name'] = fmt2.format(c=course)
         return context
 
 
@@ -288,6 +302,7 @@ class ManageCourseMixin(ManageSiteMixin):
         kwargs.setdefault('site', course.namespace)
         context = super().get_context_data(**kwargs)
         context['course_notresponded'] = CachedNotrespondedCount.get(course)
+        context.setdefault('course_name', str(course))
         return context
 
 
