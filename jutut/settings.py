@@ -98,6 +98,7 @@ TEMPLATES = [
                 'django_jinja.builtins.extensions.StaticFilesExtension',
                 #'django_jinja.builtins.extensions.DjangoFiltersExtension',
                 'r_django_essentials.jinja2.extensions.I18nExtrasExtension',
+                'r_django_essentials.jinja2.extensions.CryptoExtension',
             ],
             'bytecode_cache': {
                 'name': 'jinja2mem',

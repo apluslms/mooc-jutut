@@ -1,4 +1,4 @@
-{% set form_id = form.auto_id|format("form") %}
+{% set form_id = form.auto_id|format("form_" ~ get_random_string(8)) -%}
 
 <div id="exercise" class="jutut-exercise" lang="{{ get_current_language() }}">
 
@@ -39,6 +39,7 @@
 			var f = $('#{{ form_id }}'),
 				o = f.find('.only-when-edited'),
 				i = f.serialize(), s = false;
+			f.removeAttr('id');
 			f.find(':input').on('change input', function() {
 				var n = f.serialize() !== i;
 				if (s !== n) o.toggle(s = n);
