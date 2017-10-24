@@ -24,6 +24,12 @@ WSGI_APPLICATION = 'jutut.wsgi.application'
 JUTUT = {
     # minimum length in text field to count it as filled
     'TEXT_FIELD_MIN_LENGTH': 2,
+    # List of services to show in service status page with commands to get the status
+    'SERVICE_STATUS': (
+        ('Django gunicorn', ('systemctl', 'status', 'mooc-jutut-gunicorn')),
+        ('RabbitMQ', ('systemctl', 'status', 'rabbitmq-server')),
+        ('Celery workers', ('systemctl', 'status', 'mooc-jutut-celery')),
+        ('Celery beat', ('systemctl', 'status', 'mooc-jutut-celerybeat')),
     ),
 }
 

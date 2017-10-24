@@ -11,4 +11,10 @@ def cache(time=60 * 15):
 
 
 urlpatterns = [
+    url(r'^servicestatus/$',
+        views.ServiceStatusPage.as_view(),
+        name='servicestatus'),
+    url(r'^servicestatus/data/$',
+        cache(10)(views.ServiceStatusData.as_view()),
+        name='servicestatus-data'),
 ]

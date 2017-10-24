@@ -12,6 +12,13 @@
 #from .settings import JUTUT
 # minimum length in text field to count it as filled
 #JUTUT['TEXT_FIELD_MIN_LENGTH'] = 2
+# List of services to show in service status page with commands to get the status
+#JUTUT['SERVICE_STATUS'] = (
+#    ('Django gunicorn', ('systemctl', 'status', 'www-jutut-gunicorn')),
+#    ('RabbitMQ', ('systemctl', 'status', 'rabbitmq-server')),
+#    ('Celery workers', ('systemctl', 'status', 'www-jutut-celery')),
+#    ('Celery beat', ('systemctl', 'status', 'www-jutut-celerybeat')),
+#)
 
 ## Database
 DATABASES = {

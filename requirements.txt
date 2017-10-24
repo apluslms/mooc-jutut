@@ -15,6 +15,7 @@ celery==4.0.2
 psycopg2>=2.5.4
 python-memcached==1.58
 raphendyr-django-essentials==1.1.0
+ansi2html==1.2.0
 
 # aplus_client
 cachetools==1.1.6

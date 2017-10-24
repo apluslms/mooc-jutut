@@ -1,0 +1,16 @@
+{% extends "manage/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block head %}
+{{ block.super }}
+	<link rel="stylesheet" href="{% static 'statuspage.css' %}">
+	<link rel="stylesheet" href="{% static 'console.css' %}">
+	<script src="{% static 'statuspage.js' %}"></script>
+{% endblock %}
+
+{% block content %}
+	<h1>{% trans "Service status" %}</h1>
+
+	<div data-url="{% url 'core:servicestatus-data' %}" class="ajaxload"></div>
+{% endblock %}

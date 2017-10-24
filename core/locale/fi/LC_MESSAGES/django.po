@@ -1,0 +1,22 @@
+# Copyright (C) 2016 Jaakko Kantojärvi, Learning + Technology Research Group, Aalto University
+# This file is distributed under the same license as the mooc-jutut package.
+#
+# Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>, 2016, 2017.
+msgid ""
+msgstr ""
+"Project-Id-Version: \n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2017-10-18 18:36+0200\n"
+"PO-Revision-Date: 2017-10-18 18:36+0200\n"
+"Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
+"Language-Team: English <>\n"
+"Language: en_US\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Lokalize 2.0\n"
+
+#: core/templates/core/statuspage.html:13
+msgid "Service status"
+msgstr "Palvelun tila"

@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+
+{% macro render_host(host, stats) %}
+	<tr>
+		<th colspan="2" class="text-center">{{ host }}</th>
+	</tr>
+	<tr>
+		<th>Processes</th>
+		<td>{{ stats.processes }}</td>
+	</tr>
+	<tr>
+		<th>Queues</th>
+		<td>Active: {{ stats.active }}, Scheduled: {{ stats.scheduled }}, Reserved: {{ stats.reserved }}</td>
+	</tr>
+	<tr>
+		<th>Time</th>
+		<td>
+			Avg. user/system: {{ "%.3f"|format(stats.time.sutime) }} / {{ "%.3f"|format(stats.time.sstime) }}<br>
+			Total user/system: {{ "%.3f"|format(stats.time.utime) }} / {{ "%.3f"|format(stats.time.stime) }}
+		</td>
+	</tr>
+	<tr>
+		<th>Completed</th>
+		<td>
+			{% for task, count in stats.total.items() %}
+				{% if not loop.first %}<br>{% endif %}
+				{{ task }}: {{ count }}
+			{% endfor %}
+		</td>
+	</tr>
+{% endmacro %}
+
+{% block body %}
+	<div id="content">
+
+		<h3>Services</h3>
+
+		<table class="table">
+			{% for service, status in service_status.items() %}
+				<tr {% if not status.ok %}class="danger"{% endif %}>
+					<th>
+						{{ service }}
+						{% set service_class = "glyphicon-ok text-success" if status.ok else "glyphicon-alert text-danger" %}
+						<span class="glyphicon {{ service_class }}" aria-hidden="true"></span>
+					</th>
+					<td>
+						<code>{{ status.cmd }}</code><br>
+						<pre class="console">{{ status.out|safe }}</pre>
+					</td>
+				</tr>
+			{% endfor %}
+		</table>
+
+		<table class="table">
+			{% for host, stats in celery_stats.items() %}
+				{{ render_host(host, stats) }}
+			{% endfor %}
+			{{ render_host("Totals", celery_totals) }}
+		</table>
+
+		<h3>Internal caches</h3>
+
+		<table class="table">
+			<tr>
+				<th>DynamicFeedbacForm.FORM_CACHE</th>
+				<td>{{ dynamic_form_cache_size }}/{{ dynamic_form_cache_max }} (this process)</td>
+			</tr>
+		</table>
+	</div>
+
+{% endblock %}

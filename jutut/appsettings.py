@@ -5,5 +5,6 @@ app_settings = SettingsDict(
     'JUTUT',
     defaults={
         'TEXT_FIELD_MIN_LENGTH': 2,
+        'SERVICE_STATUS': (),
     },
 )
