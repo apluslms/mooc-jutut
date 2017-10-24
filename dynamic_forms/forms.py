@@ -71,6 +71,28 @@ def dynamic_post_clean(self):
         self._errors[name] = [x for x in errors if not (x in seen or seen_add(x))]
 
 
+class SimpleCache:
+    def __init__(self, max_size):
+        self._cache = OrderedDict()
+        self.max_size = max_size
+
+    def __len__(self):
+        return len(self._cache)
+
+    def __contains__(self, key):
+        return key in self._cache
+
+    def __getitem__(self, key):
+        data = self._cache[key]
+        self._cache.move_to_end(key) # mark key last referenced
+        return data
+
+    def __setitem__(self, key, value):
+        if len(self._cache) >= self.max_size:
+            self._cache.popitem(last=False)
+        self._cache[key] = value
+
+
 class DynamicFormMetaClass(forms.forms.DeclarativeFieldsMetaclass):
     """
     Helper metaclass to make DynamicForm debuging a bit easier
@@ -111,7 +133,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
 
     """
 
-    FORM_CACHE = {}
+    FORM_CACHE = SimpleCache(128)
 
     AUTO_TYPE_ARGS_FOR_BASE_TYPES = {
         'many': 'select',
