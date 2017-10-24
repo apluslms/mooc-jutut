@@ -1,5 +1,6 @@
-from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.utils.functional import cached_property
+
+from core.permissions import CheckPermissionsMixin, Permission
 
 from . import (
     SITES_SESSION_KEY,
@@ -7,22 +8,7 @@ from . import (
 )
 
 
-class ManagePermissionsRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
-    permission_classes = []
-
-    def get_permissions(self):
-        return [Permission() for Permission in self.permission_classes]
-
-    def test_func(self):
-        request = self.request
-        permissions = self.get_permissions()
-        if not permissions:
-            raise RuntimeError("View {} doesn't have any permissions defined".format(self.__class__.__name__))
-        for permission in permissions:
-            if not permission.has_permission(request, self):
-                return False
-        return True
-
+class CheckManagementPermissionsMixin(CheckPermissionsMixin):
     @cached_property
     def visible_sites(self):
         return self.request.session.get(SITES_SESSION_KEY, ())
@@ -30,12 +16,6 @@ class ManagePermissionsRequiredMixin(LoginRequiredMixin, UserPassesTestMixin):
     @cached_property
     def visible_courses(self):
         return self.request.session.get(COURSES_SESSION_KEY, ())
-
-
-
-class Permission:
-    def has_permission(self, request, view):
-        return True
 
 
 class AdminOrSiteStaffPermission(Permission):

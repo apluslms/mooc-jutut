@@ -53,6 +53,7 @@ INSTALLED_APPS = [
     'django_colortag',
     'django_dictiterators',
     # project apps
+    'core',
     'accounts',
     'feedback',
 ]

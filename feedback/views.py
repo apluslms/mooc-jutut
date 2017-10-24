@@ -45,7 +45,7 @@ from .forms import (
 )
 from .filters import FeedbackFilter
 from .permissions import (
-    ManagePermissionsRequiredMixin,
+    CheckManagementPermissionsMixin,
     AdminOrSiteStaffPermission,
     AdminOrCourseStaffPermission,
     AdminOrFeedbackStaffPermission,
@@ -241,7 +241,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 # Feedback management (admin)
 # ---------------------------
 
-class ManageSiteMixin(ManagePermissionsRequiredMixin):
+class ManageSiteMixin(CheckManagementPermissionsMixin):
     permission_classes = [AdminOrSiteStaffPermission]
 
     def get_context_data(self, **kwargs):
@@ -566,7 +566,7 @@ class UserFeedbackView(ManageCourseMixin, TemplateView):
         return context
 
 
-class FeedbackMixin(ManagePermissionsRequiredMixin):
+class FeedbackMixin(CheckManagementPermissionsMixin):
     model = Feedback
     context_object_name = 'feedback'
     pk_url_kwarg = 'feedback_id'
@@ -692,7 +692,7 @@ class FeedbackTagListView(FeedbackTagMixin, ListCreateView):
         return super().get_form_kwargs()
 
 
-class FeedbackTagView(ManagePermissionsRequiredMixin, View):
+class FeedbackTagView(CheckManagementPermissionsMixin, View):
     permission_classes = [AdminOrTagStaffPermission]
 
     @cached_property
