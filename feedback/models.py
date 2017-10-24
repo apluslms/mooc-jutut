@@ -19,7 +19,19 @@ from aplus_client.django.models import (
 )
 from dynamic_forms.models import Form
 
+from .forms_dynamic import DynamicFeedbacForm
+
 Q = models.Q
+
+
+class FeedbackForm(Form):
+    class Meta:
+        proxy = True
+
+    @cached_property
+    def form_class(self):
+        return DynamicFeedbacForm.get_form_class_by(self.form_spec, frozen=self.frozen_spec)
+
 
 
 class StudentManager(NamespacedApiObject.Manager):
@@ -115,7 +127,7 @@ class Exercise(NestedApiObject):
         filters = dict(feedbacks__exercise=self)
         if path_key:
             filters['feedbacks__path_key__startswith'] = path_key
-        return Form.objects.all().filter(**filters)
+        return FeedbackForm.objects.all().filter(**filters)
 
     @property
     def unresponded_feedback(self):
@@ -264,7 +276,7 @@ class Feedback(models.Model):
     student = models.ForeignKey(Student,
                                 related_name='feedbacks',
                                 on_delete=models.CASCADE)
-    form = models.ForeignKey(Form,
+    form = models.ForeignKey(FeedbackForm,
                              related_name='feedbacks',
                              on_delete=models.PROTECT,
                              null=True)

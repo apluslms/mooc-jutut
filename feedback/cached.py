@@ -5,8 +5,8 @@ from django.dispatch import receiver
 from .models import (
     Site,
     Course,
-    Form,
     Feedback,
+    FeedbackForm,
     FeedbackTag,
 )
 
@@ -120,5 +120,5 @@ class CachedForm(Cached):
         form_spec = spec_getter()
         if form_spec is None:
             raise ValueError("spec_getter returned None")
-        return Form.objects.get_or_create(form_spec=form_spec)
+        return FeedbackForm.objects.get_or_create(form_spec=form_spec)
 CachedForm = CachedForm(timeout=60*60)

@@ -3,7 +3,6 @@ from collections import Counter
 from datetime import timedelta
 from functools import partial
 from urllib.parse import urlsplit, urljoin, urlencode
-from django.conf import settings
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, Http404
 from django.utils.text import slugify
 from django.utils.timezone import now as timezone_now
@@ -17,9 +16,9 @@ from lib.postgres import PgAvg
 from lib.mixins import CSRFExemptMixin, ConditionalMixin
 from lib.views import ListCreateView
 from aplus_client.django.views import AplusGraderMixin
-from dynamic_forms.models import Form
 
 from django_dictiterators.utils import NestedDictIterator
+
 
 from .models import (
     Site,
@@ -27,8 +26,8 @@ from .models import (
     Exercise,
     Student,
     StudentTag,
-    Form,
     Feedback,
+    FeedbackForm,
     FeedbackTag,
 )
 from .cached import (
@@ -55,10 +54,6 @@ from .permissions import (
 from .utils import (
     get_url_reverse_resolver,
     obj_with_attrs,
-    augment_form_with_optional_field_info,
-    augment_form_with_optional_answers_info,
-    form_can_be_autoaccepted,
-    is_grade_restricted_to_good,
 )
 
 
@@ -123,7 +118,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
         else:
             form_spec = self.grading_data.form_spec
             if form_spec:
-                form_obj = Form.objects.get_or_create(form_spec=form_spec)
+                form_obj = FeedbackForm.objects.get_or_create(form_spec=form_spec)
 
         if form_obj:
             self.form_obj = form_obj
@@ -189,14 +184,6 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
             logger.warning("failed to resolve student: %s", err)
             return HttpResponseBadRequest(str(err))
 
-        # test if feedback can be automatically accepted
-        if settings.JUTUT_AUTOACCEPT_ON:
-            augment_form_with_optional_field_info(form)
-            augment_form_with_optional_answers_info(form)
-            autoaccept = form_can_be_autoaccepted(form)
-        else:
-            autoaccept = False
-
         # Common data for feedback
         data = {
             'student': student,
@@ -224,8 +211,8 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 
         # create
         else:
-            # grade if autoaccept
-            if autoaccept:
+            # automatically grade if there is no need for human oversight
+            if not form.requires_manual_check:
                 data['response_grade'] = Feedback.MAX_GRADE
                 data['response_time'] = timezone_now()
 
@@ -238,8 +225,9 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
                 **data,
             )
 
-        status = 'graded' if autoaccept or feedback.responded else 'accepted'
-        return self.render_to_response(self.get_context_data(status=status, feedback=feedback))
+        status = 'graded' if feedback.responded or not form.is_graded else 'accepted'
+        points = feedback.response_grade if form.is_graded else Feedback.MAX_GRADE
+        return self.render_to_response(self.get_context_data(status=status, points=points, feedback=feedback))
 
     def form_invalid(self, form):
         if self.reload_form_class():
@@ -381,18 +369,11 @@ def get_feedback_dict(feedback, get_form, response_form_class,
                       get_post_url=None, get_status_url=None,
                       tags=None, get_tag_url=None):
     form = get_form(feedback)
-    if settings.JUTUT_OBLY_ACCEPT_ON and not form.is_dummy_form:
-        augment_form_with_optional_field_info(form)
-        augment_form_with_optional_answers_info(form, use_cleaned_data=False)
-        min_grade = feedback.MAX_GRADE if is_grade_restricted_to_good(form) else 0
-    else:
-        min_grade = 0
     data = {
         'form': response_form_class(instance=feedback),
         'feedback': feedback,
         'feedback_tags': set(feedback.tags.all()),
         'feedback_form': form,
-        'min_grade': min_grade,
     }
     if get_post_url:
         data['post_url'] = get_post_url(feedback)

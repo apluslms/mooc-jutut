@@ -7,7 +7,7 @@
 	expects from context:
 		form
 		feedback
-		min_grade
+		feedback_form
 		post_url
 		status_url
 {% endcomment %}
@@ -57,41 +57,59 @@
 				</div>
 			{% endwith %}
 
-			{% with f=form.response_grade %}
-				{% include "_errors_box.html" with errors=f.errors classes="col-xs-12" %}
-				<div class="form-group replace-with-buttons">
-					<div class="col-xs-10">
-						<div class="btn-group btn-group-justified">
-							{% for c in f %}
-								<label
-									class="btn btn-{{ c.choice_value|grade_color }}
-									{% if c.is_checked and form.instance.responded %}active{% endif %}
-									">
-									<input
-										type="radio"
-										name="{{ f.name }}"
-										value="{{ c.choice_value }}"
-										{% if c.choice_value|force_int < min_grade or form.disabled %} disabled {% endif %}
-										autocomplete="off"
-										data-color="{{ c.choice_value|grade_color }}"
-										{% if c.is_checked and form.instance.responded %} checked {% endif %}
-										/>
-									{{ c.choice_label }}
-								</label>
-							{% endfor %}
+			{% if feedback_form.is_dummy_form or feedback_form.is_graded %}
+				{% with f=form.response_grade %}
+					{% include "_errors_box.html" with errors=f.errors classes="col-xs-12" %}
+					<div class="form-group replace-with-buttons">
+						<div class="col-xs-10">
+							<div class="btn-group btn-group-justified">
+								{% for c in f %}
+									<label
+										class="btn btn-{{ c.choice_value|grade_color }}
+										{% if c.is_checked and form.instance.responded %}active{% endif %}
+										">
+										<input
+											type="radio"
+											name="{{ f.name }}"
+											value="{{ c.choice_value }}"
+											{% if form.disabled %} disabled {% endif %}
+											autocomplete="off"
+											data-color="{{ c.choice_value|grade_color }}"
+											{% if c.is_checked and form.instance.responded %} checked {% endif %}
+											/>
+										{{ c.choice_label }}
+									</label>
+								{% endfor %}
+							</div>
+						</div>
+						<div class="col-xs-2">
+							<input
+								type="submit"
+								class="btn btn-primary pull-right"
+								value="{% if form.had.responded %}{% trans "Update"%}{% else %}{% trans "Respond" %}{% endif %}"
+								{% if form.disabled %} disabled {% endif %}
+								/>
 						</div>
 					</div>
-					<div class="col-xs-2">
+					{# javascript will add buttons for above here #}
+				{% endwith %}
+			{% else %}
+				<div class="form-group">
+					<div class="col-xs-offset-8 col-xs-4">
+						<input
+							type="hidden"
+							name="{{ form.response_grade.name }}"
+							value="{{ feedback.MAX_GRADE }}"
+							/>
 						<input
 							type="submit"
-							class="btn btn-primary pull-right"
-							value="{% if form.had.responded %}Update{% else %}Respond{% endif %}"
+							class="btn btn-primary btn-block"
+							value="{% if form.had.responded %}{% trans "Update"%}{% else %}{% trans "Respond" %}{% endif %}"
 							{% if form.disabled %} disabled {% endif %}
 							/>
 					</div>
 				</div>
-				{# javascript will add buttons for above here #}
-			{% endwith %}
+			{% endif %}
 
 			</div>
 		</form></td></tr>

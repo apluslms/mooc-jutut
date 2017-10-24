@@ -8,14 +8,10 @@
 #SERVER_EMAIL = 'root@example.com' # Error message sender
 #DEFAULT_FROM_EMAIL = 'webmaster@example.com' # Other email sender
 
-## Jutut
-# Automatically accept with best grade feedbacks that do not have any required
-# text fields and no answer in option text fields
-#JUTUT_AUTOACCEPT_ON = True
+## Jutut options
+#from .settings import JUTUT
 # minimum length in text field to count it as filled
-#JUTUT_TEXT_FIELD_MIN_LENGTH = 2
-# Show only best grade for feedbacks that do not contain any required text fields
-#JUTUT_OBLY_ACCEPT_ON = True
+#JUTUT['TEXT_FIELD_MIN_LENGTH'] = 2
 
 ## Database
 DATABASES = {

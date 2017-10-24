@@ -20,14 +20,12 @@ BASE_DIR = dirname(dirname(abspath(__file__)))
 EMAIL_SUBJECT_PREFIX = '[MOOC-Jutut] '
 WSGI_APPLICATION = 'jutut.wsgi.application'
 
-## Jutut options (do not effect django framework)
-# Automatically accept with best grade feedbacks that do not have any required
-# text fields and no answer in option text fields
-JUTUT_AUTOACCEPT_ON = True
-# minimum length in text field to count it as filled
-JUTUT_TEXT_FIELD_MIN_LENGTH = 2
-# Show only best grade for feedbacks that do not contain any required text fields
-JUTUT_OBLY_ACCEPT_ON = True
+## Jutut options
+JUTUT = {
+    # minimum length in text field to count it as filled
+    'TEXT_FIELD_MIN_LENGTH': 2,
+    ),
+}
 
 
 ## Core django definitions: applications, middlewares, templates, auth
