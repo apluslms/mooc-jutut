@@ -155,6 +155,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
         'array': 'array',
         'static': 'help',
         'radio': 'radios',
+        'dropdown': 'select',
         'checkbox': AUTO_TYPE_CHECKBOX,
     }
     TYPE_MAP = {
