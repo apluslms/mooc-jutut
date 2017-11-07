@@ -183,11 +183,18 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
             logger.warning("failed to resolve student: %s", err)
             return HttpResponseBadRequest(str(err))
 
+        max_grade = self.max_points
+        if max_grade is None:
+            max_grade = Feedback.MAX_GRADE
+        else:
+            max_grade = min(max_grade, Feedback.MAX_GRADE)
+
         # Common data for feedback
         data = {
             'student': student,
             'form': self.form_obj,
             'form_data': form.cleaned_data,
+            'max_grade': max_grade,
             'post_url': self.post_url or '',
             'submission_url': self.submission_url or '',
             'submission_html_url': gd.html_url,
@@ -212,7 +219,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
         else:
             # automatically grade if there is no need for human oversight
             if not form.requires_manual_check:
-                data['response_grade'] = Feedback.MAX_GRADE
+                data['response_grade'] = max_grade
                 data['response_time'] = timezone_now()
 
             # will create and save new feedback
@@ -225,7 +232,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
             )
 
         status = 'graded' if feedback.responded or not form.is_graded else 'accepted'
-        points = feedback.response_grade if form.is_graded else Feedback.MAX_GRADE
+        points = feedback.response_grade if form.is_graded else feedback.max_grade
         return self.render_to_response(self.get_context_data(status=status, points=points, feedback=feedback))
 
     def form_invalid(self, form):
@@ -365,6 +372,7 @@ def get_feedback_dict(feedback, get_form, response_form_class,
         'feedback': feedback,
         'feedback_tags': set(feedback.tags.all()),
         'feedback_form': form,
+        'feedback_form_grading': feedback.max_grade > 1 and (form.is_dummy_form or form.is_graded)
     }
     if get_post_url:
         data['post_url'] = get_post_url(feedback)

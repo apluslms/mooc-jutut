@@ -374,6 +374,7 @@ $(function() {
 		dom.find('.replace-with-buttons').each(replace_with_buttons);
 		dom.find('.feedback-status-label').each(update_feedback_status_colors);
 		dom.find('.show-all-fields').each(setup_showall_buttons);
+		dom.find('.show-all-fields').each(function() { $(this).triggerHandler('toggle_state'); });
 		if (!global && dom.prev().is('.panel-heading')) {
 			update_group_status(dom);
 		}

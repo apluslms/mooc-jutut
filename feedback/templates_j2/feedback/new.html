@@ -7,7 +7,7 @@
 	{% if status == "graded" %}
 		<meta name="status" value="graded" />
 		<meta name="points" value="{{ points }}" />
-		<meta name="max-points" value="{{ feedback.MAX_GRADE }}" />
+		<meta name="max-points" value="{{ feedback.max_grade }}" />
 	{% else %}
 		<meta name="status" value="{{ status|default('error', true) }}" />
 	{% endif %}

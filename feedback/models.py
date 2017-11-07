@@ -269,6 +269,7 @@ class Feedback(models.Model):
                                  on_delete=models.PROTECT)
     submission_id = models.IntegerField()
     path_key = models.CharField(max_length=255, db_index=True)
+    max_grade = models.PositiveSmallIntegerField(default=MAX_GRADE)
 
     # feedback
     timestamp = models.DateTimeField(default=timezone.now, db_index=True)

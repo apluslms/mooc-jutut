@@ -57,7 +57,7 @@
 				</div>
 			{% endwith %}
 
-			{% if feedback_form.is_dummy_form or feedback_form.is_graded %}
+			{% if feedback_form_grading %}
 				{% with f=form.response_grade %}
 					{% include "_errors_box.html" with errors=f.errors classes="col-xs-12" %}
 					<div class="form-group replace-with-buttons">
@@ -99,7 +99,7 @@
 						<input
 							type="hidden"
 							name="{{ form.response_grade.name }}"
-							value="{{ feedback.MAX_GRADE }}"
+							value="{{ feedback.max_grade }}"
 							/>
 						<input
 							type="submit"

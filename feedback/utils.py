@@ -39,7 +39,7 @@ def update_response_to_aplus(feedback):
         # * `notify` (optional)
         #     If exists and not empty, create notification in a-plus for students in submission
         'points': feedback.response_grade,
-        'max_points': feedback.MAX_GRADE,
+        'max_points': feedback.max_grade,
         'feedback': html,
         'grading_payload': '{}'
     }
