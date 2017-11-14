@@ -1,4 +1,5 @@
 from collections import OrderedDict
+from django.core.cache import cache
 from django.views.generic import TemplateView
 
 from jutut.appsettings import app_settings
@@ -75,3 +76,11 @@ class ServiceStatusData(LoginRequiredMixin, TemplateView):
             }
 
         return context
+
+
+class ClearCache(LoginRequiredMixin, TemplateView):
+    template_name = "core/cache_cleared.html"
+
+    def get(self, *args, **kwargs):
+        cache.clear()
+        return super().get(*args, **kwargs)

@@ -37,7 +37,6 @@ from .cached import (
     CachedCourses,
     CachedTags,
     CachedNotrespondedCount,
-    clear_cache,
 )
 from .forms import (
     ResponseForm,
@@ -327,14 +326,6 @@ class ManageCourseListView(ManageSiteMixin, ListView):
 
     def get_context_data(self, **kwargs):
         return super().get_context_data(site=self._site, **kwargs)
-
-
-class ManageClearCacheView(ManageCourseMixin, TemplateView):
-    template_name = "manage/cache_cleared.html"
-
-    def get(self, *args, **kwargs):
-        clear_cache()
-        return super().get(*args, **kwargs)
 
 
 class ManageUpdateStudenttagsView(ManageCourseMixin, TemplateView):

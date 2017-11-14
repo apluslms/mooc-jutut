@@ -11,10 +11,6 @@ from .models import (
 )
 
 
-def clear_cache():
-    cache.clear()
-
-
 class FormCache:
     """
     Short time buffer for feedback form classes
