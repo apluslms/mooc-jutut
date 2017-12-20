@@ -4,255 +4,89 @@ Production installation
 Environment
 -----------
 
-Install software:
+### Install following software in to your system:
 
-* nginx
-* postgresql
-* memcached
 * git
+* nginx
+* PostgreSQL
+* memcached
+* RabbitMQ
+* GNU gettext
 * python 3
 * python 3 virtualenv
 * python 3 psycopg2
 * python 3 certifi (used to get up-to-date CA list from system)
 
-Debian:
 
-`sudo apt-get install git nginx postgresql memcached rabbitmq-server python3 python-virtualenv python3-psycopg2 python3-certifi
-
-Setup environment
+#### Debian:
 
 ```sh
-dist="prod"
-user="jutut"
-home="/opt/$user"
-src="$home/mooc-jutut"
-venv="$home/venv"
-pip="$venv/bin/pip"
-python="$venv/bin/python"
-
-# create user
-adduser --system --home $home --group nogroup --gecos 'MOOC Jutut webapp server,,,' --disabled-password $user`
-
-# clone git
-sudo -H -u $user git clone https://github.com/Aalto-LeTech/mooc-jutut.git $src
-
-# install virtual env
-sudo -H -u $user virtualenv --python=python3 $venv
-
-# link system python packages (you need to rerun this for pip to work if system package version updates)
-sudo -H -u $user sh -c "
-  for p in certifi psycopg2; do
-    for d in $venv/lib/python3*; do
-      rm \$d/site-packages/\$p-*.egg-info
-      psrc=\$(python3 -c \"import \$p; print(\$p.__file__)\")
-      ln -s -t \$d/site-packages/ \${psrc%/*}*
-    done
-  done"
-
-# install rest of requirements
-sudo -H -u $user $pip install -r $src/requirements.txt
-sudo -H -u $user $pip install gunicorn
-
-# configure sql database
-sudo -H -u postgres createuser jutut
-sudo -H -u postgres createdb -O jutut mooc_jutut_$dist
-
-# configure message broker
-celery_file="$src/jutut/local_settings_celery.py"
-if ! [ -e "$celery_file" ]; then
-    pass=$(head -c 512 /dev/urandom|sha256sum -|cut -d' ' -f1)
-    sudo rabbitmqctl add_user "$user" "$pass"
-    sudo rabbitmqctl add_vhost "mooc_jutut_$dist/"
-    sudo rabbitmqctl set_permissions -p "mooc_jutut_$dist/" "$user" ".*" ".*" ".*"
-    sudo -H -u $user tee "$celery_file" <<EOF
-CELERY_BROKER_URL="amqp://$user:$pass@localhost:5672/mooc_jutut_$dist/"
-EOF
-fi
-
-# create tables
-sudo -H -u $user sh -c "cd $src && $python manage.py migrate"
-
-# compile localization
-sudo -H -u $user sh -c "cd $src && $python manage.py compilemessages"
-
-# collect static
-sudo -H -u $user sh -c "cd $src && $python manage.py collectstatic --noinput"
+sudo apt-get -y install \
+  git nginx postgresql memcached rabbitmq-server gettext \
+  python3 python-virtualenv python3-psycopg2 python3-certifi
 ```
 
-Configure nginx (we presume `nginx.conf` includes `conf.d/*`)
+### Setup environment
+
+#### Use installtion script
+
+**Debian note**: You should probably remove nginx default server `rm /etc/nginx/sites-enabled/*`.
+
+Create user, clone repo and init config files.
 
 ```sh
-fqdn="jutut.cs.hut.fi"
-
-# create self signed cert and key (replace with CA signed when available)
-keyfile=/etc/nginx/$fqdn.key
-crtfile=/etc/nginx/$fqdn.crt
-dhfile=/etc/nginx/dhparams.pem
-# will prompt for certificate data
-[ -f $keyfile -o -f $crtfile ] || openssl req -nodes -x509 -newkey rsa:4096 -keyout /etc/nginx/$fqdn.key -out $fqdn.crt -days 465 </dev/null
-[ -f $dhfile ] || openssl dhparam -out $dhfile 2048
-
-# create server config
-cat > /etc/nginx/conf.d/$fqdn.conf <<EOF
-server {
-  listen 80 default_server;
-  listen [::]:80 default_server ipv6only=on;
-  server_name $fqdn;
-  underscores_in_headers on;
-
-  location / {
-    return 302 https://\$server_name\$request_uri;
-  }
-}
-
-upstream jutut {
-  server unix:/run/www-jutut/gunicorn.sock;
-}
-
-server {
-  listen 443 ssl;
-  listen [::]:443 ssl ipv6only=on;
-  server_name $fqdn;
-  underscores_in_headers on;
-
-  # certs sent to the client in SERVER HELLO are concatenated in ssl_certificate
-  ssl_certificate $fqdn.crt;
-  ssl_certificate_key $fqdn.key;
-  ssl_dhparam dhparams.pem;
-
-  # ssl ciphers (use: https://mozilla.github.io/server-side-tls/ssl-config-generator/)
-  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
-  ssl_prefer_server_ciphers on;
-  ssl_ciphers HIGH:MEDIUM:!aNULL:!RC4:!ADH:!MD5;
-
-  # cache ssl session
-  ssl_session_timeout 1d;
-  ssl_session_cache shared:SSL:50m;
-  ssl_session_tickets off;
-
-  # HSTS (ngx_http_headers_module is required) (15768000 seconds = 6 months)
-  add_header Strict-Transport-Security max-age=15768000;
-
-  location /static {
-    alias $src/static;
-  }
-  location /media {
-    alias $src/media;
-  }
-  location / {
-    proxy_pass_header Server;
-    proxy_set_header Host \$http_host;
-    proxy_set_header X-Real-IP \$remote_addr;
-    proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-    proxy_set_header X-Forwarded-Proto \$scheme;
-    proxy_redirect off;
-    proxy_connect_timeout 10;
-    proxy_read_timeout 30;
-    proxy_pass http://jutut;
-  }
-}
-EOF
-
-# restart nginx
-systemctl restart nginx
+wget 'https://raw.githubusercontent.com/Aalto-LeTech/mooc-jutut/master/scripts/install.py' -O-|sudo python3 - \
+ --user=jutut --home=/opt/jutut --fqdn=jutut.example.com
 ```
 
-Configure systemd (same can be done using supervisord)
+Edit files `/opt/jutut/mooc-jutut/install_config.ini` and `/opt/jutut/mooc-jutut/jutut/local_settings.py` for your needs.
+
 
 ```sh
-# create tmo files for gunicorn
-cat > /etc/tmpfiles.d/www-jutut.conf <<EOF
-d /run/www-jutut 0755 $user nogroup -
-EOF
-
-systemd-tmpfiles --create
-
-# create systemd configs for gunicorn
-cat > /etc/systemd/system/www-jutut-gunicorn.service <<EOF
-[Unit]
-Description=MOOC Jutut Gunicorn
-PartOf=nginx.service
-
-[Service]
-User=$user
-Group=nogroup
-SyslogIdentifier=www-jutut
-StandardOutput=syslog
-StandardError=syslog
-WorkingDirectory=$src/
-Environment="PATH=$venv/bin/"
-ExecStart=$venv/bin/gunicorn --workers=3 --pid /run/www-jutut/gunicorn.pid --bind unix:/run/www-jutut/gunicorn.sock jutut.wsgi:application
-PIDFile=/run/www-jutut/gunicorn.pid
-ExecReload=/bin/kill -s HUP \$MAINPID
-ExecStop=/bin/kill -s TERM \$MAINPID
-RestartSec=15
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-# create systemd config for celery worker
-cat > /etc/systemd/system/www-jutut-celery.service <<EOF
-[Unit]
-Description=MOOC Jutut celeryd
-PartOf=nginx.service
-Pequires=www-jutut-gunicorn
-
-[Service]
-User=$user
-Group=nogroup
-SyslogIdentifier=www-jutut-celery
-StandardOutput=syslog
-StandardError=syslog
-WorkingDirectory=$src/
-Environment="PATH=$venv/bin/"
-ExecStart=$venv/bin/celery worker --pidfile=/run/www-jutut/celery.pid --loglevel=info --autoscale=6,1 --app jutut
-PIDFile=/run/www-jutut/celery.pid
-ExecReload=/bin/kill -s HUP \$MAINPID
-ExecStop=/bin/kill -s TERM \$MAINPID
-RestartSec=15
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-# create systemd config for celery beat
-cat > /etc/systemd/system/www-jutut-celerybeat.service <<EOF
-[Unit]
-Description=MOOC Jutut celeryd beat
-PartOf=nginx.service
-BindsTo=www-jutut-celery
-
-[Service]
-User=$user
-Group=nogroup
-SyslogIdentifier=www-jutut-celery
-StandardOutput=syslog
-StandardError=syslog
-WorkingDirectory=$src/
-Environment="PATH=$venv/bin/"
-ExecStart=$venv/bin/celery beat --pidfile=/run/www-jutut/celerybeat.pid --loglevel=info --schedule=$home/celerybeat-schedule.db --app jutut
-PIDFile=/run/www-jutut/celerybeat.pid
-ExecReload=/bin/kill -s HUP \$MAINPID
-ExecStop=/bin/kill -s TERM \$MAINPID
-RestartSec=15
-Restart=always
-
-[Install]
-WantedBy=multi-user.target
-EOF
-
-¤ start the service
-systemctl enable www-jutut-gunicorn.service www-jutut-celery.service www-jutut-celerybeat.service
-systemctl start www-jutut-gunicorn.service www-jutut-celery.service www-jutut-celerybeat.service
+sudo /opt/jutut/mooc-jutut/scripts/install.py install
 ```
 
-Check status using:
+If everythin is ok, then finalise with
 
 ```sh
-systemctl status nginx www-jutut-*
+sudo /opt/jutut/mooc-jutut/scripts/install.py online
 ```
 
-You can read server logs using `journalctl -t www-jutut` or follow with `journalctl -t www-jutut -f`.
+You can read server logs using `journalctl -t mooc-jutut` or follow with `journalctl -t mooc-jutut -f`.
+
+
+#### Or do manually at least following steps
+
+* Create user
+
+  ```sh
+  adduser --system --disabled-password \
+  --gecos 'MOOC Jutut webapp server,,,' \
+  --home /opt/jutut --group nogroup jutut
+  ```
+
+* Configure DB
+* Configure rabbitmq
+* Configure nginx
+* Configure systemd services (checkout `scripts/templates/` for templates)
+* Clone repo / checkout new brnach
+* Install virtual env
+* Link python packages from the system
+
+  ```sh
+  sudo -H -u jutut sh -c "
+    for p in certifi psycopg2; do
+      for d in /opt/jutut/venv/lib/python3*; do
+        psrc=\$(python3 -c \"import \$p; print(\$p.__file__)\")
+        rm \$d/site-packages/\$p-*.egg-info
+        ln -s -t \$d/site-packages/ \${psrc%/*}*
+      done
+    done"
+  ```
+
+* Install requirements.txt
+* Install gunicorn
+* Configure local_settings.py
+* Django migrate
+* Django compilemessages
+* Django collectstatic

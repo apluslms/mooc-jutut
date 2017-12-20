@@ -1,0 +1,21 @@
+[Unit]
+Description=MOOC Jutut Gunicorn
+PartOf=nginx.service
+
+[Service]
+User=$user
+Group=$group
+SyslogIdentifier=$name
+StandardOutput=syslog
+StandardError=syslog
+WorkingDirectory=$dest/
+Environment="PATH=$venv/bin/:/usr/local/bin:/usr/bin:/bin"
+ExecStart=$venv/bin/gunicorn --workers=3 --pid $run_path/gunicorn.pid --bind unix:/run/$name/gunicorn.sock jutut.wsgi:application
+PIDFile=$run_path/gunicorn.pid
+ExecReload=/bin/kill -s HUP $$MAINPID
+ExecStop=/bin/kill -s TERM $$MAINPID
+RestartSec=15
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

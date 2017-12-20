@@ -1,0 +1,22 @@
+[Unit]
+Description=MOOC Jutut celeryd
+PartOf=nginx.service
+Requires=$gunicorn_service
+
+[Service]
+User=$user
+Group=$group
+SyslogIdentifier=$name-celery
+StandardOutput=syslog
+StandardError=syslog
+WorkingDirectory=$dest/
+Environment="PATH=$venv/bin/:/usr/local/bin:/usr/bin:/bin"
+ExecStart=$venv/bin/celery worker --pidfile=$run_path/celery.pid --loglevel=info --autoscale=6,1 --app jutut
+PIDFile=$run_path/celery.pid
+ExecReload=/bin/kill -s HUP $$MAINPID
+ExecStop=/bin/kill -s TERM $$MAINPID
+RestartSec=15
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
