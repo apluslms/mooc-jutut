@@ -1,0 +1,34 @@
+{% extends "bootstrapped.html" %}
+
+{% block title %}{{super()}} - ERROR {{code}}{% endblock %}
+
+{% block styles %}
+	{{ super() }}
+
+	<link rel="stylesheet" href="{{ static("frontpage.css") }}">
+{% endblock styles %}
+
+{% block scripts %}{% endblock %}
+
+{% block body %}
+	<div class="container">
+		<div class="jumbotron text-center">
+			<h1>
+				{% if glyph is defined %}
+					<span class="glyphicon glyphicon-{{glyph}}" aria-hidden="true" style="color: {{glyph_color|default('#d9534f')}};"></span>
+				{% endif %}
+				{{code|default('')}}
+				{{title|default('Unknown Error')}}
+			</h1>
+			{% if desc is not defined %}
+				<p>Unknown error occurred.</p>
+			{% elif desc is string %}
+				<p>{{desc}}</p>
+			{% else %}
+				{% for line in desc %}
+					<p>{{line}}</p>
+				{% endfor %}
+			{% endif %}
+		</div>
+	</div>
+{% endblock body %}

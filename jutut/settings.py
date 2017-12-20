@@ -228,6 +228,52 @@ STATIC_ROOT = join(BASE_DIR, 'static')
 MEDIA_URL = '/media/'
 MEDIA_ROOT = join(BASE_DIR, 'media')
 
+STATICFILES_FINDERS = (
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+    'core.vstorage.VirtualFinder',
+)
+
+RENDERED_STATIC_FILES = {
+    'err_404.html': (
+        'core/static_error_page.html',
+        {
+            'code': '404',
+            'title': 'Not Found',
+            'glyph': 'remove',
+            'desc': (
+                "Requested page is not available.",
+                "Hakemaasi sivua ei löytynyt.",
+            ),
+        }
+    ),
+    'err_500.html': (
+        'core/static_error_page.html',
+        {
+            'code': '500',
+            'title': 'Internal Server Error',
+            'glyph': 'fire',
+            'desc': (
+                "The web server is returning an internal error. There is something wrong with it!",
+                "Web palvelu palauttaa sisäisen virheen. Se on jotenkin rikki!",
+            ),
+        }
+    ),
+    # maintenance
+    'err_503.html': (
+        'core/static_error_page.html',
+        {
+            'code': '503',
+            'title': 'Service Unavailable',
+            'glyph': 'wrench',
+            'glyph_color': "#5cb85c",
+            'desc': (
+                "The web server is currently undergoing some maintenance. We'll be back shortly!",
+                "Palvelussa on väliaikainen huoltokatko. Palvelu palaa käyttöön pian!"
+            ),
+        }
+    ),
+}
 
 ## Cache
 # https://docs.djangoproject.com/en/1.9/topics/cache/
