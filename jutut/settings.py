@@ -19,6 +19,7 @@ from django.utils.translation import ugettext_lazy as _
 BASE_DIR = dirname(dirname(abspath(__file__)))
 EMAIL_SUBJECT_PREFIX = '[MOOC-Jutut] '
 WSGI_APPLICATION = 'jutut.wsgi.application'
+ALLOWED_HOSTS = ["*"]
 
 ## Jutut options
 JUTUT = {
