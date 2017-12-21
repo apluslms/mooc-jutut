@@ -434,8 +434,10 @@ SECTIONS = {
 }
 
 CONFIG_LOADED = None
+CONFIG_OPTIONS = set()
 def load_configuration(parser, namespace, config):
     """Loads configuration and applies it to namespace"""
+    global CONFIG_LOADED, CONFIG_OPTIONS
     assert config, "Config file is required"
     config_parser = ConfigParser(interpolation=None)
     config_parser.read(str(config))
@@ -457,8 +459,7 @@ def load_configuration(parser, namespace, config):
             if key in actions:
                 value = actions[key](section_conf, key)
                 setattr(namespace, key, value)
-
-    global CONFIG_LOADED
+                CONFIG_OPTIONS.add(key)
     CONFIG_LOADED = config
 
 def store_configuration(config):
@@ -475,7 +476,8 @@ def store_configuration(config):
                 name = action.dest
                 if name in opts and name not in dont_store:
                     default, value = PARSER.get_default(name), opts[name]
-                    if default == value: name = '; ' + name
+                    if name not in CONFIG_OPTIONS and default == value:
+                        name = '; ' + name
                     vals[name] = value
             if vals:
                 config_parser[section] = vals
@@ -672,11 +674,6 @@ def do_init():
     ensure_dest()
     ensure_local_conf()
 
-    # Disable site (flag for nxing) and stop services
-    disable_site()
-    if is_root():
-        stop_services()
-
     # Store installer config
     conf = OPTS.config or OPTS.dest / 'install_config.ini'
     store_configuration(conf)
@@ -684,9 +681,9 @@ def do_init():
     # Tell user to edit configs
     debug(
         "We have:\n"
-        " * created a user '{user}'\n"
-        " * ensured there is repo in '{dest}'\n"
-        " * ensured there is configuration files for you to edit:\n"
+        " * ensured existence of an user '{user}'\n"
+        " * ensured that the repo exists in '{dest}'\n"
+        " * ensured that there is configuration files for you to edit:\n"
         "   * installer config: '{conf}'\n"
         "   * django config   : '{dconf}'\n"
         "Edit those configurations for your needs and then run:\n"
@@ -703,7 +700,8 @@ def do_init():
 
 def do_upgrade():
     debug(" ----- UPGRADE")
-    # Ensure the site is still disabled
+
+    # Disable site (flag for nxing) and stop services
     disable_site()
     if is_root():
         stop_services()
