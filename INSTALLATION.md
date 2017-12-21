@@ -35,24 +35,34 @@ sudo apt-get -y install \
 Create user, clone repo and init config files.
 
 ```sh
-wget 'https://raw.githubusercontent.com/Aalto-LeTech/mooc-jutut/master/scripts/install.py' -O-|sudo python3 - \
+wget 'https://raw.githubusercontent.com/Aalto-LeTech/mooc-jutut/stable/scripts/install.py' -O-|sudo python3 - \
  --user=jutut --home=/opt/jutut --fqdn=jutut.example.com
 ```
 
 Edit files `/opt/jutut/mooc-jutut/install_config.ini` and `/opt/jutut/mooc-jutut/jutut/local_settings.py` for your needs.
 
+Upgrade code
+
+```sh
+sudo /opt/jutut/mooc-jutut/scripts/install.py upgrade
+```
+
+Install code
 
 ```sh
 sudo /opt/jutut/mooc-jutut/scripts/install.py install
 ```
 
-If everythin is ok, then finalise with
+Online service
 
 ```sh
 sudo /opt/jutut/mooc-jutut/scripts/install.py online
 ```
 
+*Or `sudo /opt/jutut/mooc-jutut/scripts/install.py --chain upgrade` to do it all.*
+
 You can read server logs using `journalctl -t mooc-jutut` or follow with `journalctl -t mooc-jutut -f`.
+Celery logs with `journalctl -t mooc-jutut-celery`.
 
 
 #### Or do manually at least following steps

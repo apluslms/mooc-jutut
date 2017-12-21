@@ -527,7 +527,7 @@ def parse_options():
                         default="https://github.com/Aalto-LeTech/mooc-jutut.git",
                         help="Source for the code")
     parser.add_argument('-B', '--branch', metavar='REF',
-                        default="origin/master",
+                        default="origin/stable",
                         help="Version of the source we are installing or upgrading to")
     parser.add_argument('-U', '--user', default="jutut",
                         help="User for the web service")
