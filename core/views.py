@@ -34,7 +34,7 @@ class ServiceStatusData(LoginRequiredMixin, TemplateView):
             if host not in celery_stats:
                 celery_stats[host] = {}
             celery_stats[host]['total'] = total_tasks = stats['total']
-            total_done = min(sum(total_tasks.values()), 1)
+            total_done = max(sum(total_tasks.values()), 1)
             celery_stats[host]['processes'] = len(stats['pool']['processes'])
             utime = stats['rusage']['utime']
             stime = stats['rusage']['stime']
