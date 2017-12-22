@@ -377,6 +377,7 @@ def create_sql_backup(db_ok=False):
         file_ = OPTS.sql_backup_path / name
         exec_user('pg_dump', '-U', OPTS.user, '-f', file_, '-c', OPTS.sql_db_name)
         exec_user('gzip', file_)
+        file_.chmod(0o400)
 
 def stop_services():
     services = (OPTS.gunicorn_service,  OPTS.celery_service, OPTS.celerybeat_service)
