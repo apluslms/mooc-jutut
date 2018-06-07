@@ -11,7 +11,7 @@ git+https://github.com/Aalto-LeTech/django-colortag.git@1.2.0#egg=django-colorta
 git+https://github.com/Aalto-LeTech/django-lti-login.git@2.0.1#egg=django-lti-login==2.0.1
 django-filter==0.15.0
 django-settingsdict==1.0.1
-celery==4.0.2
+celery==4.1.1
 psycopg2>=2.5.4
 python-memcached==1.58
 raphendyr-django-essentials==1.1.2
