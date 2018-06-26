@@ -367,12 +367,22 @@ CELERY_BEAT_SCHEDULE = {
 
 ################################################################################
 # Do some updates and additions to above settings
-from r_django_essentials.conf import update_settings, update_settings_from_module
+from os import environ
+from r_django_essentials.conf import *
 
 # Load local settings for celery (INSTALLATION tells to add rabbitmq password in this file).
-update_settings_from_module(__name__, 'local_settings_celery')
+update_settings_from_module(__name__, 'local_settings_celery', quiet=True)
 
-# Load settings from local_settings, secret_key, environment.
-# Make sure app dependencies are included etc.
-# USe cache template loader in production
-update_settings(__name__)
+# Local settings
+update_settings_with_file(__name__,
+                          environ.get('JUTUT_LOCAL_SETTINGS', 'local_settings'),
+                          quiet='JUTUT_LOCAL_SETTINGS' in environ)
+
+# Settings from environment
+update_settings_from_environment(__name__, 'JUTUT_')
+
+# Ensure secret key (if above files defined it, then this does nothing)
+update_secret_from_file(__name__)
+
+# Resolve app dependencies, check context processors and so on...
+update_settings_fixes(__name__)
