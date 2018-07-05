@@ -382,7 +382,7 @@ update_settings_with_file(__name__,
 update_settings_from_environment(__name__, 'JUTUT_')
 
 # Ensure secret key (if above files defined it, then this does nothing)
-update_secret_from_file(__name__)
+update_secret_from_file(__name__, environ.get('JUTUT_SECRET_KEY_FILE', 'secret_key'))
 
 # Resolve app dependencies, check context processors and so on...
 update_settings_fixes(__name__)
