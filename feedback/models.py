@@ -30,7 +30,7 @@ class FeedbackForm(Form):
 
     @cached_property
     def form_class(self):
-        return DynamicFeedbacForm.get_form_class_by(self.form_spec, frozen=self.frozen_spec)
+        return DynamicFeedbacForm.get_form_class_by(self)
 
 
 
@@ -93,7 +93,7 @@ class Course(NamespacedApiObject):
     name = models.CharField(max_length=255)
     instance_name = models.CharField(max_length=255)
     html_url = models.CharField(max_length=255)
-    language = models.CharField(max_length=5)
+    language = models.CharField(max_length=255)
 
     staff = models.ManyToManyField(settings.AUTH_USER_MODEL,
                                    related_name="courses")
@@ -273,7 +273,7 @@ class Feedback(models.Model):
 
     # feedback
     timestamp = models.DateTimeField(default=timezone.now, db_index=True)
-    language = models.CharField(max_length=5, default=get_language, null=True)
+    language = models.CharField(max_length=255, default=get_language, null=True)
     student = models.ForeignKey(Student,
                                 related_name='feedbacks',
                                 on_delete=models.CASCADE)

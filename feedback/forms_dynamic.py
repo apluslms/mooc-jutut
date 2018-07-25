@@ -6,8 +6,8 @@ from jutut.appsettings import app_settings
 
 class DynamicFeedbacForm(DynamicForm):
     @classmethod
-    def create_form_class_from(cls, data: "list of field structs"):
-        form_class = super().create_form_class_from(data)
+    def create_form_class_from(cls, data: "list of field structs", i18n):
+        form_class = super().create_form_class_from(data, i18n)
         fields = form_class.base_fields # NOTE: changed to .declared_fields in future django releases
         all_text_fields = OrderedDict()
         required_text_fields = OrderedDict()

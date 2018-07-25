@@ -2,6 +2,8 @@ from hashlib import sha1
 from collections import Iterable
 from itertools import chain as iterchain
 from operator import itemgetter
+from django.utils import translation
+from django.utils.functional import lazy
 
 
 def bytefy(data):
@@ -50,3 +52,12 @@ def cleaned_css_classes(css_classes, ignore=None):
         return [c for c in cleaned if c]
     else:
         return [c for c in cleaned if c and c not in ignore]
+
+
+def _translate_lazy(input, dictionary):
+    if dictionary:
+        lang = translation.get_language()
+        return dictionary.get(input, {}).get(lang) or input
+    return input
+
+translate_lazy = lazy(_translate_lazy, str)

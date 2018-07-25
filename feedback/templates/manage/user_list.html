@@ -1,7 +1,8 @@
 {% extends "manage/base.html" %}
+{% load i18n %}
 
 {% block content %}
-	<h1>List of students with feedback</h1>
+	<h1>{% trans "List of students with feedback" %}</h1>
 	<ul>
 		{% for student in students %}
 			<li>
@@ -10,7 +11,7 @@
 				</a>
 			</li>
 		{% empty %}
-			<li>No feedback by any student yet.</li>
+			<li>{% trans "No feedback by any student yet." %}</li>
 		{% endfor %}
 	</ul>
 {% endblock %}

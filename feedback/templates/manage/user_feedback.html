@@ -1,10 +1,14 @@
 {% extends "manage/base.html" %}
 {% load dictiterators %}
+{% load i18n %}
 
 {% block content %}
-<h1>List of student feedback to {{ exercise }}</h1>
+<h1>{% blocktrans with ex=exercise %}
+List of student feedback to {{ ex }}
+{% endblocktrans %}</h1>
 
 	<div class="panel panel-default feedback-response-panel">
+		<!-- FIXME: no such template -->
 		{% include "manage/_feedback_heading.html" with user=student %}
 
 		{% foreachdict in feedbacks %}
@@ -13,7 +17,7 @@
 		{% empty %}
 			<div class="panel-body">
 				<div class="alert alert-info">
-					No feedback yet.
+					{% trans "No feedback yet." %}
 				</div>
 			</div>
 		{% endforeachdict %}

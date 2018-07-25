@@ -52,6 +52,11 @@ class GraderInterface2:
         return self.data.exercise.exercise_info.get_item('form_spec')
 
     @property
+    @none_on_error(KeyError)
+    def form_i18n(self):
+        return self.data.exercise.exercise_info.get_item('form_i18n')
+
+    @property
     @none_on_error
     def submission_id(self):
         return self.data.submission.id

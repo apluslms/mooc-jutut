@@ -13,23 +13,29 @@ logger = logging.getLogger('dynamic_forms.models')
 
 
 class FormManager(models.Manager):
-    def get_or_create(self, form_spec):
-        frozen = freeze(form_spec)
-        sha1 = hashsum(frozen).hexdigest()
+    def get_or_create(self, form_spec, form_i18n):
+        frozen_spec = freeze(form_spec)
+        frozen_i18n = freeze(form_i18n)
+
+        sha1 = hashsum(frozen_spec)
+        if frozen_i18n:
+            hashsum(frozen_i18n, sha1)
+        sha1 = sha1.hexdigest()
         obj = None
 
         # find if this form_spec exists already
         for possible in self.filter(sha1=sha1):
-            if possible.form_spec == form_spec:
+            if possible.form_spec == form_spec and possible.form_i18n == form_i18n:
                 obj = possible
                 break
 
         # create new database object and save it
         if not obj:
-            obj = self.create(form_spec=form_spec, sha1=sha1)
+            obj = self.create(form_spec=form_spec, form_i18n=form_i18n, sha1=sha1)
 
         # store already calculated frozen_spec
-        obj.frozen_spec = frozen
+        obj.frozen_spec = frozen_spec
+        obj.frozen_i18n = frozen_i18n
         return obj
 
 
@@ -38,6 +44,7 @@ class Form(models.Model):
 
     sha1 = models.CharField(max_length=40, db_index=True)
     form_spec = pg_fields.JSONField()
+    form_i18n = pg_fields.JSONField(blank=True, null=True)
 
     class Meta:
         abstract = apps.get_containing_app_config(__name__) is None
@@ -50,8 +57,12 @@ class Form(models.Model):
         return freeze(self.form_spec)
 
     @cached_property
+    def frozen_i18n(self):
+        return freeze(self.form_i18n)
+
+    @cached_property
     def form_class(self):
-        return DynamicForm.get_form_class_by(self.form_spec, frozen=self.frozen_spec)
+        return DynamicForm.get_form_class_by(self)
 
     @cached_property
     def form_class_or_dummy(self):
@@ -63,7 +74,9 @@ class Form(models.Model):
 
     def save(self, **kwargs):
         if not self.sha1:
-            self.sha1 = hashsum(freeze(self.form_spec)).hexdigest()
+            frozen_spec = freeze(self.form_spec)
+            frozen_i18n = freeze(self.form_i18n)
+            self.sha1 = hashsum((frozen_spec, frozen_i18n) if frozen_i18n else frozen_spec).hexdigest()
         return super().save(**kwargs)
 
     def __str__(self):

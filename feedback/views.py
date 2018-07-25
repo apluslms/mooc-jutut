@@ -109,15 +109,16 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
         if post_url.path and path_key:
             self.form_cache_key = cache_key = ''.join((post_url.netloc, post_url.path, path_key))
             try:
-                form_obj = CachedForm.get(cache_key, lambda: self.grading_data.form_spec)
+                form_obj = CachedForm.get(cache_key, lambda: self.grading_data.form_spec, lambda: self.grading_data.form_i18n)
             except ValueError:
                 pass
 
         # if we can't use cache, use the "old way"
         else:
             form_spec = self.grading_data.form_spec
+            form_i18n = self.grading_data.form_i18n
             if form_spec:
-                form_obj = FeedbackForm.objects.get_or_create(form_spec=form_spec)
+                form_obj = FeedbackForm.objects.get_or_create(form_spec=form_spec, form_i18n=form_i18n)
 
         if form_obj:
             self.form_obj = form_obj

@@ -13,6 +13,7 @@ from .fields import (
 from .utils import (
     freeze,
     cleaned_css_classes,
+    translate_lazy,
 )
 
 
@@ -216,9 +217,8 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
     # globals used by django forms
     required_css_class = 'required'
 
-
     @classmethod
-    def create_form_class_from(cls, data: "list of field structs"):
+    def create_form_class_from(cls, data: "list of field structs", i18n):
         """
         Construct dynamic form based on data.
         Data is list of field structs (see class doc)
@@ -264,8 +264,22 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                     widget_class = field_class.widget
 
                 # copy direct options
-                field_args = {k: prop[l] for l, k in cls.ARG_MAP.items() if l in prop}
-                widget_attrs = {k: prop[l] for l, k in cls.WIDGET_ATTR_MAP.items() if l in prop}
+                field_args = {}
+                for l, k in cls.ARG_MAP.items():
+                    if l in prop:
+                        if l in ['title', 'description']:
+                            field_args[k] = translate_lazy(prop[l], i18n)
+                        else:
+                            field_args[k] = prop[l]
+                # field_args = {k: prop[l] for l, k in cls.ARG_MAP.items() if l in prop}
+                widget_attrs = {}
+                for l, k in cls.WIDGET_ATTR_MAP.items():
+                    if l in prop:
+                        if l == 'placeholder':
+                            widget_attrs[k] = translate_lazy(prop[l], i18n)
+                        else:
+                            widget_attrs[k] = prop[l]
+                # widget_attrs = {k: prop[l] for l, k in cls.WIDGET_ATTR_MAP.items() if l in prop}
                 extra_validators = []
                 extra_vars = {}
 
@@ -277,7 +291,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                 if title_map and not enum:
                     enum = title_map.keys()
                 if enum:
-                    choices = tuple((k, title_map.get(k, k)) for k in enum)
+                    choices = tuple((k, translate_lazy(str(title_map.get(k, k)), i18n)) for k in enum)
                     field_args['choices'] = choices
 
                 # integer validation
@@ -376,18 +390,17 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
 
 
     @classmethod
-    def get_form_class_by(cls, data, frozen=None):
+    def get_form_class_by(cls, _form):
         """
         will cache created forms with normalized params as key
         if params are found from cache, then cached form class is returned
         else new form class is created and cached
         """
-        if frozen is None:
-            frozen = freeze(data)
-        if frozen in cls.FORM_CACHE:
-            return cls.FORM_CACHE[frozen]
-        form = cls.create_form_class_from(data)
-        cls.FORM_CACHE[frozen] = form
+        frozen_tuple = (_form.frozen_spec, _form.frozen_i18n)
+        if frozen_tuple in cls.FORM_CACHE:
+            return cls.FORM_CACHE[frozen_tuple]
+        form = cls.create_form_class_from(_form.form_spec, _form.form_i18n)
+        cls.FORM_CACHE[frozen_tuple] = form
         return form
 
 

@@ -1,15 +1,16 @@
 {% extends "manage/base.html" %}
+{% load i18n %}
 
 {% block content %}
-<h1>List of known sites in feedback management</h1>
+<h1>{% trans "List of known sites in feedback management" %}</h1>
 <ul>
 	{% for site in sites %}
 		<li>
 			{{ site }}
-			[ <a href="{% url 'feedback:course-list' site_id=site.id %}">see courses and exercises</a> ]
+			[ <a href="{% url 'feedback:course-list' site_id=site.id %}">{% trans "see courses and exercises" %}</a> ]
 		</li>
 	{% empty %}
-		<li>No known sites yet.</li>
+		<li>{% trans "No known sites yet." %}</li>
 	{% endfor %}
 </ul>
 {% endblock %}

@@ -1,8 +1,9 @@
+{% load i18n %}
 <h1>Feedback</h1>
 <ul>
 {% for obj in object_list %}
 	<li>{{ obj.exercise_path }} avg {{obj.avg}}</li>
-{% empty %}
-	<li>No feedback yet.</li>
+	{% empty %}
+	<li>{% trans "No feedback yet." %}</li>
 {% endfor %}
 </ul>
