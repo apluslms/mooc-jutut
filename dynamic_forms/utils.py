@@ -1,6 +1,21 @@
 from hashlib import sha1
 from collections import Iterable
 from itertools import chain as iterchain
+from operator import itemgetter
+
+
+def bytefy(data):
+    def encode(x):
+        if isinstance(x, bytes):
+            return x
+        return str(x).encode('utf-8')
+    if isinstance(data, dict):
+        keys = [(str(k), k, v) for k, v in data.items()]
+        keys.sort(key=itemgetter(0))
+        return b'{' + b','.join(encode(k) + b':' + bytefy(v) for _, k, v in keys) + b'}'
+    elif isinstance(data, Iterable) and not isinstance(data, (str, bytes)):
+        return b'[' + b','.join(bytefy(v) for v in data) + b']'
+    return encode(data)
 
 
 def freeze(data):
