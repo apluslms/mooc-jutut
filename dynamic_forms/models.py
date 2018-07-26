@@ -6,7 +6,8 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from .forms import DynamicForm, DummyForm
-from .utils import freeze, hashsum
+from .utils import bytefy
+from hashlib import sha1
 
 
 logger = logging.getLogger('dynamic_forms.models')
@@ -14,24 +15,24 @@ logger = logging.getLogger('dynamic_forms.models')
 
 class FormManager(models.Manager):
     def get_or_create(self, form_spec, form_i18n):
-        frozen_spec = freeze(form_spec)
-        frozen_i18n = freeze(form_i18n)
+        frozen_spec = bytefy(form_spec)
+        frozen_i18n = bytefy(form_i18n)
 
-        sha1 = hashsum(frozen_spec)
+        sha = sha1(frozen_spec)
         if frozen_i18n:
-            hashsum(frozen_i18n, sha1)
-        sha1 = sha1.hexdigest()
+            sha.update(frozen_i18n)
+        sha = sha.hexdigest()
         obj = None
 
         # find if this form_spec exists already
-        for possible in self.filter(sha1=sha1):
+        for possible in self.filter(sha1=sha):
             if possible.form_spec == form_spec and possible.form_i18n == form_i18n:
                 obj = possible
                 break
 
         # create new database object and save it
         if not obj:
-            obj = self.create(form_spec=form_spec, form_i18n=form_i18n, sha1=sha1)
+            obj = self.create(form_spec=form_spec, form_i18n=form_i18n, sha1=sha)
 
         # store already calculated frozen_spec
         obj.frozen_spec = frozen_spec
@@ -54,11 +55,11 @@ class Form(models.Model):
 
     @cached_property
     def frozen_spec(self):
-        return freeze(self.form_spec)
+        return bytefy(self.form_spec)
 
     @cached_property
     def frozen_i18n(self):
-        return freeze(self.form_i18n)
+        return bytefy(self.form_i18n)
 
     @cached_property
     def form_class(self):
@@ -74,9 +75,12 @@ class Form(models.Model):
 
     def save(self, **kwargs):
         if not self.sha1:
-            frozen_spec = freeze(self.form_spec)
-            frozen_i18n = freeze(self.form_i18n)
-            self.sha1 = hashsum((frozen_spec, frozen_i18n) if frozen_i18n else frozen_spec).hexdigest()
+            frozen_spec = bytefy(self.form_spec)
+            frozen_i18n = bytefy(self.form_i18n)
+            self.sha1 = sha1(frozen_spec)
+            if frozen_i18n:
+                self.sha1.update(frozen_i18n)
+            self.sha1 = self.sha1.hexdigest()
         return super().save(**kwargs)
 
     def __str__(self):
