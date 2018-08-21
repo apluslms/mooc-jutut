@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2016-09-19 12:35+0300\n"
+"POT-Creation-Date: 2018-08-21 16:45+0300\n"
 "PO-Revision-Date: 2016-08-29 22:51+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: English <>\n"
@@ -17,10 +17,14 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 2.0\n"
 
-#: dynamic_forms/models.py:44
+#: dynamic_forms/forms.py:307
+msgid "Field doesn't match regex pattern '{pat}'."
+msgstr "Kenttä ei täsmää säännölliseen lausekkeeseen '{pat}'."
+
+#: dynamic_forms/models.py:47
 msgid "Form"
 msgstr "Lomake"
 
-#: dynamic_forms/models.py:45
+#: dynamic_forms/models.py:48
 msgid "Forms"
 msgstr "Lomakkeet"

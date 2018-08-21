@@ -4,6 +4,7 @@ from itertools import chain as iterchain
 from operator import itemgetter
 from django.utils import translation
 from django.utils.functional import lazy
+from hashlib import sha1
 
 
 def bytefy(data):
@@ -26,6 +27,13 @@ def freeze(data):
     elif isinstance(data, list):
         return tuple((freeze(v) for v in data))
     return data
+
+
+def freeze_digest(frozen_spec, frozen_i18n):
+    sha = sha1(frozen_spec)
+    if frozen_i18n:
+        sha.update(frozen_i18n)
+    return sha.hexdigest()
 
 
 def hashsum(data, hash_func=None):

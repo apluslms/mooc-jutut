@@ -6,9 +6,7 @@ from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
 from .forms import DynamicForm, DummyForm
-from .utils import bytefy
-from hashlib import sha1
-
+from .utils import bytefy, freeze_digest
 
 logger = logging.getLogger('dynamic_forms.models')
 
@@ -17,11 +15,7 @@ class FormManager(models.Manager):
     def get_or_create(self, form_spec, form_i18n):
         frozen_spec = bytefy(form_spec)
         frozen_i18n = bytefy(form_i18n)
-
-        sha = sha1(frozen_spec)
-        if frozen_i18n:
-            sha.update(frozen_i18n)
-        sha = sha.hexdigest()
+        sha = freeze_digest(frozen_spec, frozen_i18n)
         obj = None
 
         # find if this form_spec exists already
@@ -77,10 +71,7 @@ class Form(models.Model):
         if not self.sha1:
             frozen_spec = bytefy(self.form_spec)
             frozen_i18n = bytefy(self.form_i18n)
-            self.sha1 = sha1(frozen_spec)
-            if frozen_i18n:
-                self.sha1.update(frozen_i18n)
-            self.sha1 = self.sha1.hexdigest()
+            self.sha1 = freeze_digest(frozen_spec, frozen_i18n)
         return super().save(**kwargs)
 
     def __str__(self):

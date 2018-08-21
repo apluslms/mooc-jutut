@@ -4,6 +4,13 @@ from django.core.validators import RegexValidator
 from django.forms.utils import pretty_name
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
+try:
+    from django.utils.text import format_lazy
+except ImportError: # introduced in Django 1.11
+    from django.utils.functional import lazy
+    def _format_lazy(format_string, *args, **kwargs):
+        return format_string.format(*args, **kwargs)
+    format_lazy = lazy(_format_lazy, str)
 
 from .fields import (
     DUMMY_FIELD,
@@ -209,6 +216,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
         forms.MultipleChoiceField: forms.TypedMultipleChoiceField,
     }
 
+    TRANSLATABLES = ('help_text', 'label', 'placeholder') # Those fields and widgets that may have translations
     IGNORED_CSS_CLASSES = ('form-group',)
 
     # this can be used to test if form is dummy or not
@@ -264,22 +272,14 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                     widget_class = field_class.widget
 
                 # copy direct options
-                field_args = {}
-                for l, k in cls.ARG_MAP.items():
-                    if l in prop:
-                        if l in ['title', 'description']:
-                            field_args[k] = translate_lazy(prop[l], i18n)
-                        else:
-                            field_args[k] = prop[l]
-                # field_args = {k: prop[l] for l, k in cls.ARG_MAP.items() if l in prop}
-                widget_attrs = {}
-                for l, k in cls.WIDGET_ATTR_MAP.items():
-                    if l in prop:
-                        if l == 'placeholder':
-                            widget_attrs[k] = translate_lazy(prop[l], i18n)
-                        else:
-                            widget_attrs[k] = prop[l]
-                # widget_attrs = {k: prop[l] for l, k in cls.WIDGET_ATTR_MAP.items() if l in prop}
+                field_args = {k: prop[l] for l, k in cls.ARG_MAP.items() if l in prop}
+                widget_attrs = {k: prop[l] for l, k in cls.WIDGET_ATTR_MAP.items() if l in prop}
+                for key in cls.TRANSLATABLES:
+                    if key in field_args:
+                        field_args[key] = translate_lazy(field_args[key], i18n)
+                    if key in widget_attrs:
+                        widget_attrs[key] = translate_lazy(widget_attrs[key], i18n)
+
                 extra_validators = []
                 extra_vars = {}
 
@@ -304,13 +304,13 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                 pattern = prop.get('pattern')
                 if pattern:
                     extra_validators.append(RegexValidator(
-                        pattern, "Field doesn't pass regex pattern '{}'.".format(pattern)
+                        pattern, format_lazy(_("Field doesn't match regex pattern '{pat}'."), pat=pattern)
                     ))
 
                 # error messages
                 error_message = prop.get('validationMessage')
                 if error_message:
-                    field_args['error_messages'] = build_error_messages(error_message)
+                    field_args['error_messages'] = build_error_messages(translate_lazy(error_message, i18n)) # assumes error_message is never a dict
 
                 # css classes
                 css_classes = prop.get('htmlClass')
@@ -396,11 +396,11 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
         if params are found from cache, then cached form class is returned
         else new form class is created and cached
         """
-        frozen_tuple = (_form.frozen_spec, _form.frozen_i18n)
-        if frozen_tuple in cls.FORM_CACHE:
-            return cls.FORM_CACHE[frozen_tuple]
+        frozen = (_form.frozen_spec, _form.frozen_i18n)
+        if frozen in cls.FORM_CACHE:
+            return cls.FORM_CACHE[frozen]
         form = cls.create_form_class_from(_form.form_spec, _form.form_i18n)
-        cls.FORM_CACHE[frozen_tuple] = form
+        cls.FORM_CACHE[frozen] = form
         return form
 
 

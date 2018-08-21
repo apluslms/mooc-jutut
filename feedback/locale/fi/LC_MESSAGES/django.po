@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-26 01:16+0300\n"
+"POT-Creation-Date: 2018-08-21 16:45+0300\n"
 "PO-Revision-Date: 2017-10-18 18:36+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: English <>\n"
@@ -109,25 +109,30 @@ msgstr "Normaali ilmoitus"
 msgid "Important notification"
 msgstr "Tärkeä ilmoitus"
 
-#: feedback/models.py:294
+#: feedback/models.py:295
 msgid "Response time"
 msgstr "Vastausaika"
 
-#: feedback/models.py:299
+#: feedback/models.py:300
 msgid "Responder"
 msgstr "Vastaaja"
 
-#: feedback/models.py:303
+#: feedback/models.py:304
 msgid "Response message"
 msgstr "Vastausviesti"
 
-#: feedback/models.py:306
+#: feedback/models.py:307
 msgid "Response grade"
 msgstr "Arvosana"
 
-#: feedback/models.py:309
+#: feedback/models.py:310
 msgid "Response notify"
 msgstr "Ilmoitus vastauksesta"
+
+#: feedback/templates/feedback/avglist.html:7
+#: feedback/templates/manage/user_feedback.html:20
+msgid "No feedback yet."
+msgstr "Ei palautetta."
 
 #: feedback/templates/feedback_tags/_tag_form.html:8
 msgid "Add new feedback tag"
@@ -376,6 +381,18 @@ msgstr ""
 msgid "Language"
 msgstr "Kieli"
 
+#: feedback/templates/manage/course_list.html:5
+msgid "List of courses with feedback"
+msgstr "Luettelo palautteellisista kursseista"
+
+#: feedback/templates/manage/course_list.html:16
+msgid "see all not responded"
+msgstr "Vastaamattomat"
+
+#: feedback/templates/manage/course_list.html:20
+msgid "No courses known yet."
+msgstr "Ei tunnettuja kursseja."
+
 #: feedback/templates/manage/feedback_list.html:12
 #, python-format
 msgid "Feedback for %(course)s"
@@ -384,6 +401,18 @@ msgstr "Palauteet kurssilla '%(course)s'"
 #: feedback/templates/manage/feedback_unread.html:6
 msgid "Unread Feedback"
 msgstr "Lukemattomat palautteet"
+
+#: feedback/templates/manage/site_list.html:5
+msgid "List of known sites in feedback management"
+msgstr "Luettelo tunnetuista sivustoista palautteenhallinnassa"
+
+#: feedback/templates/manage/site_list.html:10
+msgid "see courses and exercises"
+msgstr "Kurssit ja tehtävät"
+
+#: feedback/templates/manage/site_list.html:13
+msgid "No known sites yet."
+msgstr "Ei tunnettuja sivuja."
 
 #: feedback/templates/manage/update_studenttags.html:6
 msgid "Update student tags"
@@ -402,23 +431,37 @@ msgid "This user is not authenticated using LTI and doesn't have api token."
 msgstr ""
 "Käyttäjä ei ole kirjautunut LTI:n kautta, joten sillä ei ole api avainta."
 
-#: feedback/templates_j2/feedback/_form.html:50
+#: feedback/templates/manage/user_feedback.html:6
+msgid ""
+"\n"
+"List of student feedback to %(ex)s\n"
+msgstr "Luettelo opiskelijapalautteesta"
+
+#: feedback/templates/manage/user_list.html:5
+msgid "List of students with feedback"
+msgstr "Luettelo opiskelijoista, joilla on palautetta"
+
+#: feedback/templates/manage/user_list.html:14
+msgid "No feedback by any student yet."
+msgstr "Ei palautetta keneltäkään."
+
+#: feedback/templates_j2/feedback/_form.html:60
 msgid "show more"
 msgstr "näytä lisää"
 
-#: feedback/templates_j2/feedback/_form.html:66
+#: feedback/templates_j2/feedback/_form.html:74
 msgid "This feedback has unsaved changes!"
 msgstr "Palautteessa on tallentamattomia muutoksia!"
 
-#: feedback/templates_j2/feedback/_form.html:73
+#: feedback/templates_j2/feedback/_form.html:81
 msgid "Submit an update"
 msgstr "Lähetä uudestaan"
 
-#: feedback/templates_j2/feedback/_form.html:73
+#: feedback/templates_j2/feedback/_form.html:81
 msgid "Submit"
 msgstr "Lähetä"
 
-#: feedback/templates_j2/feedback/_form.html:77
+#: feedback/templates_j2/feedback/_form.html:85
 msgid "Reset changes"
 msgstr "Peru muutokset"
 
