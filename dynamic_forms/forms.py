@@ -4,6 +4,13 @@ from django.core.validators import RegexValidator
 from django.forms.utils import pretty_name
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
+try:
+    from django.utils.text import format_lazy
+except ImportError: # introduced in Django 1.11
+    from django.utils.functional import lazy
+    def _format_lazy(format_string, *args, **kwargs):
+        return format_string.format(*args, **kwargs)
+    format_lazy = lazy(_format_lazy, str)
 
 from .fields import (
     DUMMY_FIELD,
@@ -13,6 +20,7 @@ from .fields import (
 from .utils import (
     freeze,
     cleaned_css_classes,
+    translate_lazy,
 )
 
 
@@ -208,6 +216,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
         forms.MultipleChoiceField: forms.TypedMultipleChoiceField,
     }
 
+    TRANSLATABLES = ('help_text', 'label', 'placeholder') # Those fields and widgets that may have translations
     IGNORED_CSS_CLASSES = ('form-group',)
 
     # this can be used to test if form is dummy or not
@@ -216,9 +225,8 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
     # globals used by django forms
     required_css_class = 'required'
 
-
     @classmethod
-    def create_form_class_from(cls, data: "list of field structs"):
+    def create_form_class_from(cls, data: "list of field structs", i18n):
         """
         Construct dynamic form based on data.
         Data is list of field structs (see class doc)
@@ -266,6 +274,12 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                 # copy direct options
                 field_args = {k: prop[l] for l, k in cls.ARG_MAP.items() if l in prop}
                 widget_attrs = {k: prop[l] for l, k in cls.WIDGET_ATTR_MAP.items() if l in prop}
+                for key in cls.TRANSLATABLES:
+                    if key in field_args:
+                        field_args[key] = translate_lazy(field_args[key], i18n)
+                    if key in widget_attrs:
+                        widget_attrs[key] = translate_lazy(widget_attrs[key], i18n)
+
                 extra_validators = []
                 extra_vars = {}
 
@@ -277,7 +291,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                 if title_map and not enum:
                     enum = title_map.keys()
                 if enum:
-                    choices = tuple((k, title_map.get(k, k)) for k in enum)
+                    choices = tuple((k, translate_lazy(str(title_map.get(k, k)), i18n)) for k in enum)
                     field_args['choices'] = choices
 
                 # integer validation
@@ -290,13 +304,13 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                 pattern = prop.get('pattern')
                 if pattern:
                     extra_validators.append(RegexValidator(
-                        pattern, "Field doesn't pass regex pattern '{}'.".format(pattern)
+                        pattern, format_lazy(_("Field doesn't match regex pattern '{pat}'."), pat=pattern)
                     ))
 
                 # error messages
                 error_message = prop.get('validationMessage')
                 if error_message:
-                    field_args['error_messages'] = build_error_messages(error_message)
+                    field_args['error_messages'] = build_error_messages(translate_lazy(error_message, i18n)) # assumes error_message is never a dict
 
                 # css classes
                 css_classes = prop.get('htmlClass')
@@ -376,17 +390,16 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
 
 
     @classmethod
-    def get_form_class_by(cls, data, frozen=None):
+    def get_form_class_by(cls, _form):
         """
         will cache created forms with normalized params as key
         if params are found from cache, then cached form class is returned
         else new form class is created and cached
         """
-        if frozen is None:
-            frozen = freeze(data)
+        frozen = (_form.frozen_spec, _form.frozen_i18n)
         if frozen in cls.FORM_CACHE:
             return cls.FORM_CACHE[frozen]
-        form = cls.create_form_class_from(data)
+        form = cls.create_form_class_from(_form.form_spec, _form.form_i18n)
         cls.FORM_CACHE[frozen] = form
         return form
 

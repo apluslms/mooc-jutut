@@ -2,6 +2,9 @@ from hashlib import sha1
 from collections import Iterable
 from itertools import chain as iterchain
 from operator import itemgetter
+from django.utils import translation
+from django.utils.functional import lazy
+from hashlib import sha1
 
 
 def bytefy(data):
@@ -24,6 +27,13 @@ def freeze(data):
     elif isinstance(data, list):
         return tuple((freeze(v) for v in data))
     return data
+
+
+def freeze_digest(frozen_spec, frozen_i18n):
+    sha = sha1(frozen_spec)
+    if frozen_i18n:
+        sha.update(frozen_i18n)
+    return sha.hexdigest()
 
 
 def hashsum(data, hash_func=None):
@@ -50,3 +60,12 @@ def cleaned_css_classes(css_classes, ignore=None):
         return [c for c in cleaned if c]
     else:
         return [c for c in cleaned if c and c not in ignore]
+
+
+def _translate_lazy(input, dictionary):
+    if dictionary:
+        lang = translation.get_language()
+        return dictionary.get(input, {}).get(lang) or input
+    return input
+
+translate_lazy = lazy(_translate_lazy, str)

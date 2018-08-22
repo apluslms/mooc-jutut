@@ -109,12 +109,13 @@ def post_tag_save(sender, instance, **kwargs):
 
 
 class CachedForm(Cached):
-    def get_suffix(self, key, spec_getter):
+    def get_suffix(self, key, spec_getter, i18n_getter):
         return key
 
-    def get_obj(self, key, spec_getter):
+    def get_obj(self, key, spec_getter, i18n_getter):
         form_spec = spec_getter()
+        form_i18n = i18n_getter()
         if form_spec is None:
             raise ValueError("spec_getter returned None")
-        return FeedbackForm.objects.get_or_create(form_spec=form_spec)
+        return FeedbackForm.objects.get_or_create(form_spec=form_spec, form_i18n=form_i18n)
 CachedForm = CachedForm(timeout=60*60)
