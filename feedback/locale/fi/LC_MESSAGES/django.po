@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-21 16:45+0300\n"
+"POT-Creation-Date: 2018-08-30 16:32+0300\n"
 "PO-Revision-Date: 2017-10-18 18:36+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: English <>\n"
@@ -432,10 +432,11 @@ msgstr ""
 "Käyttäjä ei ole kirjautunut LTI:n kautta, joten sillä ei ole api avainta."
 
 #: feedback/templates/manage/user_feedback.html:6
+#, python-format
 msgid ""
 "\n"
 "List of student feedback to %(ex)s\n"
-msgstr "Luettelo opiskelijapalautteesta"
+msgstr "\nLuettelo opiskelijapalautteesta tehtävään %(ex)s\n"
 
 #: feedback/templates/manage/user_list.html:5
 msgid "List of students with feedback"
