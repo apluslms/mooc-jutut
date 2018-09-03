@@ -5,7 +5,7 @@ from ..command_utils import get_feedback_queryset
 from ...models import Feedback
 
 class Command(BaseCommand):
-    help = 'Reload submission data from aplus'
+    help = 'Rebuild superseded references based on submission time'
 
     def add_arguments(self, parser):
         parser.add_argument('-f', '--feedback',
