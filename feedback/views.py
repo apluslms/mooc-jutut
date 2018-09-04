@@ -133,7 +133,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
         cache_key = self.form_cache_key
         if cache_key:
             form_obj_id = getattr(self.form_obj, 'id', None)
-            CachedForm.clear(cache_key, lambda: None)
+            CachedForm.clear(cache_key)
             self.form_class = None
             self.get_form_class()
             return form_obj_id != self.form_obj.id

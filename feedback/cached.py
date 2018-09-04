@@ -109,7 +109,7 @@ def post_tag_save(sender, instance, **kwargs):
 
 
 class CachedForm(Cached):
-    def get_suffix(self, key, spec_getter, i18n_getter):
+    def get_suffix(self, key, spec_getter=None, i18n_getter=None):
         return key
 
     def get_obj(self, key, spec_getter, i18n_getter):
