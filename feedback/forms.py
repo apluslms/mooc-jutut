@@ -1,4 +1,5 @@
 import logging
+from datetime import datetime
 from hashlib import md5
 from django import forms
 from django.urls import reverse
@@ -24,6 +25,28 @@ def get_data_changed_check_value(instance):
     return check.hexdigest()
 
 
+class HiddenDatetimeInput(forms.HiddenInput):
+    def format_value(self, value):
+        if isinstance(value, datetime):
+            return value.strftime('%Y-%m-%dT%H:%M:%S.%f%z')
+        return super().format_value(value)
+
+    # < Django 1.11
+    def _format_value(self, value):
+        if isinstance(value, datetime):
+            return value.strftime('%Y-%m-%dT%H:%M:%S.%f%z')
+        return super()._format_value(value)
+
+
+class HiddenDateTimeField(forms.DateTimeField):
+    widget = HiddenDatetimeInput
+    input_formats = ('%Y-%m-%dT%H:%M:%S.%f%z',)
+
+    def prepare_value(self, value):
+        # disable conversion to current timezone
+        return value
+
+
 class HadValue:
     def __init__(self, form):
         self.__form = form
@@ -37,7 +60,7 @@ class ResponseForm(forms.ModelForm):
     orig_responded = forms.BooleanField(widget=forms.HiddenInput(), required=False)
     orig_response_grade_text = forms.CharField(widget=forms.HiddenInput(), required=False)
     orig_valid_response_grade = forms.IntegerField(widget=forms.HiddenInput(), required=False)
-    orig_response_time = forms.DateTimeField(widget=forms.HiddenInput(), required=False)
+    orig_response_time = HiddenDateTimeField(required=False)
     ORIG_FIELDS = [
         'responded',
         'response_grade_text',

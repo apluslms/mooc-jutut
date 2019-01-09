@@ -3,7 +3,7 @@ from functools import wraps, partial
 from datetime import datetime, timezone
 
 
-DATETIME_JSON_FMT = '%Y-%m-%dT%H:%M:%S.%fZ'
+DATETIME_JSON_FMT = '%Y-%m-%dT%H:%M:%S.%f%z'
 
 logger = logging.getLogger('aplus_client.interfaces')
 
@@ -76,7 +76,14 @@ class GraderInterface2:
     @none_on_error(ValueError)
     def submission_time(self):
         time = self.data.submission.submission_time
-        return datetime.strptime(time, DATETIME_JSON_FMT).replace(tzinfo=timezone.utc) if time else None
+        # TODO: move parsing to helper (though, fixed in py3.7)
+        if not time:
+            return None
+        if time[-1] == 'Z': # .000X -> .000+0000
+            time = time[:-1] + '+0000'
+        if time[-3] == ':': # .000+02:00 -> 0.00+0200
+            time = time[:-3] + time[-2:]
+        return datetime.strptime(time, DATETIME_JSON_FMT).astimezone(timezone.utc)
 
     @property
     @none_on_error(KeyError)
