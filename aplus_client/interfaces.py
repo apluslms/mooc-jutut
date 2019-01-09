@@ -8,7 +8,7 @@ DATETIME_JSON_FMT = '%Y-%m-%dT%H:%M:%S.%fZ'
 logger = logging.getLogger('aplus_client.interfaces')
 
 
-def none_on_error(*args, exceptions=None):
+def none_on_error(*args, exceptions=None, silent=False):
     if not args:
         return partial(none_on_error, exceptions=exceptions)
     if len(args) > 1 or (isinstance(args[0], type) and issubclass(args[0], Exception)):
@@ -22,7 +22,8 @@ def none_on_error(*args, exceptions=None):
         try:
             return func(*args, **kwargs)
         except exceptions as e:
-            logger.info("interface %s raised exception %s", func.__name__, e)
+            if not silent:
+                logger.info("interface %s raised exception %s", func.__name__, e)
             return None
     return wrap
 
@@ -35,6 +36,11 @@ class GraderInterface2:
     @none_on_error
     def exercise(self):
         return self.data.exercise
+
+    @property
+    @none_on_error(silent=True)
+    def exercise_api(self):
+        return self.data.exercise.url
 
     @property
     @none_on_error

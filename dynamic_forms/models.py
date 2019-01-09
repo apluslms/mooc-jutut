@@ -1,11 +1,12 @@
 import logging
 from django.apps import apps
 from django.contrib.postgres import fields as pg_fields
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.functional import cached_property
 from django.utils.translation import ugettext_lazy as _
 
-from .forms import DynamicForm, DummyForm
+from .forms import DynamicForm, DummyForm, format_lazy
 from .utils import bytefy, freeze_digest
 
 logger = logging.getLogger('dynamic_forms.models')
@@ -26,7 +27,9 @@ class FormManager(models.Manager):
 
         # create new database object and save it
         if not obj:
-            obj = self.create(form_spec=form_spec, form_i18n=form_i18n, sha1=sha)
+            obj = self.model(form_spec=form_spec, form_i18n=form_i18n, sha1=sha)
+            obj.full_clean()
+            obj.save(force_insert=True, using=self.db)
 
         # store already calculated frozen_spec
         obj.frozen_spec = frozen_spec
@@ -67,10 +70,19 @@ class Form(models.Model):
             logger.critical("DB has invalid form_spec with id %d: %s", self.id, error)
             return DummyForm
 
+    def clean(self):
+        # try to create a class -> ensures form_spec is readable
+        try:
+            self.form_class
+        except AttributeError as e:
+            raise ValidationError({
+                'form_spec': format_lazy(_("Invalid form_spec: {error}"), error=str(e)),
+            }) from e
+
     def save(self, **kwargs):
         if not self.sha1:
-            frozen_spec = bytefy(self.form_spec)
-            frozen_i18n = bytefy(self.form_i18n)
+            self.frozen_spec = frozen_spec = bytefy(self.form_spec)
+            self.frozen_i18n = frozen_i18n = bytefy(self.form_i18n)
             self.sha1 = freeze_digest(frozen_spec, frozen_i18n)
         return super().save(**kwargs)
 

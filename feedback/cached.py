@@ -1,4 +1,5 @@
 from django.core.cache import cache
+from django.core.exceptions import ValidationError
 from django.db.models.signals import post_save, m2m_changed
 from django.dispatch import receiver
 
@@ -117,5 +118,8 @@ class CachedForm(Cached):
         form_i18n = i18n_getter()
         if form_spec is None:
             raise ValueError("spec_getter returned None")
-        return FeedbackForm.objects.get_or_create(form_spec=form_spec, form_i18n=form_i18n)
+        try:
+            return FeedbackForm.objects.get_or_create(form_spec=form_spec, form_i18n=form_i18n)
+        except ValidationError as e:
+            raise ValueError("spec_getter returned invalid form_spec: %s" % (e,)) from e
 CachedForm = CachedForm(timeout=60*60)

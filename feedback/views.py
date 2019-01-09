@@ -110,20 +110,27 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
             self.form_cache_key = cache_key = ''.join((post_url.netloc, post_url.path, path_key))
             try:
                 form_obj = CachedForm.get(cache_key, lambda: self.grading_data.form_spec, lambda: self.grading_data.form_i18n)
-            except ValueError:
-                pass
+            except ValueError as e:
+                logger.warning("failed to create form_spec: %s: %s; api: %s", e.__class__.__name__, e, self.grading_data.exercise_api)
 
         # if we can't use cache, use the "old way"
         else:
             form_spec = self.grading_data.form_spec
             form_i18n = self.grading_data.form_i18n
             if form_spec:
-                form_obj = FeedbackForm.objects.get_or_create(form_spec=form_spec, form_i18n=form_i18n)
+                try:
+                    form_obj = FeedbackForm.objects.get_or_create(form_spec=form_spec, form_i18n=form_i18n)
+                except ValueError as e:
+                    logger.warning("failed to create form_spec: %s: %s; api: %s", e.__class__.__name__, e, self.grading_data.exercise_api)
 
         if form_obj:
             self.form_obj = form_obj
             auto_id = "jutut_{}_%s".format(slugify(post_url.path or path_key))
-            self.form_class = form_class = partial(form_obj.form_class, auto_id=auto_id)
+            try:
+                self.form_class = form_class = partial(form_obj.form_class, auto_id=auto_id)
+            except AttributeError as e:
+                logger.error("form_spec contained invalid data: %s: %s; api: %s", e.__class__.__name__, e, self.grading_data.exercise_api)
+                raise Http404("form_spec contained invalid data")
             return form_class
         else:
             logger.critical("form_spec not resolved from submission_url '%s'", self.submission_url)
