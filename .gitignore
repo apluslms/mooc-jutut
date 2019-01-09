@@ -20,7 +20,7 @@
 /jutut/local_settings_celery.py
 /jutut/secret_key.py
 
-installer_config.ini
+install_config.ini
 /system_files/
 /venv/
 /static/
