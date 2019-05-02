@@ -16,7 +16,6 @@ from lib.postgres import PgAvg
 from lib.mixins import CSRFExemptMixin, ConditionalMixin
 from lib.views import ListCreateView
 from aplus_client.django.views import AplusGraderMixin
-
 from django_dictiterators.utils import NestedDictIterator
 
 
@@ -43,6 +42,7 @@ from .forms import (
     FeedbackTagForm,
 )
 from .filters import FeedbackFilter
+from .interfaces import GraderInterface2
 from .permissions import (
     CheckManagementPermissionsMixin,
     AdminOrSiteStaffPermission,
@@ -96,6 +96,17 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
     success_url = '/feedback/'
     form_class = None
     form_cache_key = None
+
+    @cached_property
+    def grading_data(self):
+        # a = self.aplus_client.grading_data
+        # b = GraderInterface2(a)
+        # logger.warning("Interfacen sisältö")
+        # logger.warning(a)
+        # logger.warning(b.__dict__)
+        print(" :::::::::::: ", repr(self.aplus_client))
+        print(" :::::::::::: ", repr(self.aplus_client.grading_data))
+        return GraderInterface2(self.aplus_client.grading_data)
 
     def get_form_class(self):
         if self.form_class:

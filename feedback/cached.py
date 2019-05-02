@@ -116,6 +116,7 @@ class CachedForm(Cached):
     def get_obj(self, key, spec_getter, i18n_getter):
         form_spec = spec_getter()
         form_i18n = i18n_getter()
+        print(" ------------- , ", form_spec, form_i18n)
         if form_spec is None:
             raise ValueError("spec_getter returned None")
         try:

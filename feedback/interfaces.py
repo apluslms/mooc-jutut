@@ -2,13 +2,15 @@ import logging
 from functools import wraps, partial
 from datetime import datetime, timezone
 
+from aplus_client.client import AplusGraderClient
+
 
 DATETIME_JSON_FMT = '%Y-%m-%dT%H:%M:%S.%fZ'
 
-logger = logging.getLogger('aplus_client.interfaces')
+logger = logging.getLogger(__name__)
 
 
-def none_on_error(*args, exceptions=None, silent=False):
+def none_on_error(*args, exceptions=None):
     if not args:
         return partial(none_on_error, exceptions=exceptions)
     if len(args) > 1 or (isinstance(args[0], type) and issubclass(args[0], Exception)):
@@ -22,25 +24,27 @@ def none_on_error(*args, exceptions=None, silent=False):
         try:
             return func(*args, **kwargs)
         except exceptions as e:
-            if not silent:
-                logger.info("interface %s raised exception %s", func.__name__, e)
+            logger.info("interface %s raised exception %s", func.__name__, e)
             return None
     return wrap
 
 
+class AplusJututClient(AplusGraderClient):
+    @property
+    def grading_data(self):
+        return GraderInterface2(super().grading_data)
+
+
 class GraderInterface2:
     def __init__(self, data):
+        if not hasattr(data, '_client'):
+            raise RuntimeError
         self.data = data
 
     @property
     @none_on_error
     def exercise(self):
         return self.data.exercise
-
-    @property
-    @none_on_error(silent=True)
-    def exercise_api(self):
-        return self.data.exercise.url
 
     @property
     @none_on_error
@@ -57,6 +61,7 @@ class GraderInterface2:
     def form_spec(self):
         return self.data.exercise.exercise_info.get_item('form_spec')
 
+#uusi
     @property
     @none_on_error(KeyError)
     def form_i18n(self):

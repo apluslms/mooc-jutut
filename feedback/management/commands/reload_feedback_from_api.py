@@ -2,6 +2,8 @@ import time
 from django.core.management.base import BaseCommand, CommandError
 
 from aplus_client.client import AplusGraderClient
+from ...interface import AplusJututClient
+#from ...add_interface import AplusGraderClient_Interfaced
 
 from ..command_utils import get_feedback_queryset
 from ...models import Student, Feedback
@@ -49,7 +51,7 @@ class Command(BaseCommand):
         feedbacks = feedbacks.order_by('-timestamp', '-id')
 
         def load_grading_data(client):
-            gd = client.grading_data
+            gd = GraderInterface2(client.grading_data)
             # make sure all required resources are loaded
             try:
                 eid = gd.data.submission.exercise.id if update_meta else -1
@@ -61,7 +63,8 @@ class Command(BaseCommand):
         for feedback in feedbacks:
             submission_url = feedback.submission_url
             self.stdout.write(self.style.NOTICE("Working on {}, {}".format(feedback.id, submission_url)))
-            client = AplusGraderClient(submission_url, debug_enabled=True)
+            client = AplusJututClient(submission_url, debug_enabled=True)
+            #client.grading_data = property(GraderInterface2(client.grading_data))
             fields = []
 
             # get grading data
