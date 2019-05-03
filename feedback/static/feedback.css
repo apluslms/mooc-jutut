@@ -108,6 +108,9 @@ body {
 	border-color: #a2cf7d;
 }
 
+.set-old, .set-old div  {
+	background: #e5e5e5;
+}
 /* feedback panel */
 .feedback-panel > .panel-footer {
 	padding: 0.2em 0.2em 0.3em 0.2em;

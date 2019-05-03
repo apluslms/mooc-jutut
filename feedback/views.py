@@ -457,6 +457,16 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
                                            ('feedback_id', 'tag_id'),
                                            lambda f, t: (f.id, t.id))
 
+    def get_previous_submission(f):
+        submissions = Feedback.objects.filter(exercise=f.exercise, student=f.student).order_by('-timestamp')
+        i = 1 if submissions.count()>1 else 0
+        return get_feedback_dict(submissions[i],
+                                    get_form=get_form,
+                                    response_form_class=ResponseForm,
+                                    get_post_url=get_post_url,
+                                    get_status_url=get_status_url,
+                                    tags=tags,
+                                    get_tag_url=get_tag_url)
 
     context['feedbacks'] = NestedDictIterator.from_iterable(
         feedbacks,
@@ -471,6 +481,7 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
                 'feedback': feedback,
                 'exercise': feedback.exercise,
                 'num_submissions': Feedback.objects.filter(exercise=feedback.exercise, student=feedback.student).count(),
+                'previous_submission_fields': [get_previous_submission(feedback)],
                 'all_feedbacks_for_exercise_url' : get_all_feedbacks_for_exercise_url(feedback),
                 'all_student_feedbacks_for_exercise_url': get_all_student_feedbacks_for_exercise_url(feedback),
                 'feedbacks_per_exercise': iterable,
