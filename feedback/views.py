@@ -539,9 +539,16 @@ class UserFeedbackListView(ManageCourseMixin, ListView):
         exercises = list(set(f['exercise_id'] for f in feedbacks))
         exercises = Exercise.objects.filter(pk__in=exercises)
         exercises = {e.id: e for e in exercises}
+        all_student_feedbacks_for_exercise_url = get_url_reverse_resolver(
+            'feedback:list',
+            ('course_id',),
+            lambda o: (course.id,),
+            query_func=lambda f: {'student': self.student.id, 'exercise': f['exercise_id']},
+        )
         def get_feedback(f):
             f['exercise'] = exercise = exercises[f['exercise_id']]
             f['exercise_path'] = Feedback.get_exercise_path(exercise, f['path_key'])
+            f['url_to_filter'] = all_student_feedbacks_for_exercise_url(f)
             return f
         context['feedbacks'] = (get_feedback(feedback) for feedback in feedbacks)
         context['student'] = self.student

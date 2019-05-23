@@ -11,7 +11,7 @@
 		{% endifchanged %}
 		<li>
 			{{ feedback.exercise_path }}
-			[ <a href="{% url 'feedback:byuser' course_id=course.id user_id=student.id exercise_id=feedback.exercise.id path_filter=feedback.path_key %}"
+			[ <a href="{{ feedback.url_to_filter }}"
 			>{{ feedback.count }} feedback versions</a> ]
 		</li>
 	{% empty %}
