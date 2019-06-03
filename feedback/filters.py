@@ -150,7 +150,7 @@ class FeedbackFilter(django_filters.FilterSet):
     exercise = django_filters.ModelChoiceFilter(queryset=Exercise.objects.none())
     student = django_filters.ModelChoiceFilter(queryset=Student.objects.none())
     timestamp = DateTimeFromToRangeFilter()
-    path_key = django_filters.CharFilter(lookup_expr='istartswith')
+    path_key = django_filters.CharFilter(lookup_expr='icontains')
     form_data = django_filters.CharFilter(method='filter_form_data')
 
     order_by = OrderingFilter(label='Order by',
