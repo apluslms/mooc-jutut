@@ -131,7 +131,7 @@
 				class="label label-default"
 				{{ state|on_state:"edit" }}
 				>{% trans "not saved" %}</span>
-			{% with grade=form.had.response_grade_text color=form.had.valid_response_grade|grade_color %}
+			{% with grade=form.had.response_grade_text color=form.had.effective_grade|grade_color %}
 				<span
 					class="feedback-status-label label label-{{ color }}"
 					{{ state|on_state:"default" }}

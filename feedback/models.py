@@ -360,6 +360,12 @@ class Feedback(models.Model):
             return [(k, data[k]) for k in form.all_text_fields.keys()]
 
     @property
+    def effective_grade(self):
+        if self.max_grade > 0:
+            return self.response_grade
+        return 2
+
+    @property
     def response_uploaded(self):
         when = self._response_upl_at
         code = self._response_upl_code
@@ -399,7 +405,7 @@ class Feedback(models.Model):
     def response_grade_text(self):
         if not self.responded:
             return self.GRADES[self.GRADES.NONE]
-        return self.GRADES[self.response_grade]
+        return self.GRADES[self.effective_grade]
 
     @property
     def valid_response_grade(self):

@@ -20,7 +20,11 @@
 			href="{{ all_student_feedbacks_for_exercise_url }}">
 			<span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
 			{% trans "Exercise and student" %}
-			<span class="badge">{{ num_submissions }}</span>
+			{% if num_submissions > 2 %}
+				<span class="badge alert-number">{{ num_submissions }}</span>
+			{% else %}
+				<span class="badge">{{ num_submissions }}</span>
+			{% endif %}
 		</a>
 		<a
 			class="btn btn-default btn-xs"

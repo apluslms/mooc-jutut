@@ -62,6 +62,12 @@ body {
 	font-size: 11px;
 }
 
+/* Highlight numbertag in exercise panel*/
+.panel-body>.panel-default>.panel-heading .alert-number {
+    color: #f5f5f5;
+    background-color: #d40000;
+}
+
 /* Feedback response body (feedback and response forms) */
 .feedback-response-body {
 	padding: 0.3em 0 0 0;
@@ -108,9 +114,12 @@ body {
 	border-color: #a2cf7d;
 }
 
-.set-old, .set-old div  {
-	background: #e5e5e5;
+/* feedback panel for previous feedback */
+.set-old div, .set-old .feedback-panel>table.table>tbody>tr.info>th,
+.set-old .feedback-panel>table.table>tbody>tr.info>td  {
+	background-color: #d8d8d8;
 }
+
 /* feedback panel */
 .feedback-panel > .panel-footer {
 	padding: 0.2em 0.2em 0.3em 0.2em;

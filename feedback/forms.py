@@ -38,11 +38,13 @@ class ResponseForm(forms.ModelForm):
     orig_response_grade_text = forms.CharField(widget=forms.HiddenInput(), required=False)
     orig_valid_response_grade = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     orig_response_time = forms.DateTimeField(widget=forms.HiddenInput(), required=False)
+    orig_effective_grade = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     ORIG_FIELDS = [
         'responded',
         'response_grade_text',
         'valid_response_grade',
         'response_time',
+        'effective_grade'
     ]
 
     class Meta:

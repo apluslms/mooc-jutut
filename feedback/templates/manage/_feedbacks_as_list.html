@@ -17,9 +17,8 @@
 			{% foreachdict in feedbacks_per_student %}
 				<div class="panel panel-{{ form.had.valid_response_grade|grade_color }} feedback-exercise-panel">
 					{% include "manage/_exercise_heading.html" %}
-
 					<!-- the previous conversation (if exists) -->
-					{% if num_submissions > 1 %}
+					{% if num_submissions > 1 and num_feedback_per_exercise == None %}
 						{% foreachdict in previous_submission_fields %}
 							<div class="panel-body panel-default feedback-response-body reacts-to-status set-old">
 								<div class="col-lg-6">
