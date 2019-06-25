@@ -345,12 +345,6 @@ LOGGING = {
 }
 
 
-## Django filters
-# https://django-filter.readthedocs.io/en/latest/ref/settings.html
-FILTERS_HELP_TEXT_EXCLUDE = False
-FILTERS_HELP_TEXT_FILTER = False
-
-
 ## Celery
 CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'

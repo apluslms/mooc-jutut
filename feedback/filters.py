@@ -1,8 +1,11 @@
 import datetime
+from itertools import chain
+
 import django_filters
 from django import forms
 from django.contrib.postgres import fields as pg_fields
 from django.utils.translation import ugettext_lazy as _
+
 from django_colortag.filters import ColortagChoiceFilter
 
 from .models import (
@@ -10,6 +13,7 @@ from .models import (
     StudentTag,
     Exercise,
     Feedback,
+    FeedbackQuerySet,
     FeedbackTag,
 )
 
@@ -138,10 +142,6 @@ class FeedbackFilter(django_filters.FilterSet):
     )
     ORDER_BY_DEFAULT = '-timestamp'
 
-    flags = django_filters.MultipleChoiceFilter(label='Flags',
-                                                choices=Feedback.objects.get_queryset().FILTER_FLAGS.choices,
-                                                widget=forms.CheckboxSelectMultiple(),
-                                                method='filter_flags')
     response_grade = MultipleChoiceFilter(choices=Feedback.GRADE_CHOICES,
                                           extra_filter=lambda q: q.exclude(response_time=None),
                                           widget=forms.CheckboxSelectMultiple())
@@ -157,24 +157,39 @@ class FeedbackFilter(django_filters.FilterSet):
                               choices=ORDER_BY_CHOICE,
                               initial=ORDER_BY_DEFAULT)
 
+    locals().update(
+        (name, django_filters.ChoiceFilter(
+            label='Flags',
+            empty_label=default_label,
+            choices=choices_enum.choices,
+            method='filter_flags',
+        ))
+        for name, default_label, choices_enum in
+        FeedbackQuerySet.FLAG_GROUPS
+    )
+
     class Meta:
         model = Feedback
         form = FeedbackFilterForm
-        fields = (
-            'exercise',
-            'student',
-            'timestamp',
-            'path_key',
-            'form_data',
-            'response_by',
-            'response_grade',
-            'flags',
-            'tags',
-            'student_tags'
-        )
+        fields = tuple(chain(
+            (
+                'exercise',
+                'student',
+                'timestamp',
+                'path_key',
+                'form_data',
+                'response_by',
+                'response_grade',
+            ),
+            (name for name, default_label, choices in FeedbackQuerySet.FLAG_GROUPS),
+            (
+                'tags',
+                'student_tags',
+            )
+        ))
         filter_overrides = {
             # hack to make django_filters not to complain about jsonfield
-            pg_fields.JSONField: { 'filter_class': django_filters.CharFilter },
+            pg_fields.JSONField: { 'filterset_class': django_filters.CharFilter },
         }
 
     def __init__(self, data, *args, course=None, **kwargs):
