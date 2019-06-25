@@ -140,35 +140,57 @@ class Exercise(NestedApiObject):
 
 
 class FeedbackQuerySet(models.QuerySet):
-    FILTER_FLAGS = Enum(
-        ('NEWEST', 'n', _("Newest versions")),
-        ('UNREAD', 'u', _("Unread")),
+
+    NEWEST_FLAG = Enum(
+        [('NEWEST', 'n', _("Newest versions")),]
+    )
+    READ_FLAG = Enum(
         ('READ', 'r', _("Read")),
-        ('UNGRADED', 'q', _("Ungraded")),
+        ('UNREAD', 'u', _("Unread")),
+    )
+    GRADED_FLAG = Enum(
         ('GRADED', 'g', _("Graded")),
-        ('AUTO', 'a', _("Automatically graded")),
+        ('UNGRADED', 'q', _("Ungraded")),
+    )
+    MANUALLY_FLAG = Enum(
         ('MANUAL', 'm', _("Manually graded")),
-        ('UNRESPONDED', 'i', _("Unresponded")),
+        ('AUTO', 'a', _("Automatically graded")),
+    )
+    RESPONDED_FLAG = Enum(
         ('RESPONDED', 'h', _("Responded")),
-        ('UPL_OK', 'o', _("Upload ok")),
+        ('UNRESPONDED', 'i', _("Unresponded")),
+    )
+    UPLOAD_FLAG = Enum(
         ('UPL_ERROR', 'e', _("Upload has error")),
+        ('UPL_OK', 'o', _("Upload ok")),
     )
 
+    FLAG_GROUPS = [
+        ('newest', 'Newest?', NEWEST_FLAG),
+        ('read', 'Read?', READ_FLAG),
+        ('graded', 'Graded?', GRADED_FLAG),
+        ('manually', 'Graded how?', MANUALLY_FLAG),
+        ('responded', 'Responded?', RESPONDED_FLAG),
+        ('upload', 'Upload has error?', UPLOAD_FLAG),
+    ]
+
     FILTERS = {
-        FILTER_FLAGS.NEWEST: Q(superseded_by=None),
-        FILTER_FLAGS.UNREAD: Q(response_time=None) & Q(tags=None),
-        FILTER_FLAGS.READ: ~(Q(response_time=None) & Q(tags=None)),
-        FILTER_FLAGS.UNGRADED: Q(response_time=None),
-        FILTER_FLAGS.GRADED: ~Q(response_time=None),
-        FILTER_FLAGS.UNRESPONDED: Q(response_msg='') | Q(response_msg=None),
-        FILTER_FLAGS.RESPONDED: ~Q(response_time=None) & ~Q(response_msg='') & ~Q(response_msg=None),
-        FILTER_FLAGS.AUTO: ~Q(response_time=None) & Q(response_by=None),
-        FILTER_FLAGS.MANUAL: ~Q(response_time=None) & ~Q(response_by=None),
-        FILTER_FLAGS.UPL_OK: Q(_response_upl_code=200),
-        FILTER_FLAGS.UPL_ERROR: ~Q(_response_upl_code=200) & ~Q(_response_upl_code=0),
+        NEWEST_FLAG.NEWEST: Q(superseded_by=None),
+        READ_FLAG.UNREAD: Q(response_time=None) & Q(tags=None),
+        READ_FLAG.READ: ~(Q(response_time=None) & Q(tags=None)),
+        GRADED_FLAG.UNGRADED: Q(response_time=None),
+        GRADED_FLAG.GRADED: ~Q(response_time=None),
+        RESPONDED_FLAG.UNRESPONDED: Q(response_msg='') | Q(response_msg=None),
+        RESPONDED_FLAG.RESPONDED: ~Q(response_time=None) & ~Q(response_msg='') & ~Q(response_msg=None),
+        MANUALLY_FLAG.AUTO: ~Q(response_time=None) & Q(response_by=None),
+        MANUALLY_FLAG.MANUAL: ~Q(response_time=None) & ~Q(response_by=None),
+        UPLOAD_FLAG.UPL_OK: Q(_response_upl_code=200),
+        UPLOAD_FLAG.UPL_ERROR: ~Q(_response_upl_code=200) & ~Q(_response_upl_code=0),
     }
 
     def filter_flags(self, *flags):
+        if not flags:
+            return self
         try:
             filters = [self.FILTERS[f] for f in flags]
         except KeyError as e:
@@ -181,6 +203,7 @@ class FeedbackQuerySet(models.QuerySet):
             search = search.replace('*', '%')
         else:
             search = ''.join(('%', '%'.join(shlex.split(search)), '%'))
+        # TODO: enable AND/OR and friends + make more efficient when Django is updated?
         return self.extra(
             where=['form_data::text ilike %s'],
             params=[search],
@@ -219,8 +242,8 @@ class FeedbackQuerySet(models.QuerySet):
 
     def get_notresponded(self, exercise_id=None, course_id=None, path_filter=None):
         qs = self.select_related('form', 'exercise').filter_flags(
-            self.FILTER_FLAGS.NEWEST,
-            self.FILTER_FLAGS.UNREAD,
+            self.NEWEST_FLAG.NEWEST,
+            self.READ_FLAG.UNREAD,
         )
         if exercise_id is not None:
             qs = qs.filter(exercise__id=exercise_id)
