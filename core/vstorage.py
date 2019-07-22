@@ -111,9 +111,6 @@ class VirtualFinder(BaseFinder):
     def __init__(self):
         self._storage = VirtualStorage()
 
-    def check(self, **kwargs):
-        pass
-
     def find(self, path, all=False):
         if self._storage.exists(path):
             abs_path = join(settings.STATIC_ROOT, path)

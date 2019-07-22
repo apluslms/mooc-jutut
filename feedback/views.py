@@ -8,7 +8,7 @@ from django.utils.text import slugify
 from django.utils.timezone import now as timezone_now
 from django.shortcuts import get_object_or_404
 from django.views.generic import FormView, ListView, DetailView, UpdateView, DeleteView, TemplateView, View
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.exceptions import SuspiciousOperation
 from django.utils.functional import cached_property
 
@@ -378,6 +378,7 @@ def get_feedback_dict(feedback, get_form, response_form_class,
     data = {
         'form': response_form_class(instance=feedback),
         'feedback': feedback,
+         # TODO: keep tags in some consistent order
         'feedback_tags': set(feedback.tags.all()),
         'feedback_form': form,
         'feedback_form_grading': feedback.max_grade > 1 and (form.is_dummy_form or form.is_graded)
@@ -618,6 +619,7 @@ class RespondFeedbackMixin(FeedbackMixin):
         if success_url:
             context['post_url'] = urljoin(self.request.path,
                                           '?'+urlencode({self.success_url_param: success_url}))
+        logger.debug(context)
         return context
 
     def form_valid(self, form):

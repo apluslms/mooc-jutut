@@ -1,7 +1,7 @@
 import logging
 from hashlib import md5
 from django import forms
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils.timezone import now as timezone_now
 from django.utils.translation import ugettext_lazy as _
 from django.utils.html import mark_safe

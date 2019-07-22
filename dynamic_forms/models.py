@@ -88,3 +88,17 @@ class Form(models.Model):
 
     def __str__(self):
         return "<Form {}, {} fields, sha1:{}>".format(self.pk, len(self.form_spec), self.sha1)
+
+    def __getstate__(self):
+        """
+        Return __dict__ without cached_properties for pickling
+        """
+        cached_properties = frozenset((
+            'form_class',
+            'form_class_or_dummy',
+            'frozen_i18n',
+            'frozen_spec',
+        ))
+        return {name: value
+                for name, value in super().__getstate__().items()
+                if name not in cached_properties}

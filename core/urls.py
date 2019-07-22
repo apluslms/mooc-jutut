@@ -3,6 +3,7 @@ from django.conf.urls import url
 from django.views.decorators.cache import cache_page
 from django.views.generic import TemplateView
 
+from .apps import CoreConfig
 from . import views
 
 def cache(time=60 * 15):
@@ -11,6 +12,7 @@ def cache(time=60 * 15):
     return cache_page(time)
 
 
+app_name = CoreConfig.name
 urlpatterns = [
     url(r'^$',
         TemplateView.as_view(template_name="core/frontpage.html"),

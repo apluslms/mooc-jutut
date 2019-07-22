@@ -1,7 +1,7 @@
 import logging
 from urllib.parse import urljoin, urlencode
 from django.conf import settings
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.template.loader import get_template
 from django.utils import translation
 

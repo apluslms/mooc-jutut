@@ -2,7 +2,7 @@ import logging
 from datetime import timedelta
 from django.contrib.auth.signals import user_logged_in
 from django.core.exceptions import PermissionDenied
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.utils import timezone
 
 from aplus_client.client import AplusTokenClient

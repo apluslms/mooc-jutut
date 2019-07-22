@@ -24,70 +24,60 @@ def is_empty_value(value):
     )
 
 
-class DateInput(forms.DateInput):
-    """use html5 type for date"""
-    input_type = 'date'
-
-
-class TimeInput(forms.TimeInput):
-    """use html5 type for time"""
-    input_type = 'time'
-
-
-class DateTimeInput(forms.DateTimeInput):
-    """use html5 type for datetime"""
-    input_type = 'datetime-local'
-
-
-class SplitDateTimeWidget(forms.SplitDateTimeWidget):
-    """Use html5 typed input fields"""
-
-    def __init__(self, attrs=None, date_format=None, time_format=None):
-        widgets = (
-            DateInput(attrs=attrs, format=date_format),
-            TimeInput(attrs=attrs, format=time_format),
-        )
-        # NOTE: skip parent init
-        super(forms.SplitDateTimeWidget, self).__init__(widgets, attrs)
-
-
-class RangeWidget(django_filters.widgets.RangeWidget):
+class SplitDateTimeRangeWidget(forms.MultiWidget):
     """Add support to get widgets as parameter"""
-    # NOTE: should upstream this
+    # NOTE: 'wants to be' a reimplementation of django_filters.widgets.DateRangeWidget
+    template_name = 'django_filters/widgets/multiwidget.html'
+    # suffixes = ['after', 'before']
 
-    def __init__(self, widgets=None, attrs=None):
-        if widgets is None:
-            widgets = (forms.TextInput, forms.TextInput)
-        # NOTE: skip parent init
-        super(django_filters.widgets.RangeWidget, self).__init__(widgets, attrs)
+    def __init__(self, attrs=None):
+        widget = forms.SplitDateTimeWidget(
+            date_attrs={'type': 'date'},
+            time_attrs={'type': 'time', 'step': '1'},
+        )
+        super().__init__((widget, widget), attrs)
 
-
-class SplitDateTimeField(forms.SplitDateTimeField):
-    def compress(self, data_list):
-        """
-        If there is no date, there is no datetime
-        If there is no time, presume 00:00
-        """
-        if data_list:
-            if data_list[0] is None:
-                return None
-            if data_list[1] is None:
-                data_list[0] = datetime.time()
-        return super().compress(data_list)
+    def decompress(self, value):
+        if value:
+            return [value.start, value.stop]
+        return [None, None]
 
 
-class DateTimeRangeField(django_filters.fields.RangeField):
+class SplitDateTimeRangeField(forms.MultiValueField):
     """Use split date/time inputs instead of one datetime input"""
+    # NOTE: reimplementation of django_filters.fields.RangeField
+    widget = SplitDateTimeRangeWidget
+
     def __init__(self, *args, **kwargs):
-        field = SplitDateTimeField(widget=SplitDateTimeWidget)
-        fields = (field, field)
-        kwargs['widget'] = RangeWidget(widgets=tuple(field.widget for field in fields))
+        fields = (
+            forms.SplitDateTimeField(required=False),
+            forms.SplitDateTimeField(required=False),
+        )
+        kwargs.setdefault('require_all_fields', False)
         super().__init__(fields, *args, **kwargs)
+
+    def clean(self, value):
+        if self.disabled and not isinstance(value, list):
+            value = self.widget.decompress(value)
+        # value: [[date, time], [date, time]]
+        if value:
+            after, before = value
+            if after and after[0] and is_empty_value(after[1]):
+                after = (after[0], datetime.time.min)
+            if before and before[0] and is_empty_value(before[1]):
+                before = (before[0], datetime.time.max)
+            value = (after, before)
+        return super().clean((value))
+
+    def compress(self, dates):
+        if dates and (dates[0] or dates[1]):
+            return slice(*dates)
+        return None
 
 
 class DateTimeFromToRangeFilter(django_filters.filters.RangeFilter):
     """Datetime range input using datetime range field with split date/time inputs"""
-    field_class = DateTimeRangeField
+    field_class = SplitDateTimeRangeField
 
 
 class MultipleChoiceFilter(django_filters.MultipleChoiceFilter):
@@ -107,6 +97,7 @@ class OrderingFilter(django_filters.filters.ChoiceFilter):
     """Simple ordering filter that works with radio select"""
     def __init__(self, *args, **kwargs):
         kwargs.setdefault('widget', forms.RadioSelect)
+        kwargs.setdefault('empty_label', None)
         super().__init__(*args, **kwargs)
 
     def filter(self, qs, value):
@@ -122,9 +113,6 @@ class FeedbackFilterForm(forms.Form):
     def __init__(self, *args, initial=None, **kwargs):
         if not initial:
             initial = {}
-        placeholder = type('nulldatetime', (datetime.time,),
-            {'date': lambda s: None,'time': lambda s: s})()
-        initial['timestamp'] = slice(placeholder, placeholder)
         kwargs.setdefault('auto_id', 'id_feedbackfilter_%s')
         super().__init__(*args, initial=initial, **kwargs)
 
@@ -140,7 +128,7 @@ class FeedbackFilterForm(forms.Form):
     def number_of_filters(self):
         if not hasattr(self, 'cleaned_data'):
             return 0
-        return sum((1 for v in self.cleaned_data.values() if not is_empty_value(v)))
+        return sum(1 for k, v in self.cleaned_data.items() if k != 'order_by' and not is_empty_value(v))
 
 
 class FeedbackFilter(django_filters.FilterSet):
@@ -150,21 +138,23 @@ class FeedbackFilter(django_filters.FilterSet):
     )
     ORDER_BY_DEFAULT = '-timestamp'
 
-    flags = django_filters.MultipleChoiceFilter(choices=Feedback.objects.get_queryset().FILTER_FLAGS.choices,
+    flags = django_filters.MultipleChoiceFilter(label='Flags',
+                                                choices=Feedback.objects.get_queryset().FILTER_FLAGS.choices,
                                                 widget=forms.CheckboxSelectMultiple(),
                                                 method='filter_flags')
     response_grade = MultipleChoiceFilter(choices=Feedback.GRADE_CHOICES,
                                           extra_filter=lambda q: q.exclude(response_time=None),
                                           widget=forms.CheckboxSelectMultiple())
     tags = ColortagChoiceFilter(queryset=FeedbackTag.objects.none())
-    student_tags = ColortagChoiceFilter(queryset=StudentTag.objects.none(), name='student__tags')
+    student_tags = ColortagChoiceFilter(queryset=StudentTag.objects.none(), field_name='student__tags')
     exercise = django_filters.ModelChoiceFilter(queryset=Exercise.objects.none())
     student = django_filters.ModelChoiceFilter(queryset=Student.objects.none())
     timestamp = DateTimeFromToRangeFilter()
     path_key = django_filters.CharFilter(lookup_expr='istartswith')
     form_data = django_filters.CharFilter(method='filter_form_data')
 
-    order_by = OrderingFilter(choices=ORDER_BY_CHOICE,
+    order_by = OrderingFilter(label='Order by',
+                              choices=ORDER_BY_CHOICE,
                               initial=ORDER_BY_DEFAULT)
 
     class Meta:
@@ -190,11 +180,11 @@ class FeedbackFilter(django_filters.FilterSet):
     def __init__(self, data, *args, course=None, **kwargs):
         assert course, "FeedbackFilter requires course object"
         self._course = course
-        if not any(any(bool(x) for x in data.getlist(k)) for k in self._meta.fields):
-            data = None
-        else:
-            data = data.copy()
+        if data:
+            data = data.copy() # data was immutable
             data.setdefault('order_by', self.ORDER_BY_DEFAULT)
+        else:
+            data = None
         super().__init__(data, *args, **kwargs)
 
     @property

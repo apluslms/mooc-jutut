@@ -1,9 +1,12 @@
 from collections import OrderedDict
+
 from django import forms
 from django.core.validators import RegexValidator
+from django.forms.renderers import Jinja2 as Jinja2Renderer
 from django.forms.utils import pretty_name
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
+from django.utils.translation import ugettext_lazy as _
 try:
     from django.utils.text import format_lazy
 except ImportError: # introduced in Django 1.11
@@ -224,6 +227,9 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
 
     # globals used by django forms
     required_css_class = 'required'
+
+    # use faster template engine
+    default_renderer = Jinja2Renderer()
 
     @classmethod
     def create_form_class_from(cls, data: "list of field structs", i18n):
