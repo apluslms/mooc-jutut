@@ -8,7 +8,7 @@
 		</h3>
 	</div>
 	<div id="filter-panel" class="panel-body collapse in {% if feedback_filter.form.is_valid and feedback_filter.qs.count %}collapse-on-load{% endif %}">
-		<form id="filter-form" role="form" action="{% url 'feedback:list' course_id=course.id %}" method="GET" class="form-horizontal">
+		<form id="filter-form" role="form" action="{% url 'feedback:list' course_id=course.id %}" method="GET" class="form-horizontal" autocomplete="off">
 			{{ feedback_filter.form.as_p }}
 			<div class="col-xs-12">
 				<div class="btn-group pull-right">

@@ -13,12 +13,7 @@ $(function () {
 	});
 
 	$("#id_feedbackfilter_response_grade").replaceCheckboxesWithButtons();
-	$("#id_feedbackfilter_newest," +
-		"#id_feedbackfilter_read," +
-		"#id_feedbackfilter_graded," +
-		"#id_feedbackfilter_manually," +
-		"#id_feedbackfilter_responded," +
-		"#id_feedbackfilter_upload").replaceInputsWithMultiStateButtons({
+	$("#id_feedbackfilter_flags").replaceInputsWithMultiStateButtons({
 			multi_icon: true,
 			icon_on_0: 'fas fa-question-circle',
 			icon_off_0: 'far fa-question-circle',
@@ -30,12 +25,27 @@ $(function () {
 			icon_off_2: 'far fa-dot-circle',
 			color_2: 'info',
 		});
+	$('.and-or-label').replaceInputsWithMultiStateButtons({
+		color_0: 'primary',
+		color_1: 'info',
+		icon_0: '', // 'fas fa-chevron-down' OR 'fas fa-grip-lines-vertical'
+		icon_1: '', // 'fas fa-chevron-up'
+		buttonClass: 'btn btn-xs',
+	})
 	$("#id_feedbackfilter_order_by").replaceInputsWithMultiStateButtons({
 		icon_0: 'fas fa-sort-amount-down-alt',
 		icon_1: 'fas fa-sort-amount-down',
 		color_0: 'info',
 	})
-	$('.colortag-choice').each(django_colortag_choice);
+	$('.colortag-ie-group').replaceInputsWithMultiStateButtons({
+		groupClass: 'colortag-container',
+		buttonClass: '',
+		nocolor: true,
+		buttonSetup: function(input, button) {
+			button.css('backgroundColor', input.data('background'));
+		},
+	});
+	// $('.colortag-choice').each(django_colortag_choice);
 	$('#filter-form select').chosen({disable_search_threshold: 10});
 	$('.collapse-on-load').collapse();
 });
