@@ -4,9 +4,10 @@ from itertools import chain
 import django_filters
 from django import forms
 from django.contrib.postgres import fields as pg_fields
+from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 
-from django_colortag.filters import ColortagChoiceFilter
+from django_colortag.filters import ColortagIncludeExcludeFilter, ColortagIEAndOrFilter
 
 from .models import (
     Student,
@@ -22,6 +23,11 @@ PRIMITIVE_TYPES = (int, float, str)
 EMPTY_VALUES = ('', slice(None, None, None))
 
 def is_empty_value(value):
+    if isinstance(value, (tuple, list)): # tags
+        return (
+            all(not v for v in value) or
+            (len(value) == 2 and isinstance(value[0], bool) and all(not v for v in value[1]))
+        )
     return (
         not isinstance(value, PRIMITIVE_TYPES) and not value or # complex type is False
         value in EMPTY_VALUES # simple type is False
@@ -97,6 +103,46 @@ class MultipleChoiceFilter(django_filters.MultipleChoiceFilter):
         return fqs
 
 
+class FlagWidget(forms.MultiWidget):
+    template_name = "feedback/widgets/flag_multiwidget.html"
+
+    def __init__(self, attrs=None):
+        widgets = (
+            forms.Select(attrs, fg.choices) for fg in FeedbackQuerySet.FLAG_GROUPS
+        )
+        super().__init__(widgets, attrs)
+
+    def decompress(self, value):
+        if value == None:
+            return [None for w in self.widgets]
+        return value
+
+
+class FlagField(forms.MultiValueField):
+    widget = FlagWidget
+
+    def __init__(self, *args, **kwargs):
+        fields = tuple(
+            forms.ChoiceField(
+                required=False,
+                choices=fg.choices,
+            ) for fg in FeedbackQuerySet.FLAG_GROUPS
+        )
+        kwargs.setdefault('require_all_fields', False)
+        super().__init__(fields, *args, **kwargs)
+
+    def compress(self, data_list):
+        return data_list
+
+
+class FlagFilter(django_filters.MultipleChoiceFilter):
+    field_class = FlagField
+
+    def filter(self, qs, value):
+        value = [v for v in value if v] # ignores empty values
+        return qs.filter_flags(*value)
+
+
 class OrderingFilter(django_filters.filters.ChoiceFilter):
     """Simple ordering filter that works with radio select"""
     def __init__(self, *args, **kwargs):
@@ -145,48 +191,35 @@ class FeedbackFilter(django_filters.FilterSet):
     response_grade = MultipleChoiceFilter(choices=Feedback.GRADE_CHOICES,
                                           extra_filter=lambda q: q.exclude(response_time=None),
                                           widget=forms.CheckboxSelectMultiple())
-    tags = ColortagChoiceFilter(queryset=FeedbackTag.objects.none())
-    student_tags = ColortagChoiceFilter(queryset=StudentTag.objects.none(), field_name='student__tags')
+    flags = FlagFilter(label=_("Flags"))
+    tags = ColortagIEAndOrFilter(queryset=FeedbackTag.objects.none(), label=_("Tags"))
+    student_tags = ColortagIEAndOrFilter(queryset=StudentTag.objects.none(), label=_("Student tags"))
     exercise = django_filters.ModelChoiceFilter(queryset=Exercise.objects.none())
     student = django_filters.ModelChoiceFilter(queryset=Student.objects.none())
-    timestamp = DateTimeFromToRangeFilter()
-    path_key = django_filters.CharFilter(lookup_expr='icontains')
-    form_data = django_filters.CharFilter(method='filter_form_data')
+    timestamp = DateTimeFromToRangeFilter(label=_("Timestamp"))
+    path_key = django_filters.CharFilter(lookup_expr='icontains', label=_("Exercise identifier"))
+    form_data = django_filters.CharFilter(method='filter_form_data', label=_("Form content"))
 
-    order_by = OrderingFilter(label='Order by',
+    order_by = OrderingFilter(label=_("Order by"),
                               choices=ORDER_BY_CHOICE,
                               initial=ORDER_BY_DEFAULT)
 
-    locals().update(
-        (name, django_filters.ChoiceFilter(
-            label='Flags',
-            empty_label=default_label,
-            choices=choices_enum.choices,
-            method='filter_flags',
-        ))
-        for name, default_label, choices_enum in
-        FeedbackQuerySet.FLAG_GROUPS
-    )
 
     class Meta:
         model = Feedback
         form = FeedbackFilterForm
-        fields = tuple(chain(
-            (
-                'exercise',
-                'student',
-                'timestamp',
-                'path_key',
-                'form_data',
-                'response_by',
-                'response_grade',
-            ),
-            (name for name, default_label, choices in FeedbackQuerySet.FLAG_GROUPS),
-            (
-                'tags',
-                'student_tags',
-            )
-        ))
+        fields = (
+            'exercise',
+            'student',
+            'timestamp',
+            'path_key',
+            'form_data',
+            'response_by',
+            'response_grade',
+            'flags',
+            'tags',
+            'student_tags',
+        )
         filter_overrides = {
             # hack to make django_filters not to complain about jsonfield
             pg_fields.JSONField: { 'filterset_class': django_filters.CharFilter },
@@ -210,13 +243,15 @@ class FeedbackFilter(django_filters.FilterSet):
         course = self._course
         form.fields['exercise'].queryset = Exercise.objects.filter(course=course).all()
         form.fields['student'].queryset = Student.objects.get_students_on_course(course)
-        form.fields['tags'].queryset = FeedbackTag.objects.filter(course=course).all()
-        form.fields['student_tags'].queryset = StudentTag.objects.filter(course=course).all()
+        feedbacktags = FeedbackTag.objects.filter(course=course).all()
+        form.fields['tags'].set_queryset(feedbacktags)
+        studenttags = StudentTag.objects.filter(course=course).all()
+        form.fields['student_tags'].set_queryset(studenttags)
         return form
 
-    @staticmethod
-    def filter_flags(queryset, name, values):
-        return queryset.filter_flags(*values)
+    # @staticmethod
+    # def filter_flags(queryset, name, values):
+    #     return queryset.filter_flags(*values)
 
     @staticmethod
     def filter_form_data(queryset, name, value):

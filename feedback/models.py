@@ -142,36 +142,42 @@ class Exercise(NestedApiObject):
 class FeedbackQuerySet(models.QuerySet):
 
     NEWEST_FLAG = Enum(
-        [('NEWEST', 'n', _("Newest versions")),]
+        ('', None, _("Newest versions?")),
+        ('NEWEST', 'n', _("Newest versions")),
     )
     READ_FLAG = Enum(
+        ('', None, _("Read?")),
         ('READ', 'r', _("Read")),
         ('UNREAD', 'u', _("Unread")),
     )
     GRADED_FLAG = Enum(
+        ('', None, _("Graded?")),
         ('GRADED', 'g', _("Graded")),
         ('UNGRADED', 'q', _("Ungraded")),
     )
     MANUALLY_FLAG = Enum(
+        ('', None, _("Graded how?")),
         ('MANUAL', 'm', _("Manually graded")),
         ('AUTO', 'a', _("Automatically graded")),
     )
     RESPONDED_FLAG = Enum(
+        ('', None, _("Responded?")),
         ('RESPONDED', 'h', _("Responded")),
         ('UNRESPONDED', 'i', _("Unresponded")),
     )
     UPLOAD_FLAG = Enum(
+        ('', None, _("Upload has error?")),
         ('UPL_ERROR', 'e', _("Upload has error")),
         ('UPL_OK', 'o', _("Upload ok")),
     )
 
     FLAG_GROUPS = [
-        ('newest', 'Newest?', NEWEST_FLAG),
-        ('read', 'Read?', READ_FLAG),
-        ('graded', 'Graded?', GRADED_FLAG),
-        ('manually', 'Graded how?', MANUALLY_FLAG),
-        ('responded', 'Responded?', RESPONDED_FLAG),
-        ('upload', 'Upload has error?', UPLOAD_FLAG),
+        NEWEST_FLAG,
+        READ_FLAG,
+        GRADED_FLAG,
+        MANUALLY_FLAG,
+        RESPONDED_FLAG,
+        UPLOAD_FLAG,
     ]
 
     FILTERS = {
@@ -203,7 +209,7 @@ class FeedbackQuerySet(models.QuerySet):
             search = search.replace('*', '%')
         else:
             search = ''.join(('%', '%'.join(shlex.split(search)), '%'))
-        # TODO: enable AND/OR and friends + make more efficient when Django is updated?
+        # TODO: enable AND/OR and friends + make more efficient?
         return self.extra(
             where=['form_data::text ilike %s'],
             params=[search],
@@ -291,7 +297,8 @@ class Feedback(models.Model):
     # identifier
     exercise = models.ForeignKey(Exercise,
                                  related_name='feedbacks',
-                                 on_delete=models.PROTECT)
+                                 on_delete=models.PROTECT,
+                                 verbose_name=_("Exercise"))
     submission_id = models.IntegerField()
     path_key = models.CharField(max_length=255, db_index=True)
     max_grade = models.PositiveSmallIntegerField(default=MAX_GRADE)
@@ -301,7 +308,8 @@ class Feedback(models.Model):
     language = models.CharField(max_length=255, default=get_language, null=True)
     student = models.ForeignKey(Student,
                                 related_name='feedbacks',
-                                on_delete=models.CASCADE)
+                                on_delete=models.CASCADE,
+                                verbose_name=_("Student"))
     form = models.ForeignKey(FeedbackForm,
                              related_name='feedbacks',
                              on_delete=models.PROTECT,
@@ -501,6 +509,8 @@ class FeedbackTag(ColorTag):
                                        related_name="tags")
 
     def is_valid_slug(self, slug):
+        # FIXME: returns False if this tag is already added
+        # this causes slugs to change if tag is edited
         return slug and not type(self).objects.filter(
             course=self.course,
             slug=slug,
