@@ -398,6 +398,34 @@ $(function() {
 	/* on page load forms got inserted */
 	on_form_insert();
 
+	var infinite = new Waypoint.Infinite({
+		element: $('.infinite-container')[0],
+		onBeforePageLoad: function () {
+			console.log("!!");
+			$('.loading').show();
+		},
+		onAfterPageLoad: function ($items) {
+			console.log("??");
+			on_form_insert($items);
+			$('.loading').hide();
+		}
+	});
+	console.log("test");
+
+	/*
+	$('.infinite-container')[0].waypoint('infinite', {
+		onBeforePageLoad: function () {
+			console.log("!!");
+			$('.loading').show();
+		},
+		onAfterPageLoad: function ($items) {
+			console.log("??");
+			on_form_insert();
+			$('.loading').hide();
+		}
+	})
+	*/
+
 	/* setup jquery ajax with csrf token */
 	$.ajaxSetup({
 		beforeSend: function(xhr, settings) {
@@ -408,4 +436,3 @@ $(function() {
 		}
 	});
 });
-

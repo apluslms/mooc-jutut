@@ -99,13 +99,6 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 
     @cached_property
     def grading_data(self):
-        # a = self.aplus_client.grading_data
-        # b = GraderInterface2(a)
-        # logger.warning("Interfacen sisältö")
-        # logger.warning(a)
-        # logger.warning(b.__dict__)
-        print(" :::::::::::: ", repr(self.aplus_client))
-        print(" :::::::::::: ", repr(self.aplus_client.grading_data))
         return GraderInterface2(self.aplus_client.grading_data)
 
     def get_form_class(self):
@@ -468,6 +461,12 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
                                     tags=tags,
                                     get_tag_url=get_tag_url)
 
+    def get_num_feedback():
+        num = context.get('feedback_filter', None)
+        if num is not None:
+            num = num.qs.count()
+        return num
+
     context['feedbacks'] = NestedDictIterator.from_iterable(
         feedbacks,
         (
@@ -485,6 +484,7 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
                 'all_feedbacks_for_exercise_url' : get_all_feedbacks_for_exercise_url(feedback),
                 'all_student_feedbacks_for_exercise_url': get_all_student_feedbacks_for_exercise_url(feedback),
                 'feedbacks_per_exercise': iterable,
+                'num_feedback_per_exercise': get_num_feedback(),
             }),
         ),
         partial(
@@ -502,13 +502,15 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
 class ManageNotRespondedListView(ManageCourseMixin, ListView):
     model = Feedback
     template_name = "manage/feedback_unread.html"
-    paginate_by = 10
+    per_page = 4
+    #paginate_by = 4
 
     def get_queryset(self):
         course_id = self.kwargs['course_id']
         self.course = get_object_or_404(Course, pk=course_id)
         self._path_filter = path_filter = self.kwargs.get('path_filter', '').strip('/')
-        return Feedback.objects.get_notresponded(course_id=course_id, path_filter=path_filter)
+        print(path_filter)
+        return Feedback.objects.get_notresponded(course_id=course_id, path_filter=path_filter)[:3]
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(course=self.course, **kwargs)
@@ -520,7 +522,7 @@ class ManageNotRespondedListView(ManageCourseMixin, ListView):
 class ManageFeedbacksListView(ManageCourseMixin, ListView):
     model = Feedback
     template_name = "manage/feedback_list.html"
-    paginate_by = 10
+    paginate_by = 5
 
     def get_queryset(self):
         course = self.course

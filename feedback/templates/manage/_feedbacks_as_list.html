@@ -7,18 +7,26 @@
 		feedbacks created with get_feedback_dict
 {% endcomment %}
 
+<!--
 {% include "_pagination.html" %}
+-->
+
+
+{% block content %}
+<div class="infinite-container">
 
 {% foreachdict in feedbacks %}
+<div class="infinite-item">
 	<div class="panel panel-default feedback-response-panel">
 		{% include "manage/_submitter_heading.html" with user=student %}
 
 		<div class="panel-body">
 			{% foreachdict in feedbacks_per_student %}
+
 				<div class="panel panel-{{ form.had.valid_response_grade|grade_color }} feedback-exercise-panel">
 					{% include "manage/_exercise_heading.html" %}
 					<!-- the previous conversation (if exists) -->
-					{% if num_submissions > 1 and num_feedback_per_exercise == None %}
+					{% if 0 != 0 and num_submissions > 1 and num_feedback_per_exercise == None %}
 						{% foreachdict in previous_submission_fields %}
 							<div class="panel-body panel-default feedback-response-body reacts-to-status set-old">
 								<div class="col-lg-6">
@@ -39,13 +47,18 @@
 							<div class="col-lg-6">
 								{% include "manage/_response_panel.html" %}
 							</div>
+							"timetest" + {{ feedback.timestamp }}
 						</div>
+
 					{% endforeachdict %}
 				</div> <!-- /.feedback-response-panel -->
+
 			{% endforeachdict %}
 		</div> <!-- /.panel-body -->
 	</div> <!-- /.feedback-exercise-panel -->
+	</div>
 {% empty %}
+	<div class="infinite-item">
 	{% if feedback_filter.form.errors %}
 		<p class="alert alert-danger" >{% trans "No feedback shown as there is errors in the filter form" %}</p>
 	{% elif not feedback_filter.form.contains_data %}
@@ -54,6 +67,20 @@
 		<p class="alert alert-warning">{% trans "No feedback found" %}</p>
 	{% endif %}
 	<!-- <p class="alert alert-success">{% trans "No unread feedback." %}</p> -->
+</div>
 {% endforeachdict %}
 
+</div> <!-- infinite-container -->
+<div class="loading" style"display: none;">
+	Loading...
+</div>
+<h3 id="basic-waypoint">test</h3>
+{% if page_obj.has_next %}
+    <a class="infinite-more-link" href="?page={{ page_obj.next_page_number }}">More</a>
+{% endif %}
+
+<!--
 {% include "_pagination.html" %}
+-->
+
+{% endblock %}
