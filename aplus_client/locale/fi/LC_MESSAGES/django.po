@@ -19,7 +19,7 @@ msgstr ""
 
 #: aplus_client/django/apps.py:8
 msgid "Aplus client"
-msgstr "Aplus asiakas"
+msgstr "Aplus-asiakas"
 
 #: aplus_client/django/models.py:17
 msgid "Namespace"

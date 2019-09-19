@@ -31,7 +31,7 @@ msgstr "Interaktiivinen kurssipalaute ja vastaus-työkalu"
 
 #: core/templates_j2/core/frontpage.html:18
 msgid "View the Github project"
-msgstr "Katso Github projekti"
+msgstr "Katso Github-projekti"
 
 #: core/templates_j2/core/frontpage.html:25
 msgid ""
@@ -39,7 +39,7 @@ msgid ""
 "Welcome to your institution's Jutut installation.\n"
 msgstr ""
 "\n"
-"Tervetuloa instituutiosi Jutut asennukseen.\n"
+"Tervetuloa instituutiosi Jutut-asennukseen.\n"
 
 #: core/templates_j2/core/frontpage.html:28
 #, python-format

@@ -75,11 +75,11 @@ msgstr "Vastattu"
 
 #: feedback/models.py:151
 msgid "Upload ok"
-msgstr "Lähetys on onnistunut"
+msgstr "Lähetys onnistui"
 
 #: feedback/models.py:152
 msgid "Upload has error"
-msgstr "Lähetys on epäonnistunut"
+msgstr "Lähetys epäonnistui"
 
 #: feedback/models.py:247
 msgid "No response"
@@ -136,12 +136,12 @@ msgstr "Ei palautetta."
 
 #: feedback/templates/feedback_tags/_tag_form.html:8
 msgid "Add new feedback tag"
-msgstr "Lisää uusi palaute tägi"
+msgstr "Lisää uusi palautetägi"
 
 #: feedback/templates/feedback_tags/_tag_form.html:10
 #: feedback/templates/feedback_tags/tag_edit.html:5
 msgid "Edit feedback tag"
-msgstr "Muokkaa palaute tägiä"
+msgstr "Muokkaa palautetägiä"
 
 #: feedback/templates/feedback_tags/_tag_form.html:21
 msgid "Add"
@@ -159,7 +159,7 @@ msgstr "Takaisin"
 
 #: feedback/templates/feedback_tags/tag_confirm_delete.html:6
 msgid "Confirm feedback tag removal"
-msgstr "Vahvista palaute tägin poisto"
+msgstr "Vahvista palautetägin poisto"
 
 #: feedback/templates/feedback_tags/tag_confirm_delete.html:13
 #, python-format
@@ -212,7 +212,7 @@ msgstr "poista"
 
 #: feedback/templates/manage/_exercise_heading.html:19
 msgid "Show feedbacks for this execise by the student"
-msgstr "Näytä tämän opiskelijan palauteet tähän tehtävään"
+msgstr "Näytä tämän opiskelijan palautteet tähän tehtävään"
 
 #: feedback/templates/manage/_exercise_heading.html:22
 msgid "Exercise and student"
@@ -256,7 +256,7 @@ msgstr "Palautteita ei näytetä, sillä mitään rajoitteita ei ole valittu"
 
 #: feedback/templates/manage/_feedbacks_as_list.html:41
 msgid "No feedback found"
-msgstr "Yhtään palauttetta ei löytynyt"
+msgstr "Yhtään palautetta ei löytynyt"
 
 #: feedback/templates/manage/_feedbacks_as_list.html:43
 msgid "No unread feedback."
@@ -318,7 +318,7 @@ msgstr ""
 #: feedback/templates/manage/_upload_status.html:27
 #, python-format
 msgid "upload status %(code)s"
-msgstr "lähetys tila %(code)s"
+msgstr "lähetyksen tila %(code)s"
 
 #: feedback/templates/manage/_upload_status.html:29
 msgid "Uploading"
@@ -375,7 +375,7 @@ msgstr "Tyhjennä välimuisti"
 
 #: feedback/templates/manage/base.html:150
 msgid "Service status"
-msgstr ""
+msgstr "Palvelun tila"
 
 #: feedback/templates/manage/base.html:165
 msgid "Language"
@@ -396,7 +396,7 @@ msgstr "Ei tunnettuja kursseja."
 #: feedback/templates/manage/feedback_list.html:12
 #, python-format
 msgid "Feedback for %(course)s"
-msgstr "Palauteet kurssilla '%(course)s'"
+msgstr "Palautteet kurssilla '%(course)s'"
 
 #: feedback/templates/manage/feedback_unread.html:6
 msgid "Unread Feedback"
