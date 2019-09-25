@@ -121,7 +121,7 @@ class AplusApiDict(AplusApiObject):
                 return default
             raise err
 
-    def get(self, key, default=None):
+    def get(self, key, default=None, ignore_cache=False):
         """
         Finds and returns value from dict with key
 
@@ -132,7 +132,7 @@ class AplusApiDict(AplusApiObject):
         if (key != 'url' and isinstance(value, str) and
             self._url_prefix and value.startswith(self._url_prefix)):
             try:
-                return self._client.load_data(value)
+                return self._client.load_data(value, ignore_cache=ignore_cache)
             except: # FIXME: too wide
                 print("ERROR: couldn't get json for %s" % (value,))
         return AplusApiObject._wrap(self._client, value)
@@ -342,8 +342,11 @@ class AplusClient(metaclass=AplusClientMetaclass):
             logger.debug("cache hit for %r", url)
         return data
 
-    def load_data(self, url):
-        data = self._load_cached_data(url)
+    def load_data(self, url, ignore_cache=False):
+        if ignore_cache:
+            data = self._load_json_data(url)
+        else:
+            data = self._load_cached_data(url)
         return AplusApiObject._wrap(client=self, data=data, source_url=url)
 
 
