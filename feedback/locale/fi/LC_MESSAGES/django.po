@@ -1,13 +1,13 @@
 # Copyright (C) 2016 Jaakko Kantojärvi, Learning + Technology Research Group, Aalto University
 # This file is distributed under the same license as the mooc-jutut package.
 #
-# Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>, 2016, 2017.
+# Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>, 2016, 2017, 2019.
 msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-30 16:32+0300\n"
-"PO-Revision-Date: 2017-10-18 18:36+0200\n"
+"POT-Creation-Date: 2019-09-25 16:31+0300\n"
+"PO-Revision-Date: 2019-09-25 16:31+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: English <>\n"
 "Language: en_US\n"
@@ -37,95 +37,95 @@ msgstr ""
 "Joku muu on päivittänyt lomaketta. Katso {older_versions_link} mikä on "
 "muuttunut."
 
-#: feedback/models.py:142
+#: feedback/models.py:165
 msgid "Newest versions"
 msgstr "Uusimmat versiot"
 
-#: feedback/models.py:143
+#: feedback/models.py:166
 msgid "Unread"
 msgstr "Lukematon"
 
-#: feedback/models.py:144
+#: feedback/models.py:167
 msgid "Read"
 msgstr "Luettu"
 
-#: feedback/models.py:145
+#: feedback/models.py:168
 msgid "Ungraded"
 msgstr "Ei arvosteltu"
 
-#: feedback/models.py:146
+#: feedback/models.py:169
 msgid "Graded"
 msgstr "Arvosteltu"
 
-#: feedback/models.py:147
+#: feedback/models.py:170
 msgid "Automatically graded"
 msgstr "Automaattisesti arvosteltu"
 
-#: feedback/models.py:148
+#: feedback/models.py:171
 msgid "Manually graded"
 msgstr "Käsin arvosteltu"
 
-#: feedback/models.py:149
+#: feedback/models.py:172
 msgid "Unresponded"
 msgstr "Vastaamaton"
 
-#: feedback/models.py:150
+#: feedback/models.py:173
 msgid "Responded"
 msgstr "Vastattu"
 
-#: feedback/models.py:151
+#: feedback/models.py:174
 msgid "Upload ok"
 msgstr "Lähetys onnistui"
 
-#: feedback/models.py:152
+#: feedback/models.py:175
 msgid "Upload has error"
 msgstr "Lähetys epäonnistui"
 
-#: feedback/models.py:247
+#: feedback/models.py:270
 msgid "No response"
 msgstr "Ei vastausta"
 
-#: feedback/models.py:248
+#: feedback/models.py:271
 msgid "Rejected"
 msgstr "Hylätty"
 
-#: feedback/models.py:249
+#: feedback/models.py:272
 msgid "Accepted"
 msgstr "Hyväksytty"
 
-#: feedback/models.py:250
+#: feedback/models.py:273
 msgid "Good"
 msgstr "Hyvä"
 
-#: feedback/models.py:257
+#: feedback/models.py:280
 msgid "No notification"
 msgstr "Ei ilmoitusta"
 
-#: feedback/models.py:258
+#: feedback/models.py:281
 msgid "Normal notification"
 msgstr "Normaali ilmoitus"
 
-#: feedback/models.py:259
+#: feedback/models.py:282
 msgid "Important notification"
 msgstr "Tärkeä ilmoitus"
 
-#: feedback/models.py:295
+#: feedback/models.py:318
 msgid "Response time"
 msgstr "Vastausaika"
 
-#: feedback/models.py:300
+#: feedback/models.py:323
 msgid "Responder"
 msgstr "Vastaaja"
 
-#: feedback/models.py:304
+#: feedback/models.py:327
 msgid "Response message"
 msgstr "Vastausviesti"
 
-#: feedback/models.py:307
+#: feedback/models.py:330
 msgid "Response grade"
 msgstr "Arvosana"
 
-#: feedback/models.py:310
+#: feedback/models.py:333
 msgid "Response notify"
 msgstr "Ilmoitus vastauksesta"
 
@@ -423,10 +423,18 @@ msgid "Update tags now"
 msgstr "Päivitä tägit nyt"
 
 #: feedback/templates/manage/update_studenttags.html:18
-msgid "Updated"
-msgstr "Päivitetty"
+msgid "New tags"
+msgstr "Uudet tägit"
 
-#: feedback/templates/manage/update_studenttags.html:25
+#: feedback/templates/manage/update_studenttags.html:26
+msgid "Updated tags"
+msgstr "Päivitetyt tägit"
+
+#: feedback/templates/manage/update_studenttags.html:34
+msgid "Deleted tags"
+msgstr "Poistetut tägit"
+
+#: feedback/templates/manage/update_studenttags.html:44
 msgid "This user is not authenticated using LTI and doesn't have api token."
 msgstr ""
 "Käyttäjä ei ole kirjautunut LTI:n kautta, joten sillä ei ole api avainta."
@@ -436,7 +444,9 @@ msgstr ""
 msgid ""
 "\n"
 "List of student feedback to %(ex)s\n"
-msgstr "\nLuettelo opiskelijapalautteesta tehtävään %(ex)s\n"
+msgstr ""
+"\n"
+"Luettelo opiskelijapalautteesta tehtävään %(ex)s\n"
 
 #: feedback/templates/manage/user_list.html:5
 msgid "List of students with feedback"
