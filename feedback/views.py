@@ -166,7 +166,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
                 raise SuspiciousStudent("Failed to resolve students")
             if len(students) != 1:
                 raise SuspiciousStudent("Multiple students in submission. Feedback expects only one")
-            student = Student.objects.get_new_or_updated(students[0], namespace=namespace)
+            student, _created = Student.objects.get_new_or_updated(students[0], namespace=namespace)
 
         return student
 
@@ -357,7 +357,7 @@ class ManageUpdateStudenttagsView(ManageCourseMixin, TemplateView):
         if client:
             tags = StudentTag.update_from_api(client, course)
         kwargs['has_token'] = bool(client)
-        kwargs['all_tags'] = tags
+        kwargs['tags'] = tags
         return super().get(request, *args, **kwargs)
 
 

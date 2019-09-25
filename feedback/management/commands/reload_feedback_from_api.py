@@ -84,7 +84,7 @@ class Command(BaseCommand):
                 elif len(students) != 1:
                     self.stdout.write(self.style.ERROR("  Multiple students in submission. Feedback expects only one. Not updating submitters."))
                 else:
-                    student = Student.objects.get_new_or_updated(students[0], namespace=feedback.exercise.namespace)
+                    student, _created = Student.objects.get_new_or_updated(students[0], namespace=feedback.exercise.namespace)
                     if feedback.student != student:
                         self.stdout.write(self.style.SUCCESS("  Updating student from '{}' to '{}'".format(feedback.student, student)))
                         feedback.student = student

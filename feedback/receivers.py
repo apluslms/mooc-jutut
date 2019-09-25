@@ -63,7 +63,7 @@ def add_course_permissions(sender, **kwargs):
             url, params = apiclient.normalize_url(course_api)
             apiclient.update_params(params)
             course_obj = apiclient.load_data(url)
-            course = Course.objects.get_new_or_updated(course_obj, namespace=site)
+            course, _created = Course.objects.get_new_or_updated(course_obj, namespace=site)
 
         # add course membership for permissions
         user.courses.add(course)

@@ -17,6 +17,12 @@ class Command(BaseCommand):
         parser.add_argument('-t', '--token',
                             required=True,
                             help="API token for user that has permission to update select users")
+        parser.add_argument('--no-students',
+                            action='store_true',
+                            help="Do not update student data, unless student doesn't exists")
+        parser.add_argument('--no-taggings',
+                            action='store_true',
+                            help="Do not update taggings")
         parser.add_argument('--wait',
                             type=int, default=200,
                             help="How long to wait between updating two feedbacks in milliseconds")
@@ -26,18 +32,31 @@ class Command(BaseCommand):
         wait = options['wait']/1000
         courses = get_courses(self, site_domain=options['site'], course_code=options['course'])
 
-        if courses:
-            students = Student.objects.get_students_on_courses(courses)
-        else:
-            students = Student.objects.all()
-
         client = AplusTokenClient(token, debug_enabled=True)
 
-        for student in students:
-            self.stdout.write(self.style.NOTICE("Working on {}, {}".format(student, student.url)))
-            student.update_using(client)
-            student.save()
+        if not options['no_students']:
+            if courses:
+                students = Student.objects.get_students_on_courses(courses)
+            else:
+                students = Student.objects.all()
+            for student in students:
+                self.stdout.write(self.style.NOTICE(
+                    "Working on {}, {}"
+                    .format(student, student.url)))
+                student.update_using(client)
+                student.save()
 
-        for course in courses:
-            self.stdout.write(self.style.NOTICE("Updating tags for course {}, {}".format(course, course.url)))
-            StudentTag.update_from_api(client, course)
+        if not options['no_taggings']:
+            for course in courses:
+                self.stdout.write(self.style.NOTICE(
+                    "Updating tags for course {}, {}"
+                    .format(course, course.url)))
+                tag_summary = StudentTag.update_from_api(client, course)
+                self.stdout.write(self.style.SUCCESS(
+                    "  Tags updated. {} new, {} updated, {} deleted."
+                    .format(
+                        len(tag_summary['new']),
+                        len(tag_summary['updated']),
+                        len(tag_summary['deleted']),
+                    )))
+

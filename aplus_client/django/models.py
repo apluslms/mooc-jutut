@@ -35,7 +35,7 @@ class CachedApiQuerySet(models.QuerySet):
         if not created and obj.should_be_updated:
             self.update_object(obj, api_obj, **kwargs)
             obj.save()
-        return obj
+        return obj, created
 
     def get_or_create(self, api_obj, **kwargs):
         select_related = kwargs.pop('select_related', None)
@@ -106,7 +106,7 @@ class CachedApiObject(models.Model):
             except KeyError:
                 continue
             if model:
-                value = model.objects.get_new_or_updated(value, **kwargs)
+                value, _ = model.objects.get_new_or_updated(value, **kwargs)
             setattr(self, name, value)
 
 
@@ -119,10 +119,10 @@ class NamespacedApiQuerySet(CachedApiQuerySet):
     def using_namespace_id(self, namespace_id):
         return self.filter(namespace_id=namespace_id)
 
-    def get_new_or_updated(self, api_obj, **kwargs):
-        if 'namespace' not in kwargs:
+    def get_or_create(self, api_obj, **kwargs):
+        if 'namespace' not in kwargs and 'namespace_id' not in kwargs:
             kwargs['namespace'] = ApiNamespace.get_by_url(api_obj.url)
-        return super().get_new_or_updated(api_obj, **kwargs)
+        return super().get_or_create(api_obj, **kwargs)
 
     def update_object(self, obj, api_obj, namespace=None, **kwargs):
         if namespace is None:
@@ -160,12 +160,14 @@ class NestedApiQuerySet(CachedApiQuerySet):
     def filter(self, *args, **kwargs):
         if 'namespace' in kwargs:
             kwargs[self.namespace_filter] = kwargs.pop('namespace')
+        if 'namespace_id' in kwargs:
+            kwargs[self.namespace_filter + '_id'] = kwargs.pop('namespace_id')
         return super().filter(*args, **kwargs)
 
-    def get_new_or_updated(self, api_obj, **kwargs):
-        if 'namespace' not in kwargs:
+    def get_or_create(self, api_obj, **kwargs):
+        if 'namespace' not in kwargs and 'namespace_id' not in kwargs:
             kwargs['namespace'] = ApiNamespace.get_by_url(api_obj.url)
-        return super().get_new_or_updated(api_obj, **kwargs)
+        return super().get_or_create(api_obj, **kwargs)
 
 
 class NestedApiObject(CachedApiObject):

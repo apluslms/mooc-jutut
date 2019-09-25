@@ -6,7 +6,7 @@
 <h1>{% trans "Update student tags" %}</h1>
 
 {% if has_token %}
-	{% if all_tags == None %}
+	{% if tags == None %}
 		<form method="POST">
 			{% csrf_token %}
 			<button class="btn btn-primary" type="submit">
@@ -15,10 +15,29 @@
 			</button>
 		</form>
 	{% else %}
-		<p>{% trans "Updated" %}:
-		{% for tag in all_tags %}
-			{{ tag|colortag }}
-		{% endfor %}
+		<h4>{% trans "New tags" %}</h4>
+		<p>
+			{% for tag in tags.new %}
+				{{ tag|colortag }}
+			{% empty %}
+				-
+			{% endfor %}
+		</p>
+		<h4>{% trans "Updated tags" %}</h4>
+		<p>
+			{% for tag in tags.updated %}
+				{{ tag|colortag }}
+			{% empty %}
+				-
+			{% endfor %}
+		</p>
+		<h4>{% trans "Deleted tags" %}</h4>
+		<p>
+			{% for tag in tags.deleted %}
+				{{ tag|colortag }}
+			{% empty %}
+				-
+			{% endfor %}
 		</p>
 	{% endif %}
 {% else %}

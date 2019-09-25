@@ -32,7 +32,10 @@ def get_courses(command,
     if site_domain != 'all':
         courses = courses.filter(namespace__in=sites)
     if course_code and course_code != 'all':
-        courses = courses.filter(code=course_code)
+        if course_code.isdigit():
+            courses = courses.filter(id=int(course_code))
+        else:
+            courses = courses.filter(code=course_code)
     courses_c = courses.count()
     if courses_c == 0:
         raise CommandError("No courses found")

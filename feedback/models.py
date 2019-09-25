@@ -66,13 +66,18 @@ class StudentTag(NamespacedApiObject, ColorTag):
     @classmethod
     def update_from_api(cls, client, course):
         course_api = client.load_data(course.url)
+        new_tags = set()
         tags = {}
         students = {}
+        taggings = {}
 
-        for tagging in course_api["taggings"]:
+        # Ensure all tags and students exist, and collect taggings
+        for tagging in course_api.get("taggings", ignore_cache=True):
             tag = tags.get(tagging.tag.id)
             if not tag:
-                tag, _ = cls.objects.get_or_create(tagging.tag, course=course)
+                tag, created = cls.objects.get_new_or_updated(tagging.tag, course=course)
+                if created:
+                    new_tags.add(tag)
                 tags[tag.api_id] = tag
 
             student = students.get(tagging.user.id)
@@ -80,9 +85,27 @@ class StudentTag(NamespacedApiObject, ColorTag):
                 student, _ = Student.objects.get_or_create(tagging.user)
                 students[student.api_id] = student
 
+            taggings.setdefault(student, []).append(tag)
             student.tags.add(tag)
 
-        return list(tags.values())
+        # Update student tags
+        for student, active_tags in taggings.items():
+            student.tags.set(active_tags)
+
+        # Clear orphaned tags
+        active_tag_ids = [tag.id for tag in tags.values()]
+        deleted = list(cls.objects.filter(course=course).exclude(id__in=active_tag_ids).all())
+        deleted.sort(key=lambda t: t.slug)
+        for old_tag in deleted:
+            old_tag.delete()
+
+        updated_tags = [tag for tag in tags.values() if tag not in new_tags]
+        updated_tags.sort(key=lambda t: t.slug)
+        return {
+            'new': list(sorted(new_tags, key=lambda t: t.slug)),
+            'updated': updated_tags,
+            'deleted': deleted,
+        }
 
     def __str__(self):
         return self.name
