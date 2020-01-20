@@ -1,6 +1,6 @@
 {% set form_id = form.auto_id|format("form_" ~ get_random_string(8)) -%}
 {#
-  Tempalte for bootstrap glyph
+  Template for bootstrap glyph
 -#}
 {% macro glyph(name) -%}
 	<span class="glyphicon glyphicon-{{name}}" aria-hidden="true"></span>
@@ -123,4 +123,3 @@
 		})(jQuery);
 	</script>
 </div>
-

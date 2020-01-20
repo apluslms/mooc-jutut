@@ -61,7 +61,9 @@ class Student(NamespacedApiObject):
 
 
 class StudentTag(NamespacedApiObject, ColorTag):
-    course = models.ForeignKey('Course', related_name="student_tags")
+    course = models.ForeignKey('Course',
+                                related_name="student_tags",
+                                on_delete=models.CASCADE)
 
     @classmethod
     def update_from_api(cls, client, course):
@@ -498,5 +500,8 @@ class FeedbackTag(ColorTag):
     feedbacks = models.ManyToManyField(Feedback,
                                        related_name="tags")
 
-    class Meta(ColorTag.Meta):
-        unique_together = ('course', 'slug')
+    def is_valid_slug(self, slug):
+        return slug and not type(self).objects.filter(
+            course=self.course,
+            slug=slug,
+        ).exists()

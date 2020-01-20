@@ -58,26 +58,26 @@
 			{% endwith %}
 
 			{% if feedback_form_grading %}
-				{% with f=form.response_grade %}
+				{% with field=form.response_grade %}
 					{% include "_errors_box.html" with errors=f.errors classes="col-xs-12" %}
 					<div class="form-group replace-with-buttons">
 						<div class="col-xs-10">
 							<div class="btn-group btn-group-justified">
-								{% for c in f %}
+								{% for choice in field %}
 									<label
-										class="btn btn-{{ c.choice_value|grade_color }}
-										{% if c.is_checked and form.instance.responded %}active{% endif %}
+										class="btn btn-{{ choice.data.value|grade_color }}
+										{% if choice.is_checked and form.instance.responded %}active{% endif %}
 										">
 										<input
 											type="radio"
-											name="{{ f.name }}"
-											value="{{ c.choice_value }}"
+											name="{{ field.name }}"
+											value="{{ choice.data.value }}"
 											{% if form.disabled %} disabled {% endif %}
 											autocomplete="off"
-											data-color="{{ c.choice_value|grade_color }}"
-											{% if c.is_checked and form.instance.responded %} checked {% endif %}
+											data-color="{{ choice.data.value|grade_color }}"
+											{% if choice.is_checked and form.instance.responded %} checked {% endif %}
 											/>
-										{{ c.choice_label }}
+										{{ choice.choice_label }}
 									</label>
 								{% endfor %}
 							</div>

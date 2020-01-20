@@ -12,13 +12,14 @@ class LabelWidget(Widget):
     """
     Widget for LabelField
     """
-    def render(self, name, value, attrs):
-        attrs = self.build_attrs(attrs, name=name)
+    template_name = 'dynamic_forms/widgets/label.html'
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        attrs = context['widget']['attrs']
         if 'class' in attrs:
             attrs['class'] = attrs['class'].replace('form-control', '') # fix bootstrap lib
-        if hasattr(self, 'initial'):
-            value = self.initial
-        return format_html('<span {}>{}</span>', flatatt(attrs), mark_safe(value or ''))
+        return context
 
 
 class LabelField(Field):

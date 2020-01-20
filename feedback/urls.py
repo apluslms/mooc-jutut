@@ -4,6 +4,7 @@ from django.views.decorators.cache import cache_page
 
 cache = cache_page(60 * 15) if not settings.DEBUG else lambda x: x
 
+from .apps import FeedbackConfig
 from . import views
 
 FeedbackSubmissionView_view = cache(views.FeedbackSubmissionView.as_view())
@@ -24,6 +25,7 @@ MANAGE = r'^manage/'
 MANAGE_SITE = MANAGE + r'(?P<site_id>\d+)/'
 
 
+app_name = FeedbackConfig.name
 urlpatterns = [
     # Aplus feedback submission
     url(r'^feedback/$',
