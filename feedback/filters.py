@@ -193,7 +193,7 @@ class FeedbackFilter(django_filters.FilterSet):
                                           widget=forms.CheckboxSelectMultiple())
     flags = FlagFilter(label=_("Flags"))
     tags = ColortagIEAndOrFilter(queryset=FeedbackTag.objects.none(), label=_("Tags"))
-    student_tags = ColortagIEAndOrFilter(queryset=StudentTag.objects.none(), label=_("Student tags"))
+    student_tags = ColortagIEAndOrFilter(queryset=StudentTag.objects.none(), field_name='student__tags', label=_("Student tags"))
     exercise = django_filters.ModelChoiceFilter(queryset=Exercise.objects.none())
     student = django_filters.ModelChoiceFilter(queryset=Student.objects.none())
     timestamp = DateTimeFromToRangeFilter(label=_("Timestamp"))
