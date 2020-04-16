@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'bootstrapform',
     'bootstrapform_jinja',
     'django_filters',
+    'plotly',
     # js/css/html resources
     'js_jquery_toggle',
     # libs
@@ -64,6 +65,7 @@ INSTALLED_APPS = [
     'core',
     'accounts',
     'feedback',
+    'timeusage'
 ]
 
 MIDDLEWARE = [

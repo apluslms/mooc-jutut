@@ -1,0 +1,23 @@
+{% load i18n %}
+
+<div class="panel panel-{{ feedback_filter.form.contains_data|yesno:'success,default,danger' }}">
+	<div class="panel-heading" data-toggle="collapse" data-target="#filter-panel" role="button" style="cursor: pointer;">
+		<h3 class="panel-title">
+			{% blocktrans with number=feedback_filter.form.number_of_filters %}Filter options ({{number}} active){% endblocktrans %}
+			<span class="glyphicon glyphicon-menu-down pull-right"></span>
+		</h3>
+	</div>
+	<div id="filter-panel" class="panel-body collapse in {% if feedback_filter.form.is_valid and feedback_filter.qs.count %}collapse-on-load{% endif %}">
+		<form id="filter-form" role="form" action="{% url 'timeusage:time-usage' course_id=course.id %}" method="GET" class="form-horizontal" autocomplete="off">
+			{{ feedback_filter.form.as_p }}
+			<div class="col-xs-12">
+				<div class="btn-group pull-right">
+					<button type="submit" class="btn btn-primary">
+						<span class="glyphicon glyphicon-repeat"></span>
+						Filter
+					</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</div>

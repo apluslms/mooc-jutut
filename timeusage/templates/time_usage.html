@@ -1,0 +1,21 @@
+{% extends "manage/base.html" %}
+{% load static %}
+{% load dictiterators %}
+{% load i18n %}
+
+{% block head %}
+{{ block.super }}
+	<script src="{% static "filterbar.js" %}"></script>{# extra js for feedback filter tool #}
+{% endblock %}
+
+{% block content %}
+	<h1>Time usage for {{course}}</h1>
+
+	{% include "_filter_bar.html" %}
+
+	{% autoescape off %}
+		<p>{{ c_plot }}<p>
+		<p>{{ r_plot }}</p>
+	{% endautoescape %}
+
+{% endblock %}
