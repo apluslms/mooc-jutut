@@ -6,18 +6,17 @@ from feedback.filters import FeedbackFilter
 from plotly.offline import plot
 from plotly.graph_objs import Bar, Figure, Layout
 
-
 class TimeUsageView(ManageCourseMixin, ListView):
 
     model = Feedback
     template_name = "time_usage.html"
-
     def plot_times(self):
         feedbacks = self.get_queryset()
         feedbacks_by_exercise = {}
+
         for f in feedbacks:
             feedbacks_by_exercise.setdefault(f.exercise, []).append(f)
-        
+
         x_data = []
         md_data = [] # medians
         perc75_data = [] # 75th percentiles
@@ -44,8 +43,10 @@ class TimeUsageView(ManageCourseMixin, ListView):
 
         chapter_times = plot(
             Figure(
-                [Bar(name = '75th%', x = x_data, y = perc75_data, marker_color = '#00adf0'),
-                Bar(name = 'median', x = x_data, y = md_data, marker_color = '#0077b4')],
+                [
+                    Bar(name = '75th%', x = x_data, y = perc75_data, marker_color = '#00adf0'),
+                    Bar(name = 'median', x = x_data, y = md_data, marker_color = '#0077b4')
+                ],
                 layout = Layout(xaxis_title='chapter', yaxis_title='minutes', barmode='overlay')
             ),
             output_type='div'
@@ -68,7 +69,7 @@ class TimeUsageView(ManageCourseMixin, ListView):
 
     def get_queryset(self):
         course = self.course
-        queryset = Feedback.objects.filter(exercise__course=course)
+        queryset = Feedback.objects.filter(exercise__course=course, superseded_by=None)
         self.feedback_filter = filter = FeedbackFilter(self.request.GET, queryset, course=course)
         return filter.qs
 
