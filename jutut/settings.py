@@ -64,6 +64,7 @@ INSTALLED_APPS = [
     'core',
     'accounts',
     'feedback',
+    'timeusage'
 ]
 
 MIDDLEWARE = [

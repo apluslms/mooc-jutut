@@ -138,6 +138,10 @@
 									<i class="glyphicon glyphicon-list"></i>
 									{% trans "Student list" %}
 								</a></li>
+								<li><a href="{% url "timeusage:time-usage" course_id=course.id %}">
+									<i class="glyphicon glyphicon-list"></i>
+									{% trans "Time usage" %}
+								</a></li>
 								<li role="separator" class="divider"></li>
 								<li><a href="{% url "feedback:update-studenttags" course_id=course.id %}">
 									<i class="glyphicon glyphicon-tag"></i>
