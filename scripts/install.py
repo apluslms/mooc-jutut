@@ -694,7 +694,7 @@ def do_init():
             dest=OPTS.dest,
             conf=conf,
             conf_arg=('-c {}'.format(conf) if OPTS.config else ''),
-            dconf=OPTS.dest / 'jutut' / 'local_settings,py',
+            dconf=OPTS.dest / 'jutut' / 'local_settings.py',
         )
     )
 

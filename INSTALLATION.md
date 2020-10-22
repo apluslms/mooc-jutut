@@ -28,7 +28,7 @@ sudo apt-get -y install \
 
 ### Setup environment
 
-#### Use installtion script
+#### Use installation script
 
 **Debian note**: You should probably remove nginx default server `rm /etc/nginx/sites-enabled/*`.
 
