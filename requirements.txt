@@ -4,7 +4,7 @@ Jinja2 ~= 2.10.3
 django-jinja==2.3.1
 django-bootstrap-form==3.2.1
 django-jinja-bootstrap-form ~= 4.2.3
-git+https://github.com/Aalto-LeTech/js-jquery-toggle.git@1.1.2#egg=js-jquery-toggle-django==1.1.0&subdirectory=django
+git+https://github.com/Aalto-LeTech/js-jquery-toggle.git@1.1.2#egg=js-jquery-toggle-django==1.1.2&subdirectory=django
 git+https://github.com/Aalto-LeTech/django-dictiterators.git@1.1.0#egg=django-dictiterators==1.1.0
 git+https://github.com/Aalto-LeTech/django-colortag.git@2.2.0#egg=django-colortag==2.2.0
 git+https://github.com/Aalto-LeTech/django-lti-login.git@3.0.0#egg=django-lti-login==3.0.0
