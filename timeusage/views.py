@@ -1,3 +1,5 @@
+import re
+
 from django.views.generic import ListView
 from feedback.views import ManageCourseMixin, update_context_for_feedbacks
 from feedback.models import Feedback
@@ -24,6 +26,7 @@ class TimeUsageView(ManageCourseMixin, ListView):
         perc75_data = [] # 75th percentiles
         md_by_round = {}
         p75_by_round = {}
+        is_hierarchical_name = re.compile(r"^(?P<round>\d+)\.(?P<chapter>\d+)(\.\d+)* ")
         for e, flist in feedbacks_by_exercise.items():
             times = [f.form_data.get('timespent') for f in flist]
             times = [time for time in times if time is not None]
@@ -33,9 +36,23 @@ class TimeUsageView(ManageCourseMixin, ListView):
                 mid_idx = (len_times - 1) // 2
                 md = times[mid_idx] if len_times % 2 else (times[mid_idx] + times[mid_idx+1]) / 2.0
                 perc75 = times[int(round(0.75 * len_times + 0.5)) - 1]
-                xname = '.'.join(e.display_name.split('.')[:2])
-                #count sums by round
-                rd = xname.split('.')[0]
+                # We need to know the exercise round of the exercise so that sums
+                # can be counted by round. The exercise name does not always contain
+                # the hierarchical name that shows the round number:
+                # "1.2.3 exercise title"
+                m = is_hierarchical_name.match(e.display_name)
+                if m:
+                    xname = m.group('round') + '.' + m.group('chapter')
+                    rd = m.group('round')
+                else:
+                    # Assume html_url format: http://plus.domain/coursekey/instancekey/modulekey/chapterkey/exercisekey
+                    # Only the number of slashes matters for extracting the module key (module = exercise round).
+                    url_parts = e.html_url.split('/')
+                    module_key = url_parts[5]
+                    chapter_key = url_parts[6]
+                    xname = '{}-{} {}'.format(module_key, chapter_key, e.display_name)
+                    rd = module_key
+
                 md_by_round[rd] = md if rd not in md_by_round else md_by_round[rd] + md
                 p75_by_round[rd] = perc75 if rd not in p75_by_round else p75_by_round[rd] + perc75
 
