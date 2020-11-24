@@ -9,6 +9,30 @@ from plotly.offline import plot
 from plotly.graph_objs import Bar, Figure, Layout
 
 
+_ending_digits = re.compile(r"(?P<number>\d+)$")
+
+def _get_sorting_number(key):
+    try:
+        order = int(key)
+    except ValueError:
+        m = _ending_digits.search(key)
+        if m:
+            order = int(m.group('number'))
+        else:
+            # Sort alphabetically based on the first two characters.
+            order = 26 * ord(key[0]) + ord(key[1])
+    return order
+
+def _exercise_sorting_key(exercise):
+    module_key, chapter_key = exercise.get_module_and_chapter_numbers_or_keys()
+    module_order = _get_sorting_number(module_key)
+    chapter_order = _get_sorting_number(chapter_key)
+    # Make a simple sorting key that keeps the exercises in the same module
+    # together and sorts the exercises based on the chapter order.
+    # One chapter contains only one feedback exercise.
+    return 10000 * module_order + 100 * chapter_order
+
+
 class TimeUsageView(ManageCourseMixin, ListView):
 
     model = Feedback
@@ -26,8 +50,10 @@ class TimeUsageView(ManageCourseMixin, ListView):
         perc75_data = [] # 75th percentiles
         md_by_round = {}
         p75_by_round = {}
-        is_hierarchical_name = re.compile(r"^(?P<round>\d+)\.(?P<chapter>\d+)(\.\d+)* ")
-        for e, flist in feedbacks_by_exercise.items():
+        # Sort the list of the dictionary keys.
+        sorted_exercises = sorted(feedbacks_by_exercise, key=_exercise_sorting_key)
+        for e in sorted_exercises:
+            flist = feedbacks_by_exercise[e]
             times = [f.form_data.get('timespent') for f in flist]
             times = [time for time in times if time is not None]
             if times:
@@ -37,21 +63,10 @@ class TimeUsageView(ManageCourseMixin, ListView):
                 md = times[mid_idx] if len_times % 2 else (times[mid_idx] + times[mid_idx+1]) / 2.0
                 perc75 = times[int(round(0.75 * len_times + 0.5)) - 1]
                 # We need to know the exercise round of the exercise so that sums
-                # can be counted by round. The exercise name does not always contain
-                # the hierarchical name that shows the round number:
-                # "1.2.3 exercise title"
-                m = is_hierarchical_name.match(e.display_name)
-                if m:
-                    xname = m.group('round') + '.' + m.group('chapter')
-                    rd = m.group('round')
-                else:
-                    # Assume html_url format: http://plus.domain/coursekey/instancekey/modulekey/chapterkey/exercisekey
-                    # Only the number of slashes matters for extracting the module key (module = exercise round).
-                    url_parts = e.html_url.split('/')
-                    module_key = url_parts[5]
-                    chapter_key = url_parts[6]
-                    xname = '{}-{} {}'.format(module_key, chapter_key, e.display_name)
-                    rd = module_key
+                # can be counted by round.
+                module_key, chapter_key = e.get_module_and_chapter_numbers_or_keys()
+                xname = module_key + '.' + chapter_key
+                rd = module_key
 
                 md_by_round[rd] = md if rd not in md_by_round else md_by_round[rd] + md
                 p75_by_round[rd] = perc75 if rd not in p75_by_round else p75_by_round[rd] + perc75
@@ -71,8 +86,14 @@ class TimeUsageView(ManageCourseMixin, ListView):
             output_type='div'
         )
 
-        rounds_p75, p75 = zip(*p75_by_round.items()) if p75_by_round else ([], [])
-        rounds_md, md = zip(*md_by_round.items()) if md_by_round else ([], [])
+        # Sort by the module (exercise round) keys.
+        rounds_p75, p75 = (zip(*sorted(p75_by_round.items(),
+                                       key=lambda x: _get_sorting_number(x[0])))
+                          if p75_by_round else ([], []))
+        rounds_md, md = (zip(*sorted(md_by_round.items(),
+                                     key=lambda x: _get_sorting_number(x[0])))
+                        if md_by_round else ([], []))
+
         round_times = plot(
             Figure(
                 [Bar(name = '75th% weekly sum', x = rounds_p75, y = p75, marker_color = '#00adf0'),

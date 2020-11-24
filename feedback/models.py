@@ -1,7 +1,10 @@
 import datetime
+import re
 import shlex
+
 from collections import namedtuple
 from functools import reduce
+
 from django.db import models, transaction
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
@@ -144,6 +147,8 @@ class Exercise(NestedApiObject):
                                related_name='exercises',
                                on_delete=models.PROTECT)
 
+    IS_HIERARCHICAL_NAME = re.compile(r"^(?P<round>\d+)\.(?P<chapter>\d+)(\.\d+)* ")
+
     @property
     def namespace(self):
         return self.course.namespace
@@ -160,6 +165,21 @@ class Exercise(NestedApiObject):
 
     def __str__(self):
         return self.display_name
+
+    def get_module_and_chapter_numbers_or_keys(self):
+        m = self.IS_HIERARCHICAL_NAME.match(self.display_name)
+        # The exercise name does not always contain the hierarchical name
+        # that shows the round number: "1.2.3 exercise title"
+        if m:
+            module_key = m.group('round') # e.g. "2"
+            chapter_key = m.group('chapter') # e.g. "3"
+        else:
+            # Assume html_url format: http://plus.domain/coursekey/instancekey/modulekey/chapterkey/exercisekey
+            # Only the number of slashes matters for extracting the module key (module = exercise round).
+            url_parts = self.html_url.split('/')
+            module_key = url_parts[5]
+            chapter_key = url_parts[6]
+        return module_key, chapter_key
 
 
 class FeedbackQuerySet(models.QuerySet):
