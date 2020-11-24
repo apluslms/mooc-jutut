@@ -6,10 +6,12 @@ from feedback.filters import FeedbackFilter
 from plotly.offline import plot
 from plotly.graph_objs import Bar, Figure, Layout
 
+
 class TimeUsageView(ManageCourseMixin, ListView):
 
     model = Feedback
     template_name = "time_usage.html"
+
     def plot_times(self):
         feedbacks = self.get_queryset()
         feedbacks_by_exercise = {}
@@ -52,8 +54,8 @@ class TimeUsageView(ManageCourseMixin, ListView):
             output_type='div'
         )
 
-        rounds_p75, p75 = zip(*p75_by_round.items())
-        rounds_md, md = zip(*md_by_round.items())
+        rounds_p75, p75 = zip(*p75_by_round.items()) if p75_by_round else ([], [])
+        rounds_md, md = zip(*md_by_round.items()) if md_by_round else ([], [])
         round_times = plot(
             Figure(
                 [Bar(name = '75th% weekly sum', x = rounds_p75, y = p75, marker_color = '#00adf0'),
