@@ -181,10 +181,20 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
         gd = self.grading_data
         path_key = self.path_key
         exercise_obj = gd.exercise
+        # Fetch the Jutut exercise based on the API ID (exercise ID in the A+ database).
+        # If it does not exist yet, the exercise is created in the Jutut database.
+        # When the exercise is created, the other fields are filled in with
+        # the data from exercise_obj.
         exercise, created = Exercise.objects.get_or_create(exercise_obj, select_related=('course', 'course__namespace')) if exercise_obj else (None, False)
         if not exercise:
             logger.warning("exercise not resolved from submission_url '%s'", self.submission_url)
             return HttpResponseBadRequest("exercise not found from provided submission_url")
+        # Change the display name to the hierarchical name that always contains
+        # the module and chapter numbers.
+        hierarchical_name = exercise_obj._data.get('hierarchical_name')
+        if hierarchical_name and hierarchical_name != exercise.display_name:
+            exercise.display_name = hierarchical_name
+            exercise.save()
         try:
             student = self.get_student(exercise.namespace)
         except SuspiciousStudent as err:
