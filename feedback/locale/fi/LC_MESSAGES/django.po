@@ -6,9 +6,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2020-01-20 13:20+0200\n"
+"POT-Creation-Date: 2020-11-25 12:45+0200\n"
 "PO-Revision-Date: 2019-08-28 18:04+0300\n"
-"Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
+"Last-Translator: Markku Riekkinen <markku.riekkinen@aalto.fi>\n"
 "Language-Team: English <>\n"
 "Language: en_US\n"
 "MIME-Version: 1.0\n"
@@ -53,11 +53,11 @@ msgstr "Lomakkeen sisältö"
 msgid "Order by"
 msgstr "Järjestys"
 
-#: feedback/forms.py:94
+#: feedback/forms.py:117
 msgid "older versions"
 msgstr "vanhemmista versioista"
 
-#: feedback/forms.py:95
+#: feedback/forms.py:118
 #, python-brace-format
 msgid ""
 "Someone else has updated this form. See {older_versions_link} for editing."
@@ -65,127 +65,127 @@ msgstr ""
 "Joku muu on päivittänyt lomaketta. Katso {older_versions_link} mikä on "
 "muuttunut."
 
-#: feedback/models.py:168
+#: feedback/models.py:188
 msgid "Newest versions?"
 msgstr "Uusimmat versiot?"
 
-#: feedback/models.py:169
+#: feedback/models.py:189
 msgid "Newest versions"
 msgstr "Uusimmat versiot"
 
-#: feedback/models.py:172
+#: feedback/models.py:192
 msgid "Read?"
 msgstr "Luettu?"
 
-#: feedback/models.py:173
+#: feedback/models.py:193
 msgid "Read"
 msgstr "Luettu"
 
-#: feedback/models.py:174
+#: feedback/models.py:194
 msgid "Unread"
 msgstr "Lukematon"
 
-#: feedback/models.py:177
+#: feedback/models.py:197
 msgid "Graded?"
 msgstr "Arvosteltu?"
 
-#: feedback/models.py:178
+#: feedback/models.py:198
 msgid "Graded"
 msgstr "Arvosteltu"
 
-#: feedback/models.py:179
+#: feedback/models.py:199
 msgid "Ungraded"
 msgstr "Ei arvosteltu"
 
-#: feedback/models.py:182
+#: feedback/models.py:202
 msgid "Graded how?"
 msgstr "Arvosteltu miten?"
 
-#: feedback/models.py:183
+#: feedback/models.py:203
 msgid "Manually graded"
 msgstr "Käsin arvosteltu"
 
-#: feedback/models.py:184
+#: feedback/models.py:204
 msgid "Automatically graded"
 msgstr "Automaattisesti arvosteltu"
 
-#: feedback/models.py:187
+#: feedback/models.py:207
 msgid "Responded?"
 msgstr "Vastattu?"
 
-#: feedback/models.py:188
+#: feedback/models.py:208
 msgid "Responded"
 msgstr "Vastattu"
 
-#: feedback/models.py:189
+#: feedback/models.py:209
 msgid "Unresponded"
 msgstr "Vastaamaton"
 
-#: feedback/models.py:192
+#: feedback/models.py:212
 msgid "Upload has error?"
 msgstr "Epäonnistuiko lähetys?"
 
-#: feedback/models.py:193
+#: feedback/models.py:213
 msgid "Upload has error"
 msgstr "Lähetys on epäonnistunut"
 
-#: feedback/models.py:194
+#: feedback/models.py:214
 msgid "Upload ok"
 msgstr "Lähetys on onnistunut"
 
-#: feedback/models.py:301
+#: feedback/models.py:321
 msgid "No response"
 msgstr "Ei vastausta"
 
-#: feedback/models.py:302
+#: feedback/models.py:322
 msgid "Rejected"
 msgstr "Hylätty"
 
-#: feedback/models.py:303
+#: feedback/models.py:323
 msgid "Accepted"
 msgstr "Hyväksytty"
 
-#: feedback/models.py:304
+#: feedback/models.py:324
 msgid "Good"
 msgstr "Hyvä"
 
-#: feedback/models.py:311
+#: feedback/models.py:331
 msgid "No notification"
 msgstr "Ei ilmoitusta"
 
-#: feedback/models.py:312
+#: feedback/models.py:332
 msgid "Normal notification"
 msgstr "Normaali ilmoitus"
 
-#: feedback/models.py:313
+#: feedback/models.py:333
 msgid "Important notification"
 msgstr "Tärkeä ilmoitus"
 
-#: feedback/models.py:324 feedback/templates/manage/_exercise_heading.html:33
+#: feedback/models.py:344 feedback/templates/manage/_exercise_heading.html:33
 msgid "Exercise"
 msgstr "Tehtävä"
 
-#: feedback/models.py:335 feedback/templates/manage/_submitter_heading.html:20
+#: feedback/models.py:355 feedback/templates/manage/_submitter_heading.html:20
 msgid "Student"
 msgstr "Opiskelija"
 
-#: feedback/models.py:351
+#: feedback/models.py:371
 msgid "Response time"
 msgstr "Vastausaika"
 
-#: feedback/models.py:356
+#: feedback/models.py:376
 msgid "Responder"
 msgstr "Vastaaja"
 
-#: feedback/models.py:360
+#: feedback/models.py:380
 msgid "Response message"
 msgstr "Vastausviesti"
 
-#: feedback/models.py:363
+#: feedback/models.py:383
 msgid "Response grade"
 msgstr "Arvosana"
 
-#: feedback/models.py:366
+#: feedback/models.py:386
 msgid "Response notify"
 msgstr "Ilmoitus vastauksesta"
 
@@ -417,19 +417,23 @@ msgstr "Hallitse palautetägejä"
 msgid "Student list"
 msgstr "Opiskelijalista"
 
-#: feedback/templates/manage/base.html:144
+#: feedback/templates/manage/base.html:143
+msgid "Time usage"
+msgstr "Ajankäyttö"
+
+#: feedback/templates/manage/base.html:148
 msgid "Update Student tags"
 msgstr "Päivitä opiskelijatägit"
 
-#: feedback/templates/manage/base.html:148
+#: feedback/templates/manage/base.html:152
 msgid "Clear cache"
 msgstr "Tyhjennä välimuisti"
 
-#: feedback/templates/manage/base.html:152
+#: feedback/templates/manage/base.html:156
 msgid "Service status"
 msgstr "Palvelun tila"
 
-#: feedback/templates/manage/base.html:167
+#: feedback/templates/manage/base.html:171
 msgid "Language"
 msgstr "Kieli"
 

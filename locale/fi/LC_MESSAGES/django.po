@@ -6,9 +6,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-18 18:35+0300\n"
+"POT-Creation-Date: 2020-11-25 12:45+0200\n"
 "PO-Revision-Date: 2016-11-22 17:04+0200\n"
-"Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
+"Last-Translator: Markku Riekkinen <markku.riekkinen@aalto.fi>\n"
 "Language-Team: English <>\n"
 "Language: en_US\n"
 "MIME-Version: 1.0\n"
@@ -43,3 +43,8 @@ msgstr "Seuraava"
 #: templates/bootstrapform/field.html:35 templates/bootstrapform/field.html:62
 msgid "(*) Required"
 msgstr "(*) Pakollinen"
+
+#: timeusage/templates/_filter_bar.html:6
+#, python-format
+msgid "Filter options (%(number)s active)"
+msgstr "Rajausvalinnat (%(number)s aktiivista)"
