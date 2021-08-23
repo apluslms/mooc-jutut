@@ -12,6 +12,8 @@ $(function () {
 		// NOTE: should we do reset here? Page rendered after back action would show form that reflects current page content.
 	});
 
+	$('.collapse-on-load').collapse();
+
 	$("#id_feedbackfilter_response_grade").replaceCheckboxesWithButtons();
 	$("#id_feedbackfilter_flags").replaceInputsWithMultiStateButtons({
 			multi_icon: true,
@@ -47,5 +49,4 @@ $(function () {
 	});
 	// $('.colortag-choice').each(django_colortag_choice);
 	$('#filter-form select').chosen({disable_search_threshold: 10});
-	$('.collapse-on-load').collapse();
 });
