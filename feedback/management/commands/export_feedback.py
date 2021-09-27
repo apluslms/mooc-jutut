@@ -10,19 +10,25 @@ from feedback.models import Course, Feedback, Student
 
 class FeedbackStream(list):
 
-    def __init__(self, course):
+    def __init__(self, course, only_text=False):
         self.all = Feedback.objects.filter(exercise__course=course)
         self.iterated = 0
+        self._only_text = only_text
 
     def __iter__(self):
         self.iterated = 0
         for data in self.all.all():
-            feedback = '\n'.join(f[1] for f in data.text_feedback)
-            if feedback:
+            if self._only_text:
+                d = '\n'.join(f[1] for f in data.text_feedback)
+                dkey = 'feedback'
+            else:
+                d = data.form_data
+                dkey = 'data'
+            if d:
                 yield {
                     'exercise': data.exercise_id,
                     'uid': data.student_id,
-                    'feedback': feedback,
+                    dkey: d,
                     'date': str(data.timestamp),
                 }
                 self.iterated += 1
@@ -68,6 +74,13 @@ class Command(BaseCommand):
             help="Jutut Course URL key. This is used to select the course if no 'course_id' parameter is given.",
         )
         parser.add_argument(
+            '-t',
+            '--only-text-feedback',
+            action='store_true',
+            help="If set, only textual feedback is included in the JSON dump under the key 'feedback'. "
+                 "Otherwise, all form data is included under the key 'data'.",
+        )
+        parser.add_argument(
             '-f',
             '--feedback-file',
             help="File path to the output feedback JSON file.",
@@ -100,7 +113,7 @@ class Command(BaseCommand):
                 )
             )
         )
-        fb_stream = FeedbackStream(course)
+        fb_stream = FeedbackStream(course, only_text=options['only_text_feedback'])
         with open(fb_fn, 'w') as out:
             json.dump(fb_stream, out)
 
