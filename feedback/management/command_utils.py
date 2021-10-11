@@ -46,7 +46,7 @@ def get_courses(command,
         command.stdout.write(command.style.SUCCESS("  {}".format(course)))
 
     if single_course and not course_code and courses_c != 1:
-        raise CommandError("More than one course found. Use flag -c to lomit")
+        raise CommandError("More than one course found. Use flag -c to limit")
 
     return courses
 
