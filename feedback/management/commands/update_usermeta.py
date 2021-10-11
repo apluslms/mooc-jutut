@@ -13,7 +13,9 @@ class Command(BaseCommand):
         parser.add_argument('-s', '--site',
                             help="Domain of aplus site or 'all'")
         parser.add_argument('-c', '--course',
-                            help="If there is more than one course, give code of the course you are reloading or 'all'")
+                            help="If there is more than one course, give code of the course you are reloading or 'all'. "
+                                 "The code may be either the database id or the course code.",
+                            )
         parser.add_argument('-t', '--token',
                             required=True,
                             help="API token for user that has permission to update select users")
