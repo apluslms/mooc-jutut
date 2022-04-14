@@ -12,7 +12,7 @@ https://github.com/django/django/blob/master/django/conf/global_settings.py
 """
 
 from os.path import abspath, dirname, join
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 ## Base options
@@ -179,6 +179,9 @@ DATABASES = {
     },
 }
 
+# Default model primary key field
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
+
 
 ## Authentication
 AUTHENTICATION_BACKENDS = [
@@ -281,7 +284,7 @@ RENDERED_STATIC_FILES = {
 # https://docs.djangoproject.com/en/1.9/topics/cache/
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.memcached.MemcachedCache',
+        'BACKEND': 'django.core.cache.backends.memcached.PyMemcacheCache',
         'LOCATION': '127.0.0.1:11211',
     },
     'jinja2mem': {

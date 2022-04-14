@@ -1,23 +1,22 @@
 # Usage: pip install -r requirements.txt
-Django ~= 2.2.0
-Jinja2 ~= 2.10.3
-django-jinja==2.3.1
-django-bootstrap-form==3.2.1
-django-jinja-bootstrap-form ~= 4.2.3
-git+https://github.com/Aalto-LeTech/js-jquery-toggle.git@1.1.2#egg=js-jquery-toggle-django==1.1.2&subdirectory=django
-git+https://github.com/Aalto-LeTech/django-dictiterators.git@1.1.0#egg=django-dictiterators==1.1.0
-git+https://github.com/Aalto-LeTech/django-colortag.git@2.2.0#egg=django-colortag==2.2.0
-git+https://github.com/Aalto-LeTech/django-lti-login.git@3.0.0#egg=django-lti-login==3.0.0
-django-filter ~= 2.2.0
-django-settingsdict==1.0.1
+Django ~= 3.2.13
+Jinja2 ~= 3.1.1
+django-jinja ~= 2.10.0
+django-bootstrap-form ~= 3.2.1
+django-jinja-bootstrap-form ~= 4.3.4
+git+https://github.com/apluslms/django-essentials.git@1.4.0#egg=django-essentials~=1.4.0
+git+https://github.com/apluslms/js-jquery-toggle.git@1.1.2#egg=js-jquery-toggle-django~=1.1.2&subdirectory=django
+git+https://github.com/apluslms/django-dictiterators.git@1.1.1#egg=django-dictiterators~=1.1.1
+git+https://github.com/apluslms/django-colortag.git@2.3.0#egg=django-colortag~=2.3.0
+git+https://github.com/apluslms/django-lti-login.git@3.2.0#egg=django-lti-login~=3.2.0
+django-filter ~= 2.4.0
+django-settingsdict ~= 1.1.1
 celery ~= 4.3.0
-psycopg2-binary >= 2.8.0, < 2.9
-# Django 2.2 does not work with psycopg2 2.9
-python-memcached==1.58
-raphendyr-django-essentials==1.3.0
-ansi2html==1.2.0
-plotly~=4.5.0
+psycopg2-binary ~= 2.9.3
+pymemcache ~= 3.5.2
+ansi2html ~= 1.2.0
+plotly ~= 4.5.0
 
 # aplus_client
-cachetools==1.1.6
+cachetools ~= 4.2.1
 requests ~= 2.22.0

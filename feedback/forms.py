@@ -4,7 +4,7 @@ from hashlib import md5
 from django import forms
 from django.urls import reverse
 from django.utils.timezone import now as timezone_now
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.utils.html import mark_safe
 from django_colortag.forms import ColorTagForm
 
