@@ -1,10 +1,9 @@
 import logging
 from django.apps import apps
-from django.contrib.postgres import fields as pg_fields
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.functional import cached_property
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from .forms import DynamicForm, DummyForm, format_lazy
 from .utils import bytefy, freeze_digest
@@ -41,8 +40,8 @@ class Form(models.Model):
     objects = FormManager()
 
     sha1 = models.CharField(max_length=40, db_index=True)
-    form_spec = pg_fields.JSONField()
-    form_i18n = pg_fields.JSONField(blank=True, null=True)
+    form_spec = models.JSONField()
+    form_i18n = models.JSONField(blank=True, null=True)
 
     class Meta:
         abstract = apps.get_containing_app_config(__name__) is None

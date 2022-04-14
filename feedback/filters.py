@@ -1,11 +1,11 @@
 import datetime
 from itertools import chain
 
+from django.db import models
 import django_filters
 from django import forms
-from django.contrib.postgres import fields as pg_fields
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from django_colortag.filters import ColortagIncludeExcludeFilter, ColortagIEAndOrFilter
 
@@ -222,7 +222,7 @@ class FeedbackFilter(django_filters.FilterSet):
         )
         filter_overrides = {
             # hack to make django_filters not to complain about jsonfield
-            pg_fields.JSONField: { 'filterset_class': django_filters.CharFilter },
+            models.JSONField: { 'filterset_class': django_filters.CharFilter },
         }
 
     def __init__(self, data, *args, course=None, **kwargs):

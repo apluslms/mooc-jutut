@@ -5,6 +5,6 @@ but we still need them to be translated.
 This is easier method than finding some hard way to add translations
 for specifig files or modules from libaries to project locales files.
 """
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 _('This field is required.')

@@ -79,7 +79,7 @@ Celery logs with `journalctl -t mooc-jutut-celery`.
 * Configure rabbitmq
 * Configure nginx
 * Configure systemd services (checkout `scripts/templates/` for templates)
-* Clone repo / checkout new brnach
+* Clone repo / checkout new branch
 * Install virtual env
 * Link python packages from the system
 

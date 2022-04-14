@@ -10,9 +10,9 @@ Service expects that A-Plus is configured with correct form layout and layout is
 Requirements
 ------------
 
-* Python 3.4+
-* Django 1.9+
-* Postgresql 9.5+
+* Python 3.9+
+* Django 3.2+
+* Postgresql 9.6+
 
 More details of packages in installation documentation.
 

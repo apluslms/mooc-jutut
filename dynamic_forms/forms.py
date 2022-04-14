@@ -6,7 +6,7 @@ from django.forms.renderers import Jinja2 as Jinja2Renderer
 from django.forms.utils import pretty_name
 from django.utils.html import conditional_escape
 from django.utils.safestring import mark_safe
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 try:
     from django.utils.text import format_lazy
 except ImportError: # introduced in Django 1.11
