@@ -11,7 +11,7 @@ StandardOutput=syslog
 StandardError=syslog
 WorkingDirectory=$dest/
 Environment="PATH=$venv/bin/:/usr/local/bin:/usr/bin:/bin"
-ExecStart=$venv/bin/celery beat --pidfile=$run_path/celerybeat.pid --loglevel=info --schedule=$home/celerybeat-schedule --app jutut
+ExecStart=$venv/bin/celery --app jutut beat --pidfile=$run_path/celerybeat.pid --loglevel=info --schedule=$home/celerybeat-schedule
 PIDFile=$run_path/celerybeat.pid
 ExecReload=/bin/kill -s HUP $$MAINPID
 ExecStop=/bin/kill -s TERM $$MAINPID

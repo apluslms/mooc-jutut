@@ -11,7 +11,7 @@ StandardOutput=syslog
 StandardError=syslog
 WorkingDirectory=$dest/
 Environment="PATH=$venv/bin/:/usr/local/bin:/usr/bin:/bin"
-ExecStart=$venv/bin/celery worker --pidfile=$run_path/celery.pid --loglevel=info --autoscale=6,1 --app jutut
+ExecStart=$venv/bin/celery --app jutut worker --pidfile=$run_path/celery.pid --loglevel=info --autoscale=6,1
 PIDFile=$run_path/celery.pid
 ExecReload=/bin/kill -s HUP $$MAINPID
 ExecStop=/bin/kill -s TERM $$MAINPID
