@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2017-10-25 23:14+0300\n"
+"POT-Creation-Date: 2022-05-06 21:26+0300\n"
 "PO-Revision-Date: 2017-10-18 18:36+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: English <>\n"
@@ -17,23 +17,23 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 2.0\n"
 
-#: core/templates/core/statuspage.html:13
+#: core/templates/core/statuspage.html
 msgid "Service status"
 msgstr "Palvelun tila"
 
-#: core/templates_j2/core/frontpage.html:3
+#: core/templates_j2/core/frontpage.html
 msgid "Frontpage"
 msgstr "Etusivu"
 
-#: core/templates_j2/core/frontpage.html:15
+#: core/templates_j2/core/frontpage.html
 msgid "An interactive course feedback and response tool"
 msgstr "Interaktiivinen kurssipalaute ja vastaus-työkalu"
 
-#: core/templates_j2/core/frontpage.html:18
+#: core/templates_j2/core/frontpage.html
 msgid "View the Github project"
 msgstr "Katso Github-projekti"
 
-#: core/templates_j2/core/frontpage.html:25
+#: core/templates_j2/core/frontpage.html
 msgid ""
 "\n"
 "Welcome to your institution's Jutut installation.\n"
@@ -41,7 +41,7 @@ msgstr ""
 "\n"
 "Tervetuloa instituutiosi Jutut-asennukseen.\n"
 
-#: core/templates_j2/core/frontpage.html:28
+#: core/templates_j2/core/frontpage.html
 #, python-format
 msgid ""
 "\n"
@@ -53,7 +53,7 @@ msgstr ""
 "%(site)sfeedback/[course_tag]/[exercise_name]</code> ja Jutut hoitaa "
 "puolestasi loput.\n"
 
-#: core/templates_j2/core/frontpage.html:35
+#: core/templates_j2/core/frontpage.html
 msgid ""
 "\n"
 "To browse and respond feedbacks, login using LTI and you will be forwarded "
@@ -63,7 +63,7 @@ msgstr ""
 "Selataksesi palautteita sinun tulee kirjautua sisään LTI:llä. Kirjautumisen "
 "yhteydessä sinut ohjataan oikealle sivulle.\n"
 
-#: core/templates_j2/core/frontpage.html:38
+#: core/templates_j2/core/frontpage.html
 msgid ""
 "\n"
 "You may use <code>./manage.py add_lti_key</code> to configure LTI keys for "
@@ -73,10 +73,10 @@ msgstr ""
 "Voit lisätä LTI avaimia komennolla <code>./manage.py add_lti_key</code>. "
 "Huomaa myös muut LTI komennot.\n"
 
-#: core/templates_j2/core/frontpage.html:43
+#: core/templates_j2/core/frontpage.html
 msgid "Enter the management site"
 msgstr "Siirry hallintasivustolle"
 
-#: core/templates_j2/core/frontpage.html:46
+#: core/templates_j2/core/frontpage.html
 msgid "View status of services"
 msgstr "Katso palveluiden tila"

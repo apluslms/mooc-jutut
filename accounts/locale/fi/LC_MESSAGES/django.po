@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2018-08-30 16:32+0300\n"
+"POT-Creation-Date: 2022-05-06 21:26+0300\n"
 "PO-Revision-Date: 2016-09-19 12:35+0200\n"
 "Last-Translator: Jaakko Kantojärvi <jaakko.kantojarvi@aalto.fi>\n"
 "Language-Team: English <>\n"
@@ -17,15 +17,15 @@ msgstr ""
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 "X-Generator: Lokalize 2.0\n"
 
-#: accounts/models.py:13
+#: accounts/models.py
 msgid "API token"
 msgstr "API avain"
 
-#: accounts/templates/registration/login.html:7
+#: accounts/templates/registration/login.html
 msgid "Your username and password didn't match. Please try again."
 msgstr "Käyttäjätunnus ja salasana eivät täsmää. Ole hyvä ja yritä uudelleen."
 
-#: accounts/templates/registration/login.html:12
+#: accounts/templates/registration/login.html
 msgid ""
 "\n"
 "    Your account doesn't have access to this page. To proceed,\n"
@@ -36,6 +36,6 @@ msgstr ""
 "Sinulla ei ole oikeuksia katsella tätä sivua. Jatkaaksesi kirjaudu toisella "
 "käyttäjätunnuksella sisään."
 
-#: accounts/templates/registration/login.html:17
+#: accounts/templates/registration/login.html
 msgid "Please login to see this page."
 msgstr "Kirjaudu sisään nähdäksesi tämän sivun."
