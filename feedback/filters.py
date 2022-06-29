@@ -1,13 +1,11 @@
 import datetime
-from itertools import chain
 
 from django.db import models
 import django_filters
 from django import forms
-from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
-from django_colortag.filters import ColortagIncludeExcludeFilter, ColortagIEAndOrFilter
+from django_colortag.filters import ColortagIEAndOrFilter
 
 from .models import (
     Student,
