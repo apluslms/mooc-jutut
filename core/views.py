@@ -22,8 +22,8 @@ class ServiceStatusData(LoginRequiredMixin, TemplateView):
         context['dynamic_form_cache_size'] = len(DynamicFeedbacForm.FORM_CACHE)
         context['dynamic_form_cache_max'] = DynamicFeedbacForm.FORM_CACHE.max_size
 
-        from celery.task.control import inspect
-        i = inspect()
+        from jutut.celery import app
+        i = app.control.inspect()
         context['celery_stats'] = celery_stats = {}
         for group in ('active', 'scheduled', 'reserved'):
             for host, items in (getattr(i, group)() or {}).items():
