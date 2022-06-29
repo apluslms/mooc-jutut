@@ -107,7 +107,7 @@ class FlagWidget(forms.MultiWidget):
     template_name = "feedback/widgets/flag_multiwidget.html"
 
     def __init__(self, attrs=None):
-        widgets = (
+        widgets = tuple(
             forms.Select(attrs, fg.choices) for fg in FeedbackQuerySet.FLAG_GROUPS
         )
         super().__init__(widgets, attrs)
