@@ -39,6 +39,17 @@
 					</a>
 				{% endif %}
 			</li>
+			<li>
+				<form class="navbar-form navbar-left" action="." method="get">
+					<div class="form-group">
+						<select name="paginate_by" class="paginate_by" onchange="this.form.submit()">
+							<option value="50">50</option>
+							<option value="100">100</option>
+							<option value="200">200</option>
+						</select>
+					</div>
+				</form>
+			</li>
 		</ul>
 	</nav>
 {% endif %}
