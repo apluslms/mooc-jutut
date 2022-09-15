@@ -1,6 +1,12 @@
 {% extends "manage/base.html" %}
+{% load static %}
 {% load dictiterators %}
 {% load i18n %}
+
+{% block head %}
+{{ block.super }}
+	<script src="{% static "pagination.js" %}"></script>
+{% endblock %}
 
 {% block content %}
 	<h1>{% trans "Unread Feedback" %}</h1>

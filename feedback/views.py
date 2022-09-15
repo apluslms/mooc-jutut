@@ -488,17 +488,26 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
     )
 
 class PaginatedMixin():
+    paginate_by = 50
+    PAGE_SIZE_CHOICES = ("20", "50", "100", "200")
+
     def get_paginate_by(self, queryset):
         value = self.request.GET.get('paginate_by')
-        if value is not None and value in ("50", "100", "200"):
-            return value
-        else:
-            return self.paginate_by
+        if value is not None and value in self.PAGE_SIZE_CHOICES:
+            self.paginate_by = int(value)
+        return self.paginate_by
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['page_sizes'] = list(map(
+            lambda size: (size, int(size) == self.paginate_by),
+            self.PAGE_SIZE_CHOICES))
+        return context
+
 
 class ManageNotRespondedListView(ManageCourseMixin, PaginatedMixin, ListView):
     model = Feedback
     template_name = "manage/feedback_unread.html"
-    paginate_by = 50
 
     def get_queryset(self):
         course_id = self.kwargs['course_id']
@@ -516,7 +525,6 @@ class ManageNotRespondedListView(ManageCourseMixin, PaginatedMixin, ListView):
 class ManageFeedbacksListView(ManageCourseMixin, PaginatedMixin, ListView):
     model = Feedback
     template_name = "manage/feedback_list.html"
-    paginate_by = 50
 
     def get_queryset(self):
         course = self.course

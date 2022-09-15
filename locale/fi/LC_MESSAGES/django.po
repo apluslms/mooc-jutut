@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-06 21:26+0300\n"
+"POT-Creation-Date: 2022-09-15 18:13+0300\n"
 "PO-Revision-Date: 2016-11-22 17:04+0200\n"
 "Last-Translator: Markku Riekkinen <markku.riekkinen@aalto.fi>\n"
 "Language-Team: English <>\n"
@@ -39,6 +39,10 @@ msgstr ""
 #: templates/_pagination.html
 msgid "Next"
 msgstr "Seuraava"
+
+#: templates/_pagination.html
+msgid "items per page"
+msgstr "palautetta sivulla"
 
 #: templates/bootstrapform/field.html
 msgid "(*) Required"

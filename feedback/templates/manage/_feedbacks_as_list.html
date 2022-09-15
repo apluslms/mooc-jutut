@@ -7,14 +7,6 @@
 		feedbacks created with get_feedback_dict
 {% endcomment %}
 
-{% if request.GET.paginate_by %}
-	<script>
-		let selects = document.getElementsByClassName("paginate_by");
-		for (let select of selects) {
-			select.value="{{ request.GET.paginate_by }}";
-		}
-	</script>
-{% endif %}
 {% include "_pagination.html" %}
 
 {% foreachdict in feedbacks %}

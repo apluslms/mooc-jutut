@@ -42,11 +42,14 @@
 			<li>
 				<form class="navbar-form navbar-left" action="." method="get">
 					<div class="form-group">
-						<select name="paginate_by" class="paginate_by" onchange="this.form.submit()">
-							<option value="50">50</option>
-							<option value="100">100</option>
-							<option value="200">200</option>
-						</select>
+						<label>
+							<select name="paginate_by" class="paginate_by">
+								{% for opt in page_sizes %}
+									<option value="{{ opt.0 }}" {% if opt.1 %}selected{% endif %}>{{ opt.0 }}</option>
+								{% endfor %}
+							</select>
+							{% translate "items per page" %}
+						</label>
 					</div>
 				</form>
 			</li>
