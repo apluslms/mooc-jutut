@@ -1,0 +1,2 @@
+# Usage: pip install -r requirements_testing.txt
+prospector
