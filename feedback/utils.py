@@ -49,7 +49,10 @@ def update_response_to_aplus(feedback):
     r = client.grade(update_data, timeout=(6.4, 46))
     feedback.response_uploaded = r.status_code
     log_method = logger.debug if r.status_code == 200 else logger.critical
-    log_method("Update of feedback %d to submission_url '%s' returned with %d: '%s'", feedback.id, submission_url, r.status_code, r.text)
+    log_method(
+        "Update of feedback %d to submission_url '%s' returned with %d: '%s'",
+        feedback.id, submission_url, r.status_code, r.text
+    )
     return (r.status_code == 200, r.status_code, r.text)
 
 

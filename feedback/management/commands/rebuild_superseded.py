@@ -1,5 +1,5 @@
 from django.db import transaction
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from ..command_utils import get_feedback_queryset
 from ...models import Feedback
@@ -14,7 +14,8 @@ class Command(BaseCommand):
         parser.add_argument('-s', '--site',
                             help="Domain of aplus site or 'all'")
         parser.add_argument('-c', '--course',
-                            help="If there is more than one course, give code of the course you are reloading or 'all'")
+                            help="If there is more than one course, "
+                            "give code of the course you are reloading or 'all'")
 
     def handle(self, *args, **options):
         feedbacks, feedbacks_count = get_feedback_queryset(

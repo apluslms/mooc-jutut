@@ -11,7 +11,7 @@ from .models import (
 
 
 class CachedAdmin(admin.ModelAdmin):
-    def has_add_permission(self, request, obj=None):
+    def has_add_permission(self, request, obj=None): # pylint: disable=unused-argument
         return False
 
 

@@ -18,7 +18,7 @@ class FakeResponse:
         try:
             return json.loads(self.text) if self.text else None
         except ValueError as e:
-            raise RuntimeError("Json error in {}: {}".format(self.url, e))
+            raise RuntimeError("Json error in {}: {}".format(self.url, e)) from e
 
 
 class AplusClientDebugging:
@@ -27,7 +27,7 @@ class AplusClientDebugging:
             furl = url[len(TEST_URL_PREFIX):].strip('/').replace('/', '__')
             fn = ''.join((TEST_DATA_PATH, '/', furl, ".json"))
             logger.debug("making test GET '%s', file=%r", url, fn)
-            with open(fn, 'r') as f:
+            with open(fn, 'r', encoding='utf-8') as f:
                 return FakeResponse(fn, 200, f.read())
         return super().do_get(url, **kwargs)
 
@@ -36,5 +36,3 @@ class AplusClientDebugging:
             logger.debug("making test POST '%s', data=%r", url, data)
             return FakeResponse(url, 200, "{'result': 'accepted'}")
         return super().do_post(url, data, **kwargs)
-
-

@@ -24,5 +24,6 @@ def check_system_service_status(command):
         stderr=subprocess.STDOUT,
         env=env,
         universal_newlines=True,
+        check=False,
     )
     return out.returncode == 0, out.stdout

@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 
 import argparse
-import pwd, grp
+import pwd
+import grp
 import string
 import sys
 import time
@@ -53,6 +54,7 @@ def warning(*msg):
 def disable_debug():
     global DEBUG, debug
     DEBUG = False
+
     def nop(*args):
         pass
     debug = nop
@@ -150,7 +152,7 @@ def _exec(cmd, quiet_test=False, get_output=False, **kwargs):
                 handle_line(line)
             returncode = proc.returncode
     else:
-        proc = run(cmd, stdout=PIPE, stderr=STDOUT, **kwargs)
+        proc = run(cmd, stdout=PIPE, stderr=STDOUT, check=False, **kwargs)
         returncode = proc.returncode
         output = proc.stdout.decode('utf-8')
         if not quiet_test and returncode != 0:
@@ -162,13 +164,14 @@ def _exec(cmd, quiet_test=False, get_output=False, **kwargs):
         return returncode, output
     return returncode
 
-def exec(*cmd, **kwargs):
+def exec(*cmd, **kwargs): # pylint: disable=redefined-builtin
     return _exec(cmd, **kwargs)
 
 def define_execs():
     """define shorthand executables in global namespace"""
     if OPTS.sudo_user:
         sudo_user = arg_split(OPTS.sudo_user)
+
         def exec_user(*cmd, **kwargs):
             kwargs.setdefault('cwd', str(OPTS.home))
             return _exec(sudo_user + cmd, **kwargs)
@@ -176,21 +179,23 @@ def define_execs():
         exec_user = exec
 
     sudo_pg = arg_split(OPTS.sudo_pg)
-    def exec_pg(*cmd, **kwargs):
+
+    def exec_pg(*cmd, **kwargs): # pylint: disable=possibly-unused-variable
         kwargs.setdefault('cwd', '/tmp')
         return _exec(sudo_pg + cmd, **kwargs)
 
-    def exec_git(*cmd, **kwargs):
+    def exec_git(*cmd, **kwargs): # pylint: disable=possibly-unused-variable
         kwargs.setdefault('cwd', str(OPTS.dest))
         return exec_user('git', *cmd, **kwargs)
 
     venv_bin = OPTS.venv / 'bin'
+
     def exec_venv(proc, *args, **kwargs):
         cmd = venv_bin / proc
         kwargs.setdefault('cwd', str(OPTS.dest))
         return exec_user(cmd, *args, **kwargs)
 
-    def exec_manage(*args, **kwargs):
+    def exec_manage(*args, **kwargs): # pylint: disable=possibly-unused-variable
         return exec_venv('python', 'manage.py', *args, **kwargs)
 
     globals().update({k: v for k, v in locals().items() if k.startswith('exec')})
@@ -424,7 +429,6 @@ def enable_site():
         flag_file.unlink()
 
 
-
 # -------------------- CLI ----------------------
 # -----------------------------------------------
 
@@ -438,12 +442,12 @@ CONFIG_LOADED = None
 CONFIG_OPTIONS = set()
 def load_configuration(parser, namespace, config):
     """Loads configuration and applies it to namespace"""
-    global CONFIG_LOADED, CONFIG_OPTIONS
+    global CONFIG_LOADED, CONFIG_OPTIONS # pylint: disable=global-variable-not-assigned
     assert config, "Config file is required"
     config_parser = ConfigParser(interpolation=None)
     config_parser.read(str(config))
     actions = {}
-    get_bool = lambda c, n: c.getboolean(n)
+    get_bool = lambda c, n: c.getboolean(n) # pylint: disable=unnecessary-lambda-assignment
     for group in parser._action_groups:
         section = SECTIONS.get(group.title, group.title)
         if section:
@@ -452,6 +456,7 @@ def load_configuration(parser, namespace, config):
                     getter = get_bool
                 else:
                     convert = parser._registry_get('type', action.type, action.type)
+                    # pylint: disable-next=unnecessary-lambda-assignment cell-var-from-loop
                     getter = lambda c, n: convert(c[n])
                 actions[action.dest] = getter
     for section in config_parser.sections():
@@ -482,11 +487,13 @@ def store_configuration(config):
                     vals[name] = value
             if vals:
                 config_parser[section] = vals
-    with config.open('w') as f:
+    with config.open('w', encoding='utf-8') as f:
         f.write("""; Configuration file for MOOC Jutut installer\n\n""")
         config_parser.write(f)
 
-def parse_options():
+# following noqa: MC0001 skips parse_options is too complex (16) error
+# it was decided during the linter setup that this function would not be refactored at that time
+def parse_options(): # noqa: MC0001
     global OPTS, ORIGINAL_OPTS, PARSER
 
     proc_path = Path(sys.argv[0])
@@ -632,6 +639,7 @@ def parse_options():
     ORIGINAL_OPTS = data.copy()
 
     # Expand variables in options
+    # pylint: disable-next=consider-using-set-comprehension
     todo = set([k for k, v in data.items() if isinstance(v, str) and '$' in v])
     for k in todo:
         data[k] = v = expandvars(data[k])
@@ -762,7 +770,10 @@ def do_backup():
     if test_database_exists():
         create_sql_backup(db_ok=True)
     else:
-        exit_with_error(1, "User %s can't connect to db %s. Have you configured it yet?" % (OPTS.user, OPTS.sql_db_name))
+        exit_with_error(
+            1,
+            "User %s can't connect to db %s. Have you configured it yet?" % (OPTS.user, OPTS.sql_db_name)
+        )
 
 
 if __name__ == '__main__':
@@ -781,8 +792,11 @@ if __name__ == '__main__':
         exit_with_error(1, "Installer requires that it's run outside of a virtualenv.")
 
     # make sure there was config argument
-    if not OPTS.config and OPTS.action != do_init:
-        exit_with_error(1, "Run action 'init' first to create config files. After that always call with --config argument")
+    if not OPTS.config and OPTS.action != do_init: # pylint: disable=comparison-with-callable
+        exit_with_error(
+            1,
+            "Run action 'init' first to create config files. After that always call with --config argument"
+        )
     elif OPTS.config and not OPTS.config.exists():
         exit_with_error(1, "Specified config file doesn't exists: %s" % (OPTS.config,))
 
@@ -793,7 +807,11 @@ if __name__ == '__main__':
         if is_user(OPTS.user):
             OPTS.sudo_user = ''
         else:
-            exit_with_error(1, "Installation expects you to be root for full installation or user for upgrade. Make sure --user and --group are set correctly.")
+            exit_with_error(
+                1,
+                "Installation expects you to be root for full installation or user for upgrade. "
+                "Make sure --user and --group are set correctly."
+            )
 
     # define all exec_* commands to global namespace
     define_execs()

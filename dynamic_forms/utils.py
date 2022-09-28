@@ -1,10 +1,9 @@
 from hashlib import sha1
-from collections import Iterable
+from collections import Iterable # pylint: disable=deprecated-class
 from itertools import chain as iterchain
 from operator import itemgetter
 from django.utils import translation
 from django.utils.functional import lazy
-from hashlib import sha1
 
 
 def bytefy(data):
@@ -16,7 +15,7 @@ def bytefy(data):
         keys = [(str(k), k, v) for k, v in data.items()]
         keys.sort(key=itemgetter(0))
         return b'{' + b','.join(encode(k) + b':' + bytefy(v) for _, k, v in keys) + b'}'
-    elif isinstance(data, Iterable) and not isinstance(data, (str, bytes)):
+    if isinstance(data, Iterable) and not isinstance(data, (str, bytes)):
         return b'[' + b','.join(bytefy(v) for v in data) + b']'
     return encode(data)
 
@@ -24,7 +23,7 @@ def bytefy(data):
 def freeze(data):
     if isinstance(data, dict):
         return tuple(((k, freeze(v)) for k, v in sorted(data.items())))
-    elif isinstance(data, list):
+    if isinstance(data, list):
         return tuple((freeze(v) for v in data))
     return data
 
@@ -39,6 +38,7 @@ def freeze_digest(frozen_spec, frozen_i18n):
 def hashsum(data, hash_func=None):
     if not hash_func:
         hash_func = sha1()
+
     def recurse(data):
         if isinstance(data, dict):
             data = sorted(data.items())
@@ -58,14 +58,14 @@ def cleaned_css_classes(css_classes, ignore=None):
     )
     if not ignore:
         return [c for c in cleaned if c]
-    else:
-        return [c for c in cleaned if c and c not in ignore]
+    return [c for c in cleaned if c and c not in ignore]
 
 
-def _translate_lazy(input, dictionary):
+def _translate_lazy(input, dictionary): # pylint: disable=redefined-builtin
     if dictionary:
         lang = translation.get_language()
         return dictionary.get(input, {}).get(lang) or input
     return input
+
 
 translate_lazy = lazy(_translate_lazy, str)

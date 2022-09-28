@@ -35,7 +35,7 @@ class DynamicFeedbacForm(DynamicForm):
 
         min_len = app_settings.TEXT_FIELD_MIN_LENGTH
         fields = self.optional_text_fields
-        ok = lambda x: bool(x) and len(x) > min_len
+        ok = lambda x: bool(x) and len(x) > min_len # pylint: disable=unnecessary-lambda-assignment
         return any(
             ok(data[name]) for name in fields.keys()
         )

@@ -1,10 +1,9 @@
-import time
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from aplus_client.client import AplusTokenClient
 
 from ..command_utils import get_courses
-from ...models import Student, StudentTag, Feedback
+from ...models import Student, StudentTag
 
 class Command(BaseCommand):
     help = 'Reload submission data from aplus'
@@ -13,7 +12,8 @@ class Command(BaseCommand):
         parser.add_argument('-s', '--site',
                             help="Domain of aplus site or 'all'")
         parser.add_argument('-c', '--course',
-                            help="If there is more than one course, give code of the course you are reloading or 'all'. "
+                            help="If there is more than one course, "
+                                 "give code of the course you are reloading or 'all'. "
                                  "The code may be either the database id or the course code.",
                             )
         parser.add_argument('-t', '--token',
@@ -31,7 +31,6 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         token = options['token']
-        wait = options['wait']/1000
         courses = get_courses(self, site_domain=options['site'], course_code=options['course'])
 
         client = AplusTokenClient(token, debug_enabled=True)
@@ -61,4 +60,3 @@ class Command(BaseCommand):
                         len(tag_summary['updated']),
                         len(tag_summary['deleted']),
                     )))
-

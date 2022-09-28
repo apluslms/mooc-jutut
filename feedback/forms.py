@@ -3,6 +3,7 @@ from datetime import datetime
 from hashlib import md5
 from django import forms
 from django.urls import reverse
+from django.utils.text import format_lazy
 from django.utils.timezone import now as timezone_now
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import mark_safe
@@ -114,8 +115,14 @@ class ResponseForm(forms.ModelForm):
                 'user_id': self.instance.student.id,
                 'exercise_id': self.instance.exercise.id,
             })
-            link = '<a href="{url}" target="_blank" class="alert-link">{link_text}</a>'.format(url=url, link_text=_("older versions"))
-            msg = _("Someone else has updated this form. See {older_versions_link} for editing.").format(older_versions_link=link)
+            link = '<a href="{url}" target="_blank" class="alert-link">{link_text}</a>'.format(
+                url=url,
+                link_text=_("older versions")
+            )
+            msg = format_lazy(
+                _("Someone else has updated this form. See {older_versions_link} for editing."),
+                older_versions_link=link,
+            )
             raise forms.ValidationError(mark_safe(msg))
         return data_changed_check
 
@@ -131,7 +138,7 @@ class ResponseForm(forms.ModelForm):
         return Feedback.NOTIFY.NORMAL if old_msg != new_msg else Feedback.NOTIFY.NO
         # FIXME: add support for instance.NOTIFY.IMPORTANT
 
-    def save(self):
+    def save(self): # pylint: disable=arguments-differ
         user = self._user
         if user is None:
             raise RuntimeError("ResponseForm without user, can't be saved.")
@@ -154,7 +161,7 @@ class ResponseForm(forms.ModelForm):
         # if there is upload, do it now after instance is saved
         if upload:
             logger.debug("Instance has changes, requesting upload to aplus.")
-            upload()
+            upload() # pylint: disable=not-callable
         else:
             logger.debug("No changes to response, so no aplus updated needed.")
 

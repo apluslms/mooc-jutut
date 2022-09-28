@@ -1,5 +1,5 @@
 # Hstore Aggregates
-from django.db.models.aggregates import Aggregate, Avg
+from django.db.models.aggregates import Aggregate
 from django.contrib.postgres import fields
 
 
@@ -14,7 +14,7 @@ class PgAggregate(Aggregate):
             field, key = field.split('->', 1)
         self.__data_type = data_type
         self.__get_field_oper = get_field_oper
-        super(PgAggregate, self).__init__(field.strip(), key=key.strip(), **kwargs)
+        super().__init__(field.strip(), key=key.strip(), **kwargs)
 
     def resolve_expression(self, *args, **kwargs):
         resolved = super().resolve_expression(*args, **kwargs)

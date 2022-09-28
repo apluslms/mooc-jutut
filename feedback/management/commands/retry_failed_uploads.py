@@ -1,5 +1,5 @@
 import time
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from ..command_utils import get_feedback_queryset
 from ...utils import update_response_to_aplus
@@ -14,7 +14,8 @@ class Command(BaseCommand):
         parser.add_argument('-s', '--site',
                             help="Domain of aplus site or 'all'")
         parser.add_argument('-c', '--course',
-                            help="If there is more than one course, give code of the course you are reloading or 'all'")
+                            help="If there is more than one course, "
+                            "give code of the course you are reloading or 'all'")
         parser.add_argument('--max-retries',
                             type=int, default=20,
                             help="Do not retry if there has been this many retries before. set 0 to ignore")
@@ -45,10 +46,14 @@ class Command(BaseCommand):
         self.stdout.write(self.style.SUCCESS("Going to reupload {} failed feedbacks.".format(feedbacks_count)))
 
         for feedback in feedbacks:
-            self.stdout.write(self.style.NOTICE("Retrying {} to '{}' having old status {}".format(feedback.id, feedback.submission_url, feedback.response_uploaded)))
+            self.stdout.write(self.style.NOTICE("Retrying {} to '{}' having old status {}".format(
+                feedback.id,
+                feedback.submission_url,
+                feedback.response_uploaded
+            )))
 
             if feedback.response_uploaded.ok:
-                feedback.response_notify = response.NOTIFY.NO
+                feedback.response_notify = response.NOTIFY.NO # pylint: disable=undefined-variable
 
             update_response_to_aplus(feedback)
             feedback.save(update_fields=[])

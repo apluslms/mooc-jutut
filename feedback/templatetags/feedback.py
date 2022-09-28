@@ -40,16 +40,15 @@ def force_int(string):
 
 
 @register.filter
-def countlines(string, range=''):
+def countlines(string, range=''): # pylint: disable=redefined-builtin
     range = range.replace(' ',',').replace(':', ',')
     range = [int(x.strip()) for x in range.split(',', 2)[:2]]
     count = string.count('\n') + 1 if string else 0
     if len(range) == 2:
         return max(min(count, range[1]), range[0])
-    elif len(range) == 1:
+    if len(range) == 1:
         return max(count, range[0])
-    else:
-        return count
+    return count
 
 
 @register.filter

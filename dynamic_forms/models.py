@@ -50,11 +50,11 @@ class Form(models.Model):
         verbose_name_plural = _("Forms")
 
     @cached_property
-    def frozen_spec(self):
+    def frozen_spec(self): # pylint: disable=method-hidden
         return bytefy(self.form_spec)
 
     @cached_property
-    def frozen_i18n(self):
+    def frozen_i18n(self): # pylint: disable=method-hidden
         return bytefy(self.form_i18n)
 
     @cached_property
@@ -78,7 +78,7 @@ class Form(models.Model):
                 'form_spec': format_lazy(_("Invalid form_spec: {error}"), error=str(e)),
             }) from e
 
-    def save(self, **kwargs):
+    def save(self, **kwargs): # pylint: disable=arguments-differ
         if not self.sha1:
             self.frozen_spec = frozen_spec = bytefy(self.form_spec)
             self.frozen_i18n = frozen_i18n = bytefy(self.form_i18n)
