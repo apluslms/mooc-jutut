@@ -22,5 +22,5 @@ class CheckPermissionsMixin(LoginRequiredMixin, UserPassesTestMixin):
 
 
 class Permission:
-    def has_permission(self, request, view):
+    def has_permission(self, request, view): # pylint: disable=unused-argument
         return True

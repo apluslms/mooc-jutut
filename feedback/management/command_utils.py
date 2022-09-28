@@ -16,7 +16,7 @@ def get_courses(command,
     if site_domain == 'all':
         if course_code == 'all':
             return None
-        elif sites.count() == 0:
+        if sites.count() == 0:
             raise CommandError("No sites in the system.")
     elif site_domain:
         sites = sites.filter(domain=site_domain)

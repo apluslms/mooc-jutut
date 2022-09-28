@@ -1,11 +1,9 @@
 from functools import lru_cache
 from django.forms import Widget, Field, CharField, TextInput
 from django.forms.boundfield import BoundField
-from django.forms.utils import flatatt
 from django.forms.widgets import Textarea
 from django.utils.functional import cached_property
 from django.utils.html import format_html
-from django.utils.safestring import mark_safe
 
 
 class LabelWidget(Widget):
@@ -32,14 +30,13 @@ class LabelField(Field):
     def __init__(self, *args, **kwargs):
         label = kwargs.setdefault('label', '')
         help_ = kwargs.pop('help_text', None)
-        if not 'initial' in kwargs:
+        if 'initial' not in kwargs:
             kwargs['initial'] = help_ or label
         kwargs['required'] = False
         super().__init__(*args, **kwargs)
 
     def clean(self, value):
         self.widget.initial = self.initial
-        return None
 
 
 class EnchantedBoundField(BoundField):
@@ -71,7 +68,8 @@ class EnchantedBoundField(BoundField):
     def display_data(self):
         data = self.data
         if hasattr(self.field, 'choices'):
-            map_ = {k: v for k, v in self.field.choices}
+            map_ = {k: v for k, v in self.field.choices} # pylint: disable=unnecessary-comprehension
+            # pylint: disable=unnecessary-lambda-assignment
             fmt = lambda a, b: "{}: {}".format(a, b) if b is not None and a != b else a
             if isinstance(data, list):
                 data = [fmt(v, map_.get(v)) for v in data]
@@ -106,6 +104,7 @@ def get_enchanted_field(field_class, extra=None):
     member_dict.update(extra or {})
     member_dict['get_bound_field'] = _get_bound_field
     return type(field_class.__name__, (field_class,), member_dict)
+
 
 DummyField = get_enchanted_field.__wrapped__(CharField)
 DUMMY_FIELD = DummyField(widget=TextInput(attrs={'readonly': True}))

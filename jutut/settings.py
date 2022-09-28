@@ -13,6 +13,14 @@ https://github.com/django/django/blob/master/django/conf/global_settings.py
 
 from os.path import abspath, dirname, join
 from django.utils.translation import gettext_lazy as _
+from os import environ
+from r_django_essentials.conf import (
+    update_secret_from_file,
+    update_settings_fixes,
+    update_settings_from_environment,
+    update_settings_from_module,
+    update_settings_with_file
+)
 
 
 ## Base options
@@ -365,8 +373,6 @@ CELERY_BEAT_SCHEDULE = {
 
 ################################################################################
 # Do some updates and additions to above settings
-from os import environ
-from r_django_essentials.conf import *
 
 # Load local settings for celery (INSTALLATION tells to add rabbitmq password in this file).
 update_settings_from_module(__name__, 'local_settings_celery', quiet=True)

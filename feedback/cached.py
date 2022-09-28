@@ -53,41 +53,48 @@ class Cached:
 class CachedSites(Cached):
     def get_obj(self):
         return list(Site.objects.all())
+
+
 CachedSites = CachedSites()
 
 @receiver(post_save, sender=Site)
-def post_site_save(sender, **kwargs):
+def post_site_save(sender, **kwargs): # pylint: disable=unused-argument
     CachedSites.clear()
 
 
 class CachedCourses(Cached):
-    def get_suffix(self, site):
+    def get_suffix(self, site): # pylint: disable=arguments-differ
         return site.id
 
     def get_obj(self, site):
         return list(Course.objects.using_namespace_id(site.id).all())
+
+
 CachedCourses = CachedCourses()
 
 @receiver(post_save, sender=Course)
-def post_course_save(sender, instance, **kwargs):
+def post_course_save(sender, instance, **kwargs): # pylint: disable=unused-argument
     course = instance
     CachedCourses.clear(course.namespace)
 
 
 class CachedNotrespondedCount(Cached):
-    def get_suffix(self, course):
+    def get_suffix(self, course): # pylint: disable=arguments-differ
         return course.id
 
     def get_obj(self, course):
         return Feedback.objects.get_notresponded(course_id=course.id).count()
+
+
 CachedNotrespondedCount = CachedNotrespondedCount(timeout=60*10)
 
 @receiver(post_save, sender=Feedback)
-def notresponded_post_feedback_save(sender, instance, **kwargs):
+def notresponded_post_feedback_save(sender, instance, **kwargs): # pylint: disable=unused-argument
     feedback = instance
     CachedNotrespondedCount.clear(feedback.exercise.course)
 
 @receiver(m2m_changed, sender=FeedbackTag.feedbacks.through)
+# pylint: disable=unused-argument
 def notresponded_post_feedback_tag_change(sender, instance, action, reverse, **kwargs):
     if action not in ('post_add', 'post_remove', 'post_clear'):
         return
@@ -96,24 +103,26 @@ def notresponded_post_feedback_tag_change(sender, instance, action, reverse, **k
 
 
 class CachedTags(Cached):
-    def get_suffix(self, course):
+    def get_suffix(self, course): # pylint: disable=arguments-differ
         return course.id
 
     def get_obj(self, course):
         return list(course.tags.all())
+
+
 CachedTags = CachedTags()
 
 @receiver(post_save, sender=FeedbackTag)
-def post_tag_save(sender, instance, **kwargs):
+def post_tag_save(sender, instance, **kwargs): # pylint: disable=unused-argument
     tag = instance
     CachedTags.clear(tag.course)
 
 
 class CachedForm(Cached):
-    def get_suffix(self, key, spec_getter=None, i18n_getter=None):
+    def get_suffix(self, key, spec_getter=None, i18n_getter=None): # pylint: disable=arguments-differ, unused-argument
         return key
 
-    def get_obj(self, key, spec_getter, i18n_getter):
+    def get_obj(self, key, spec_getter, i18n_getter): # pylint: disable=unused-argument
         form_spec = spec_getter()
         form_i18n = i18n_getter()
         if form_spec is None:
@@ -122,4 +131,6 @@ class CachedForm(Cached):
             return FeedbackForm.objects.get_or_create(form_spec=form_spec, form_i18n=form_i18n)
         except ValidationError as e:
             raise ValueError("spec_getter returned invalid form_spec: %s" % (e,)) from e
+
+
 CachedForm = CachedForm(timeout=60*60)

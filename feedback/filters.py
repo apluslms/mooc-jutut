@@ -26,7 +26,7 @@ def is_empty_value(value):
             all(not v for v in value) or
             (len(value) == 2 and isinstance(value[0], bool) and all(not v for v in value[1]))
         )
-    return (
+    return ( # pylint: disable=consider-using-ternary
         not isinstance(value, PRIMITIVE_TYPES) and not value or # complex type is False
         value in EMPTY_VALUES # simple type is False
     )
@@ -77,7 +77,7 @@ class SplitDateTimeRangeField(forms.MultiValueField):
             value = (after, before)
         return super().clean((value))
 
-    def compress(self, dates):
+    def compress(self, dates): # pylint: disable=arguments-renamed
         if dates and (dates[0] or dates[1]):
             return slice(*dates)
         return None
@@ -111,7 +111,7 @@ class FlagWidget(forms.MultiWidget):
         super().__init__(widgets, attrs)
 
     def decompress(self, value):
-        if value == None:
+        if value == None: # noqa
             return [None for w in self.widgets]
         return value
 
@@ -168,7 +168,7 @@ class FeedbackFilterForm(forms.Form):
     def contains_data(self):
         if not hasattr(self, 'cleaned_data'):
             return False
-        elif self.errors:
+        if self.errors:
             return None
         return any(not is_empty_value(v) for v in self.cleaned_data.values())
 
@@ -191,7 +191,10 @@ class FeedbackFilter(django_filters.FilterSet):
                                           widget=forms.CheckboxSelectMultiple())
     flags = FlagFilter(label=_("Flags"))
     tags = ColortagIEAndOrFilter(queryset=FeedbackTag.objects.none(), label=_("Tags"))
-    student_tags = ColortagIEAndOrFilter(queryset=StudentTag.objects.none(), field_name='student__tags', label=_("Student tags"))
+    student_tags = ColortagIEAndOrFilter(
+        queryset=StudentTag.objects.none(),
+        field_name='student__tags', label=_("Student tags"),
+    )
     exercise = django_filters.ModelChoiceFilter(queryset=Exercise.objects.none())
     student = django_filters.ModelChoiceFilter(queryset=Student.objects.none())
     timestamp = DateTimeFromToRangeFilter(label=_("Timestamp"))
@@ -248,5 +251,5 @@ class FeedbackFilter(django_filters.FilterSet):
         return form
 
     @staticmethod
-    def filter_form_data(queryset, name, value):
+    def filter_form_data(queryset, name, value): # pylint: disable=unused-argument
         return queryset.filter_data(value)

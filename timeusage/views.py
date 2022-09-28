@@ -38,7 +38,7 @@ class TimeUsageView(ManageCourseMixin, ListView):
     model = Feedback
     template_name = "time_usage.html"
 
-    def plot_times(self):
+    def plot_times(self): # pylint: disable=too-many-locals
         feedbacks = self.get_queryset()
         feedbacks_by_exercise = {}
 
@@ -110,6 +110,7 @@ class TimeUsageView(ManageCourseMixin, ListView):
     def get_queryset(self):
         course = self.course
         queryset = Feedback.objects.filter(exercise__course=course, superseded_by=None)
+        # pylint: disable=redefined-builtin
         self.feedback_filter = filter = FeedbackFilter(self.request.GET, queryset, course=course)
         return filter.qs
 

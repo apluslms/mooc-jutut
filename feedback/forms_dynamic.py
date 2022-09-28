@@ -6,7 +6,7 @@ from jutut.appsettings import app_settings
 
 class DynamicFeedbacForm(DynamicForm):
     @classmethod
-    def create_form_class_from(cls, data: "list of field structs", i18n):
+    def create_form_class_from(cls, data: "list of field structs", i18n): # noqa: F722
         form_class = super().create_form_class_from(data, i18n)
         fields = form_class.base_fields # NOTE: changed to .declared_fields in future django releases
         all_text_fields = OrderedDict()
@@ -35,7 +35,7 @@ class DynamicFeedbacForm(DynamicForm):
 
         min_len = app_settings.TEXT_FIELD_MIN_LENGTH
         fields = self.optional_text_fields
-        ok = lambda x: bool(x) and len(x) > min_len
+        ok = lambda x: bool(x) and len(x) > min_len # pylint: disable=unnecessary-lambda-assignment
         return any(
             ok(data[name]) for name in fields.keys()
         )

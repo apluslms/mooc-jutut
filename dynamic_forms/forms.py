@@ -3,9 +3,6 @@ from collections import OrderedDict
 from django import forms
 from django.core.validators import RegexValidator
 from django.forms.renderers import Jinja2 as Jinja2Renderer
-from django.forms.utils import pretty_name
-from django.utils.html import conditional_escape
-from django.utils.safestring import mark_safe
 from django.utils.translation import gettext_lazy as _
 try:
     from django.utils.text import format_lazy
@@ -203,9 +200,13 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
         'maxLength': 'max_length',
         'minLength': 'min_length',
         'minimum': 'min_value', # specifies a minimum numeric value.
-        # exclusiveMinimum is a boolean. When true, it indicates that the range excludes the minimum value, i.e., x > min. When false (or not included) x >= min
+        # exclusiveMinimum is a boolean.
+        # When true, it indicates that the range excludes the minimum value, i.e., x > min.
+        # When false (or not included) x >= min
         'maximum': 'max_value', # specifies a maximum numeric value.
-        # exclusiveMaximum is a boolean. When true, it indicates that the range excludes the maximum value, i.e., x < max. When false (or not included) x <= max.
+        # exclusiveMaximum is a boolean.
+        # When true, it indicates that the range excludes the maximum value, i.e., x < max.
+        # When false (or not included) x <= max.
     }
     WIDGET_ATTR_MAP = {
         # input key: django widget key
@@ -231,13 +232,16 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
     # use faster template engine
     default_renderer = Jinja2Renderer()
 
+    # following noqa: MC0001 skips DynamicForm.create_form_class_from is too complex (32) error
+    # it was decided during the linter setup that this function would not be refactored at that time.
+    # Also get_fields method pylint disables are related to this.
     @classmethod
-    def create_form_class_from(cls, data: "list of field structs", i18n):
+    def create_form_class_from(cls, data: "list of field structs", i18n): # noqa: MC0001
         """
         Construct dynamic form based on data.
         Data is list of field structs (see class doc)
         """
-        def get_fields(properties):
+        def get_fields(properties): #pylint: disable=too-many-locals, too-many-branches, too-many-statements
             """Returns list of django form fields for iterable of properties"""
             if isinstance(properties, dict):
                 properties = properties.items()
@@ -278,8 +282,8 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                     widget_class = field_class.widget
 
                 # copy direct options
-                field_args = {k: prop[l] for l, k in cls.ARG_MAP.items() if l in prop}
-                widget_attrs = {k: prop[l] for l, k in cls.WIDGET_ATTR_MAP.items() if l in prop}
+                field_args = {k: prop[l] for l, k in cls.ARG_MAP.items() if l in prop} # noqa: E741
+                widget_attrs = {k: prop[l] for l, k in cls.WIDGET_ATTR_MAP.items() if l in prop} # noqa: E741
                 for key in cls.TRANSLATABLES:
                     if key in field_args:
                         field_args[key] = translate_lazy(field_args[key], i18n)
@@ -292,7 +296,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                 # enums
                 enum = prop.get('enum', None)
                 title_map = prop.get('titleMap', {})
-                if type(title_map) is list:
+                if type(title_map) is list: # pylint: disable=unidiomatic-typecheck
                     title_map = {v['value']: v['name'] for v in title_map}
                 if title_map and not enum:
                     enum = title_map.keys()
@@ -316,7 +320,10 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                 # error messages
                 error_message = prop.get('validationMessage')
                 if error_message:
-                    field_args['error_messages'] = build_error_messages(translate_lazy(error_message, i18n)) # assumes error_message is never a dict
+                    field_args['error_messages'] = build_error_messages(translate_lazy(
+                        error_message,
+                        i18n
+                    )) # assumes error_message is never a dict
 
                 # css classes
                 css_classes = prop.get('htmlClass')
@@ -384,7 +391,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                             widget=widget_class.__name__,
                             index=i, name=name, value=row,
                             error=error)
-                    )
+                    ) from error
                 fields[name] = field
             return fields
 

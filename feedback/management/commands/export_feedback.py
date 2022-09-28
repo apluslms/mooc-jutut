@@ -49,7 +49,7 @@ class StudentStream(list):
             yield {
                 'uid': data.id,
                 'student': data.student_id,
-                'tags': list(map(lambda t: str(t), data.tags.all())),
+                'tags': list(map(lambda t: str(t), data.tags.all())), # pylint: disable=unnecessary-lambda
             }
             self.iterated += 1
 
@@ -101,8 +101,8 @@ class Command(BaseCommand):
                 course = Course.objects.get(html_url__endswith=course_id.rstrip('/') + '/')
             else:
                 raise CommandError("Either 'course_id' or '--course-slug' parameter must be given!")
-        except Course.DoesNotExist:
-            raise CommandError(f'Course "{course_id}" does not exist.')
+        except Course.DoesNotExist as exc:
+            raise CommandError(f'Course "{course_id}" does not exist.') from exc
 
         now = timezone.now()
         fb_fn = (options['feedback_file'] or
@@ -114,7 +114,7 @@ class Command(BaseCommand):
             )
         )
         fb_stream = FeedbackStream(course, only_text=options['only_text_feedback'])
-        with open(fb_fn, 'w') as out:
+        with open(fb_fn, 'w') as out: # pylint: disable=unspecified-encoding
             json.dump(fb_stream, out)
 
         student_fn = (options['student_file'] or
@@ -126,7 +126,7 @@ class Command(BaseCommand):
             )
         )
         student_stream = StudentStream(course)
-        with open(student_fn, 'w') as out:
+        with open(student_fn, 'w') as out: # pylint: disable=unspecified-encoding
             json.dump(student_stream, out)
 
         self.stdout.write(

@@ -1,6 +1,6 @@
 import requests
 import logging
-from urllib.parse import urlsplit, urlunsplit, parse_qsl as urlparse_qsl
+from urllib.parse import urlsplit, parse_qsl as urlparse_qsl
 from cachetools import TTLCache
 
 from .debugging import AplusClientDebugging, FakeResponse
@@ -129,11 +129,15 @@ class AplusApiDict(AplusApiObject):
         converted to aplus dict
         """
         value = self.get_item(key, default=default)
-        if (key != 'url' and isinstance(value, str) and
-            self._url_prefix and value.startswith(self._url_prefix)):
+        if (
+            key != 'url'
+            and isinstance(value, str)
+            and self._url_prefix
+            and value.startswith(self._url_prefix)
+        ):
             try:
                 return self._client.load_data(value, ignore_cache=ignore_cache)
-            except: # FIXME: too wide
+            except: # noqa: E722
                 print("ERROR: couldn't get json for %s" % (value,))
         return AplusApiObject._wrap(self._client, value)
 
@@ -153,8 +157,8 @@ class AplusApiDict(AplusApiObject):
     def __getattr__(self, key):
         try:
             return self[key]
-        except KeyError:
-            raise AttributeError("%s has no attribute '%s'" % (self, key))
+        except KeyError as exc:
+            raise AttributeError("%s has no attribute '%s'" % (self, key)) from exc
 
 
 class AplusApiList(AplusApiObject):
@@ -202,7 +206,7 @@ class AplusApiPaginated(AplusApiList):
     def find_first(data):
         previous = data['previous']
         if previous is not None:
-            data = self._client._load_cached_data(previous)
+            data = self._client._load_cached_data(previous) # pylint: disable=undefined-variable
             previous = data['previous']
         return data
 
@@ -254,7 +258,7 @@ class AplusApiError(AplusApiObject):
                 and isinstance(data['detail'], str))
 
     def add_data(data):
-        self.message = data['detail']
+        self.message = data['detail'] # pylint: disable=unsubscriptable-object, undefined-variable
 
 
 CACHE = TTLCache(maxsize=100, ttl=60)
@@ -263,6 +267,7 @@ class AplusClientMetaclass(type):
     def __call__(cls, *args, **kwargs):
         debug = kwargs.pop('debug_enabled', False)
         if debug:
+            # pylint: disable=self-cls-assignment
             cls = type(cls.__name__ + 'Debuging', (AplusClientDebugging, cls), {})
         return type.__call__(cls, *args, **kwargs)
 

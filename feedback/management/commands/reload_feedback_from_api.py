@@ -17,7 +17,8 @@ class Command(BaseCommand):
         parser.add_argument('-s', '--site',
                             help="Domain of aplus site or 'all'")
         parser.add_argument('-c', '--course',
-                            help="If there is more than one course, give code of the course you are reloading or 'all'")
+                            help="If there is more than one course, "
+                            "give code of the course you are reloading or 'all'")
         parser.add_argument('--meta',
                             action='store_true',
                             help="Reload submission metadata")
@@ -28,12 +29,14 @@ class Command(BaseCommand):
                             type=int, default=200,
                             help="How long to wait between updating two feedbacks in milliseconds")
 
-    def handle(self, *args, **options):
+    # following noqa: MC0001 skips Command.handle is too complex (17) error
+    # it was decided during the linter setup that this function would not be refactored at that time
+    def handle(self, *args, **options): # noqa: MC0001
         wait = options['wait']/1000
         update_meta = options['meta']
         update_content = options['content']
 
-        feedbacks, feedbacks_count = get_feedback_queryset(
+        feedbacks, feedbacks_count = get_feedback_queryset( # pylint: disable=unused-variable
             self,
             options['feedback'],
             options['site'],
@@ -70,7 +73,9 @@ class Command(BaseCommand):
                 if gd_ok:
                     break
                 sleep_for = wait + (i*wait/10)
-                self.stdout.write(self.style.NOTICE("ERROR: failed to get grading data.. sleeping for {}s".format(sleep_for)))
+                self.stdout.write(self.style.NOTICE(
+                    "ERROR: failed to get grading data.. sleeping for {}s".format(sleep_for)
+                ))
                 time.sleep(sleep_for)
             if not gd_ok:
                 self.stdout.write(self.style.NOTICE("ERROR: failed to get grading data.. giving up"))
@@ -82,18 +87,26 @@ class Command(BaseCommand):
                 if not students:
                     self.stdout.write(self.style.ERROR("  No students found from api. Not updating submitters."))
                 elif len(students) != 1:
-                    self.stdout.write(self.style.ERROR("  Multiple students in submission. Feedback expects only one. Not updating submitters."))
+                    self.stdout.write(self.style.ERROR(
+                        "  Multiple students in submission. Feedback expects only one. Not updating submitters."
+                    ))
                 else:
-                    student, _created = Student.objects.get_new_or_updated(students[0], namespace=feedback.exercise.namespace)
+                    student, _created = Student.objects.get_new_or_updated(
+                        students[0], namespace=feedback.exercise.namespace
+                    )
                     if feedback.student != student:
-                        self.stdout.write(self.style.SUCCESS("  Updating student from '{}' to '{}'".format(feedback.student, student)))
+                        self.stdout.write(self.style.SUCCESS(
+                            "  Updating student from '{}' to '{}'".format(feedback.student, student)
+                        ))
                         feedback.student = student
                         fields.append('student')
 
                 # submission id
                 submission_id = gd.submission_id
                 if not Feedback.objects.filter(exercise=feedback.exercise, submission_id=submission_id).exists():
-                    self.stdout.write(self.style.SUCCESS("  Updating submission_id from '{}' to '{}'".format(feedback.submission_id, submission_id)))
+                    self.stdout.write(self.style.SUCCESS(
+                        "  Updating submission_id from '{}' to '{}'".format(feedback.submission_id, submission_id)
+                    ))
                     feedback.submission_id = submission_id
                     fields.append('submission_id')
 
@@ -106,7 +119,9 @@ class Command(BaseCommand):
                     val = getattr(gd, src, None)
                     cur = getattr(feedback, field, None)
                     if val and val != cur:
-                        self.stdout.write(self.style.SUCCESS("  Updating {} from '{}' to '{}'".format(field, cur, val)))
+                        self.stdout.write(self.style.SUCCESS(
+                            "  Updating {} from '{}' to '{}'".format(field, cur, val)
+                        ))
                         setattr(feedback, field, val)
                         fields.append(field)
 

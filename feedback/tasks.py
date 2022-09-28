@@ -33,6 +33,7 @@ def upload_response(self, feedback_id):
 
 def async_response_upload(feedback):
     feedback.response_uploaded = 0 # reset upload status
+
     def send():
         # Signature could be used instead, but this way we can call the
         # returned function and log message at correct time.
@@ -43,7 +44,7 @@ def async_response_upload(feedback):
 
 
 @task(rate_limit="3/m")
-def schedule_failed(self):
+def schedule_failed(_self):
     # this will get feedbacks that are
     #  - have error and
     #  a) upload is not tried in an hour of set

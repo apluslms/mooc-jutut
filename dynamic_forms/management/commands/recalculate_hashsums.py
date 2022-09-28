@@ -1,5 +1,4 @@
-from django.db import transaction
-from django.core.management.base import BaseCommand, CommandError
+from django.core.management.base import BaseCommand
 
 from ...models import Form
 
@@ -34,4 +33,6 @@ class Command(BaseCommand):
                 old = item.sha1
                 item.sha1 = None
                 item.save(update_fields=['sha1'])
-                self.stdout.write(self.style.NOTICE("{}, item {}/{}: Updated {} to {}".format(prefix, item_n, total, old, item.sha1)))
+                self.stdout.write(
+                    self.style.NOTICE("{}, item {}/{}: Updated {} to {}".format(prefix, item_n, total, old, item.sha1
+                )))

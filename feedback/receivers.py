@@ -5,7 +5,6 @@ from django.core.exceptions import PermissionDenied
 from django.urls import reverse
 from django.utils import timezone
 
-from aplus_client.client import AplusTokenClient
 from django_lti_login.signals import lti_login_authenticated
 from . import SITES_SESSION_KEY, COURSES_SESSION_KEY
 from .models import Site, Course
@@ -16,7 +15,7 @@ CLEAR_COURSES_DELTA = timedelta(days=30)
 logger = logging.getLogger('feedback.receivers')
 
 
-def clear_old_courses(sender, **kwargs):
+def clear_old_courses(sender, **kwargs): # pylint: disable=unused-argument
     """
     Clear authorized courses list if user has not legged in 30 days
     """
@@ -30,7 +29,7 @@ def clear_old_courses(sender, **kwargs):
 lti_login_authenticated.connect(clear_old_courses)
 
 
-def add_course_permissions(sender, **kwargs):
+def add_course_permissions(sender, **kwargs): # pylint: disable=too-many-locals, unused-argument
     """
     Add permissions to course user authenticated with (from oauth).
     Also add courses to session so they are used for permission checks
@@ -45,6 +44,7 @@ def add_course_permissions(sender, **kwargs):
         course_api = getattr(oauth, 'custom_context_api', None)
         if api_token is None or course_id is None or course_api is None:
             # Invalid lti login to mooc jutut service. Missing stuff
+            # pylint: disable=logging-format-interpolation
             logger.error("LTI login request doesn't contain all required "
                          "fields (custom_user_api_token, custom_context_api_id, "
                          "custom_context_api) for course membership update."
@@ -77,7 +77,7 @@ def add_course_permissions(sender, **kwargs):
         # List LTI params in debug log
         logger.debug("LTI login for user %s on course %s", user, course)
         for k, v in sorted(oauth.params):
-            logger.debug("  \w param -- %s: %s", k, v)
+            logger.debug("  \w param -- %s: %s", k, v) # noqa: W605
 
     if request and user:
         # add courses to users session

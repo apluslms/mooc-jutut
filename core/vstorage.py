@@ -13,11 +13,10 @@ from django.contrib.staticfiles.utils import get_files
 
 if DJANGO_VERSION >= (1, 10):
     def datetime_from_timestamp(ts):
-    # src: django.core.files.storage.FileSystemStorage._datetime_from_timestamp
+        # src: django.core.files.storage.FileSystemStorage._datetime_from_timestamp
         if settings.USE_TZ:
             return datetime.utcfromtimestamp(ts).replace(tzinfo=timezone.utc)
-        else:
-            return datetime.fromtimestamp(ts)
+        return datetime.fromtimestamp(ts)
 else:
     datetime_from_timestamp = datetime.fromtimestamp
 
@@ -61,7 +60,7 @@ class VirtualStorage(Storage):
 
     # Public api or privates for super implementations of public api
 
-    def _open(self, name, mode):
+    def _open(self, name, mode): # pylint: disable=unused-argument
         return StringIO(self._get(name))
 
     def _save(self, name, content):
@@ -111,7 +110,7 @@ class VirtualFinder(BaseFinder):
     def __init__(self):
         self._storage = VirtualStorage()
 
-    def find(self, path, all=False):
+    def find(self, path, all=False): # pylint: disable=redefined-builtin
         if self._storage.exists(path):
             abs_path = join(settings.STATIC_ROOT, path)
             return {abs_path} if all else abs_path

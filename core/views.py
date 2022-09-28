@@ -1,8 +1,11 @@
+from ansi2html import Ansi2HTMLConverter
 from collections import OrderedDict
 from django.core.cache import cache
 from django.views.generic import TemplateView
+from feedback.forms_dynamic import DynamicFeedbacForm
 
 from jutut.appsettings import app_settings
+from jutut.celery import app
 
 from .permissions import LoginRequiredMixin
 from .utils import check_system_service_status
@@ -15,14 +18,12 @@ class ServiceStatusPage(LoginRequiredMixin, TemplateView):
 class ServiceStatusData(LoginRequiredMixin, TemplateView):
     template_name = "core/statuspage_data.html"
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs): # pylint: disable=too-many-locals
         context = super().get_context_data()
 
-        from feedback.forms_dynamic import DynamicFeedbacForm
         context['dynamic_form_cache_size'] = len(DynamicFeedbacForm.FORM_CACHE)
         context['dynamic_form_cache_max'] = DynamicFeedbacForm.FORM_CACHE.max_size
 
-        from jutut.celery import app
         i = app.control.inspect()
         context['celery_stats'] = celery_stats = {}
         for group in ('active', 'scheduled', 'reserved'):
@@ -64,9 +65,8 @@ class ServiceStatusData(LoginRequiredMixin, TemplateView):
                         celery_totals[key] += value
 
         context['service_status'] = service_status = OrderedDict()
-        from ansi2html import Ansi2HTMLConverter
         ansi2html = Ansi2HTMLConverter()
-        a2h = lambda x: ansi2html.convert(x, full=False)
+        a2h = lambda x: ansi2html.convert(x, full=False) # pylint: disable=unnecessary-lambda-assignment
         for name, command in app_settings.SERVICE_STATUS:
             ok, out = check_system_service_status(command)
             service_status[name] = {

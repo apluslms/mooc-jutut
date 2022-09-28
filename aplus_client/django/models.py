@@ -1,5 +1,4 @@
 import datetime
-from functools import reduce
 from urllib.parse import urlsplit
 from django.apps import apps
 from django.core.exceptions import ObjectDoesNotExist
@@ -22,7 +21,7 @@ class ApiNamespace(models.Model):
         hostname = urlsplit(url).hostname
         if not hostname:
             raise ValueError("Url doesn't have hostname")
-        obj, created = cls.objects.get_or_create(domain=hostname)
+        obj, created = cls.objects.get_or_create(domain=hostname) # pylint: disable=unused-variable
         return obj
 
     def __str__(self):
@@ -37,7 +36,7 @@ class CachedApiQuerySet(models.QuerySet):
             obj.save()
         return obj, created
 
-    def get_or_create(self, api_obj, **kwargs):
+    def get_or_create(self, api_obj, **kwargs): # pylint: disable=arguments-renamed
         select_related = kwargs.pop('select_related', None)
         try:
             qs = self
@@ -47,7 +46,7 @@ class CachedApiQuerySet(models.QuerySet):
         except ObjectDoesNotExist:
             return self.create(api_obj, **kwargs), True
 
-    def create(self, api_obj, **kwargs):
+    def create(self, api_obj, **kwargs): # pylint: disable=arguments-differ
         obj = self.model(api_id=api_obj.id)
         self.update_object(obj, api_obj, **kwargs)
         obj.save()
