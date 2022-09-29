@@ -251,5 +251,5 @@ class FeedbackFilter(django_filters.FilterSet):
         return form
 
     @staticmethod
-    def filter_form_data(queryset, name, value): # pylint: disable=unused-argument
+    def filter_form_data(queryset, _name, value):
         return queryset.filter_data(value)

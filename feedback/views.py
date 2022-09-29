@@ -197,7 +197,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
         # If it does not exist yet, the exercise is created in the Jutut database.
         # When the exercise is created, the other fields are filled in with
         # the data from exercise_obj.
-        exercise, created = Exercise.objects.get_or_create( # pylint: disable=unused-variable
+        exercise, _created = Exercise.objects.get_or_create(
             exercise_obj,
             select_related=('course', 'course__namespace'),
         ) if exercise_obj else (None, False)
@@ -753,7 +753,7 @@ class FeedbackTagView(CheckManagementPermissionsMixin, View):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
-        feedback, tag = self.tag_objects # pylint: disable=unused-variable
+        feedback, _tag = self.tag_objects
         context['feedback'] = feedback
         return context
 

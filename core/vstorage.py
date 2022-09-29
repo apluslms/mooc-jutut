@@ -60,7 +60,7 @@ class VirtualStorage(Storage):
 
     # Public api or privates for super implementations of public api
 
-    def _open(self, name, mode): # pylint: disable=unused-argument
+    def _open(self, name, _mode):
         return StringIO(self._get(name))
 
     def _save(self, name, content):

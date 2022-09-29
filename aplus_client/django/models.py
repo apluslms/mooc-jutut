@@ -21,7 +21,7 @@ class ApiNamespace(models.Model):
         hostname = urlsplit(url).hostname
         if not hostname:
             raise ValueError("Url doesn't have hostname")
-        obj, created = cls.objects.get_or_create(domain=hostname) # pylint: disable=unused-variable
+        obj, _created = cls.objects.get_or_create(domain=hostname)
         return obj
 
     def __str__(self):

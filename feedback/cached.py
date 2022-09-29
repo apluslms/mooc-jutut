@@ -58,7 +58,7 @@ class CachedSites(Cached):
 CachedSites = CachedSites()
 
 @receiver(post_save, sender=Site)
-def post_site_save(sender, **kwargs): # pylint: disable=unused-argument
+def post_site_save(_sender, **kwargs):
     CachedSites.clear()
 
 
@@ -73,7 +73,7 @@ class CachedCourses(Cached):
 CachedCourses = CachedCourses()
 
 @receiver(post_save, sender=Course)
-def post_course_save(sender, instance, **kwargs): # pylint: disable=unused-argument
+def post_course_save(_sender, instance, **kwargs):
     course = instance
     CachedCourses.clear(course.namespace)
 
@@ -89,13 +89,12 @@ class CachedNotrespondedCount(Cached):
 CachedNotrespondedCount = CachedNotrespondedCount(timeout=60*10)
 
 @receiver(post_save, sender=Feedback)
-def notresponded_post_feedback_save(sender, instance, **kwargs): # pylint: disable=unused-argument
+def notresponded_post_feedback_save(_sender, instance, **kwargs):
     feedback = instance
     CachedNotrespondedCount.clear(feedback.exercise.course)
 
 @receiver(m2m_changed, sender=FeedbackTag.feedbacks.through)
-# pylint: disable=unused-argument
-def notresponded_post_feedback_tag_change(sender, instance, action, reverse, **kwargs):
+def notresponded_post_feedback_tag_change(_sender, instance, action, reverse, **kwargs):
     if action not in ('post_add', 'post_remove', 'post_clear'):
         return
     course = instance.exercise.course if reverse else instance.course
@@ -113,16 +112,16 @@ class CachedTags(Cached):
 CachedTags = CachedTags()
 
 @receiver(post_save, sender=FeedbackTag)
-def post_tag_save(sender, instance, **kwargs): # pylint: disable=unused-argument
+def post_tag_save(_sender, instance, **kwargs):
     tag = instance
     CachedTags.clear(tag.course)
 
 
 class CachedForm(Cached):
-    def get_suffix(self, key, spec_getter=None, i18n_getter=None): # pylint: disable=arguments-differ, unused-argument
+    def get_suffix(self, key, _spec_getter=None, _i18n_getter=None): # pylint: disable=arguments-differ
         return key
 
-    def get_obj(self, key, spec_getter, i18n_getter): # pylint: disable=unused-argument
+    def get_obj(self, _key, spec_getter, i18n_getter):
         form_spec = spec_getter()
         form_i18n = i18n_getter()
         if form_spec is None:

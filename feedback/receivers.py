@@ -15,7 +15,7 @@ CLEAR_COURSES_DELTA = timedelta(days=30)
 logger = logging.getLogger('feedback.receivers')
 
 
-def clear_old_courses(sender, **kwargs): # pylint: disable=unused-argument
+def clear_old_courses(_sender, **kwargs):
     """
     Clear authorized courses list if user has not legged in 30 days
     """
@@ -29,7 +29,7 @@ def clear_old_courses(sender, **kwargs): # pylint: disable=unused-argument
 lti_login_authenticated.connect(clear_old_courses)
 
 
-def add_course_permissions(sender, **kwargs): # pylint: disable=too-many-locals, unused-argument
+def add_course_permissions(_sender, **kwargs): # pylint: disable=too-many-locals
     """
     Add permissions to course user authenticated with (from oauth).
     Also add courses to session so they are used for permission checks

@@ -36,7 +36,7 @@ class Command(BaseCommand):
         update_meta = options['meta']
         update_content = options['content']
 
-        feedbacks, feedbacks_count = get_feedback_queryset( # pylint: disable=unused-variable
+        feedbacks, _feedbacks_count = get_feedback_queryset(
             self,
             options['feedback'],
             options['site'],
