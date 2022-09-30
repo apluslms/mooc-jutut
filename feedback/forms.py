@@ -159,7 +159,7 @@ class ResponseForm(forms.ModelForm):
         # if there is upload, do it now after instance is saved
         if upload:
             logger.debug("Instance has changes, requesting upload to aplus.")
-            upload()
+            upload() # pylint: disable=not-callable
         else:
             logger.debug("No changes to response, so no aplus updated needed.")
 

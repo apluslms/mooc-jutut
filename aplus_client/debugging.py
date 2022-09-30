@@ -27,7 +27,7 @@ class AplusClientDebugging:
             furl = url[len(TEST_URL_PREFIX):].strip('/').replace('/', '__')
             fn = ''.join((TEST_DATA_PATH, '/', furl, ".json"))
             logger.debug("making test GET '%s', file=%r", url, fn)
-            with open(fn, 'r') as f: # pylint: disable=unspecified-encoding
+            with open(fn, 'r', encoding='utf-8') as f:
                 return FakeResponse(fn, 200, f.read())
         return super().do_get(url, **kwargs)
 

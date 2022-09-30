@@ -487,7 +487,7 @@ def store_configuration(config):
                     vals[name] = value
             if vals:
                 config_parser[section] = vals
-    with config.open('w') as f: # pylint: disable=unspecified-encoding
+    with config.open('w', encoding='utf-8') as f:
         f.write("""; Configuration file for MOOC Jutut installer\n\n""")
         config_parser.write(f)
 

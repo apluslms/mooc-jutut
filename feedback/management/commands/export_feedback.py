@@ -114,7 +114,7 @@ class Command(BaseCommand):
             )
         )
         fb_stream = FeedbackStream(course, only_text=options['only_text_feedback'])
-        with open(fb_fn, 'w') as out: # pylint: disable=unspecified-encoding
+        with open(fb_fn, 'w', encoding='utf-8') as out:
             json.dump(fb_stream, out)
 
         student_fn = (options['student_file'] or
@@ -126,7 +126,7 @@ class Command(BaseCommand):
             )
         )
         student_stream = StudentStream(course)
-        with open(student_fn, 'w') as out: # pylint: disable=unspecified-encoding
+        with open(student_fn, 'w', encoding='utf-8') as out:
             json.dump(student_stream, out)
 
         self.stdout.write(
