@@ -1,6 +1,14 @@
 {% load i18n %}
 {% load urltools %}
 
+
+{% blocktranslate trimmed count count=paginator.count asvar total_messages %}
+	{{ count }} message found.
+{% plural %}
+	{{ count }} messages found.
+{% endblocktranslate %}
+
+
 {% if is_paginated %}
 	<nav aria-label="page navigation">
 		<ul class="pagination">
@@ -40,6 +48,11 @@
 				{% endif %}
 			</li>
 			<li>
+				<span style="border-top-style: none; border-right-style: none; border-bottom-style: none; color: unset;">
+					{{ total_messages }}
+				</span>
+			</li>
+			<li>
 				<form class="navbar-form navbar-left" action="." method="get">
 					<div class="form-group">
 						<label>
@@ -55,4 +68,6 @@
 			</li>
 		</ul>
 	</nav>
+{% else %}
+	<p>{{ total_messages }}</p>
 {% endif %}
