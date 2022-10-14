@@ -6,7 +6,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: \n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2022-05-06 21:26+0300\n"
+"POT-Creation-Date: 2022-10-14 15:59+0300\n"
 "PO-Revision-Date: 2019-08-28 18:04+0300\n"
 "Last-Translator: Markku Riekkinen <markku.riekkinen@aalto.fi>\n"
 "Language-Team: English <>\n"
@@ -355,6 +355,10 @@ msgstr "Palaute on automaattisesti hyväksytty"
 #: feedback/templates/manage/_response_panel.html
 msgid "auto"
 msgstr "auto"
+
+#: feedback/templates/manage/_submitter_heading.html
+msgid "A+"
+msgstr "A+"
 
 #: feedback/templates/manage/_upload_status.html
 #, python-format

@@ -466,6 +466,7 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
                 'student': feedback.student,
                 'all_feedbacks_url': get_all_feedbacks_url(feedback),
                 'feedbacks_per_student': iterable,
+                'student_aplus_url': course.html_url + f'teachers/participants/{feedback.student.api_id}',
             }),
             ('exercise', lambda feedback, iterable: {
                 'feedback': feedback,
