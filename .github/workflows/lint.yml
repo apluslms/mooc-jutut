@@ -16,7 +16,7 @@ jobs:
           path: .docker-cache
           key: v3-${{ hashFiles('.github/workflows/Dockerfile', 'requirements_testing.txt', 'requirements.txt') }}
         if: steps.imgcache.outputs.cache-hit != 'true'
-      - uses: docker/setup-buildx-action@v1.3.0
+      - uses: docker/setup-buildx-action@v2
         if: steps.imgcache.outputs.cache-hit != 'true'
       - run: docker buildx build -t testimg --output type=docker,dest=.docker-img.tar --cache-to type=local,dest=.docker-cache3,mode=max --cache-from type=local,src=.docker-cache -f .github/workflows/Dockerfile .
         if: steps.imgcache.outputs.cache-hit != 'true'
