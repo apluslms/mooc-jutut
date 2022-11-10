@@ -26,7 +26,7 @@ def is_empty_value(value):
             all(not v for v in value) or
             (len(value) == 2 and isinstance(value[0], bool) and all(not v for v in value[1]))
         )
-    return ( # pylint: disable=consider-using-ternary
+    return ( # noqa: consider-using-ternary
         not isinstance(value, PRIMITIVE_TYPES) and not value or # complex type is False
         value in EMPTY_VALUES # simple type is False
     )
