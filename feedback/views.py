@@ -600,9 +600,11 @@ class UserFeedbackView(ManageCourseMixin, TemplateView):
         exercise = get_object_or_404(Exercise.objects.with_course(), pk=exercise_id, course=self.course)
         feedbacks = (
             obj_with_attrs(obj, student=student, exercise=exercise)
-            for obj in self.model.objects.all()
-            .filter(student=student, exercise=exercise)
-            .order_by('-timestamp')
+            for obj in (
+                self.model.objects.all()
+                .filter(student=student, exercise=exercise)
+                .order_by('-timestamp')
+            )
         )
         form_cache = FormCache()
         update_context_for_feedbacks(self.request, context,

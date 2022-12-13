@@ -14,7 +14,7 @@ from django_colortag.models import ColorTag
 from r_django_essentials.fields import Enum
 
 from aplus_client.django.models import ( # noqa: F401 this is required by accounts/models.py
-    ApiNamespace as Site,
+    ApiNamespace as Site, # mooc-jutut refers api namespaces as sites
     NamespacedApiObject,
     NestedApiObject,
 )

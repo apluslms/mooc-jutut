@@ -44,7 +44,7 @@ def async_response_upload(feedback):
 
 
 @task(rate_limit="3/m")
-def schedule_failed(_self):
+def schedule_failed(self): # pylint: disable=unused-argument
     # this will get feedbacks that are
     #  - have error and
     #  a) upload is not tried in an hour of set

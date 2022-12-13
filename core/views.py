@@ -2,10 +2,8 @@ from ansi2html import Ansi2HTMLConverter
 from collections import OrderedDict
 from django.core.cache import cache
 from django.views.generic import TemplateView
-from feedback.forms_dynamic import DynamicFeedbacForm
 
 from jutut.appsettings import app_settings
-from jutut.celery import app
 
 from .permissions import LoginRequiredMixin
 from .utils import check_system_service_status
@@ -21,9 +19,11 @@ class ServiceStatusData(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs): # pylint: disable=too-many-locals
         context = super().get_context_data()
 
+        from feedback.forms_dynamic import DynamicFeedbacForm # pylint: disable=import-outside-toplevel
         context['dynamic_form_cache_size'] = len(DynamicFeedbacForm.FORM_CACHE)
         context['dynamic_form_cache_max'] = DynamicFeedbacForm.FORM_CACHE.max_size
 
+        from jutut.celery import app # pylint: disable=import-outside-toplevel
         i = app.control.inspect()
         context['celery_stats'] = celery_stats = {}
         for group in ('active', 'scheduled', 'reserved'):

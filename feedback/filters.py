@@ -111,7 +111,7 @@ class FlagWidget(forms.MultiWidget):
         super().__init__(widgets, attrs)
 
     def decompress(self, value):
-        if value == None: # noqa
+        if value is None:
             return [None for w in self.widgets]
         return value
 
@@ -251,5 +251,5 @@ class FeedbackFilter(django_filters.FilterSet):
         return form
 
     @staticmethod
-    def filter_form_data(queryset, _name, value):
+    def filter_form_data(queryset, name, value): # pylint: disable=unused-argument
         return queryset.filter_data(value)

@@ -809,8 +809,8 @@ if __name__ == '__main__':
         else:
             exit_with_error(
                 1,
-                ("Installation expects you to be root for full installation or user for upgrade. "
-                 "Make sure --user and --group are set correctly.")
+                "Installation expects you to be root for full installation or user for upgrade. "
+                "Make sure --user and --group are set correctly."
             )
 
     # define all exec_* commands to global namespace

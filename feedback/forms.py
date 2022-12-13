@@ -3,6 +3,7 @@ from datetime import datetime
 from hashlib import md5
 from django import forms
 from django.urls import reverse
+from django.utils.text import format_lazy
 from django.utils.timezone import now as timezone_now
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import mark_safe
@@ -118,8 +119,9 @@ class ResponseForm(forms.ModelForm):
                 url=url,
                 link_text=_("older versions")
             )
-            msg = _("Someone else has updated this form. See {older_versions_link} for editing.").format(
-                older_versions_link=link
+            msg = format_lazy(
+                _("Someone else has updated this form. See {older_versions_link} for editing."),
+                older_versions_link=link,
             )
             raise forms.ValidationError(mark_safe(msg))
         return data_changed_check

@@ -234,7 +234,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
 
     # following noqa: MC0001 skips DynamicForm.create_form_class_from is too complex (32) error
     # it was decided during the linter setup that this function would not be refactored at that time.
-    # Also get_fields method pylint disables are related to this.
+    # The "pylint disable" comment for the get_fields method is also related to this.
     @classmethod
     def create_form_class_from(cls, data: "list of field structs", i18n): # noqa: MC0001
         """
@@ -322,7 +322,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                 if error_message:
                     field_args['error_messages'] = build_error_messages(translate_lazy(
                         error_message,
-                        i18n
+                        i18n,
                     )) # assumes error_message is never a dict
 
                 # css classes
