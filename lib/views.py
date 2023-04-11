@@ -21,12 +21,11 @@ class ListCreateView(TemplateResponseMixin,
         form = self.get_form()
         if form.is_valid():
             return self.form_valid(form)
-        else:
-            # BaseListView: - load objects before render_to_response
-            self.object_list = self.get_queryset()
-            return self.form_invalid(form)
+        # BaseListView: - load objects before render_to_response
+        self.object_list = self.get_queryset()
+        return self.form_invalid(form)
 
-    def get_context_object_name(self, object_list):
+    def get_context_object_name(self, object_list): # pylint: disable=arguments-renamed
         # reply None for SingleObjectMixin always
         # we presume we are in MultipleObjectMixin if argument has `model` member
         if not hasattr(object_list, 'model'):

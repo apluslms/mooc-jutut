@@ -34,7 +34,7 @@ class AplusGraderMixin:
     """
     grading_data = None
 
-    def get_aplus_client(self, request):
+    def get_aplus_client(self, request): # pylint: disable=inconsistent-return-statements
         submission_url = request.GET.get('submission_url', None)
         post_url = request.GET.get('post_url', None)
         max_points = request.GET.get('max_points', None)
@@ -76,7 +76,7 @@ class AplusGraderMixin:
             translation.activate(language)
 
     @property
-    def grading_data(self):
+    def grading_data(self): # pylint: disable=function-redefined
         return self.aplus_client.grading_data
 
     def get(self, request, *args, **kwargs):

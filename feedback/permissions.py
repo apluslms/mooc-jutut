@@ -52,7 +52,7 @@ class AdminOrFeedbackStaffPermission(Permission):
 class AdminOrTagStaffPermission(Permission):
     def has_permission(self, request, view):
         user = request.user
-        feedback, tag = view.tag_objects
+        feedback, _tag = view.tag_objects
         course_id = feedback.exercise.course.id
         return (
             user.is_superuser or

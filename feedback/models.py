@@ -7,14 +7,13 @@ from functools import reduce
 
 from django.db import models, transaction
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import get_language, gettext_lazy as _
 from django_colortag.models import ColorTag
 from r_django_essentials.fields import Enum
 
-from aplus_client.django.models import (
+from aplus_client.django.models import ( # pylint: disable=unused-import
     ApiNamespace as Site, # mooc-jutut refers api namespaces as sites
     NamespacedApiObject,
     NestedApiObject,
@@ -68,7 +67,7 @@ class StudentTag(NamespacedApiObject, ColorTag):
                                 on_delete=models.CASCADE)
 
     @classmethod
-    def update_from_api(cls, client, course):
+    def update_from_api(cls, client, course): # pylint: disable=too-many-locals
         course_api = client.load_data(course.url)
         new_tags = set()
         tags = {}
@@ -153,7 +152,7 @@ class Exercise(NestedApiObject):
         return self.course.namespace
 
     def get_forms(self, path_key=None):
-        filters = dict(feedbacks__exercise=self)
+        filters = dict(feedbacks__exercise=self) # pylint: disable=use-dict-literal
         if path_key:
             filters['feedbacks__path_key__startswith'] = path_key
         return FeedbackForm.objects.all().filter(**filters)
@@ -242,7 +241,7 @@ class FeedbackQuerySet(models.QuerySet):
         try:
             filters = [self.FILTERS[f] for f in flags]
         except KeyError as e:
-            raise AttributeError("Invalid flag: {}".format(e))
+            raise AttributeError("Invalid flag: {}".format(e)) from e
         q = reduce(Q.__and__, filters)
         return self.filter(q)
 
@@ -430,9 +429,8 @@ class Feedback(models.Model):
         form = self.get_form_obj(True)
         if form.is_dummy_form:
             return list(self.form_data.items())
-        else:
-            data = self.form_data
-            return [(k, data[k]) for k in form.all_text_fields.keys()]
+        data = self.form_data
+        return [(k, data[k]) for k in form.all_text_fields.keys()]
 
     @property
     def response_uploaded(self):
@@ -530,7 +528,7 @@ class Feedback(models.Model):
             self.student, self.exercise_path, self.timestamp
         )
 
-    def save(self, update_fields=None, **kwargs):
+    def save(self, update_fields=None, **kwargs): # pylint: disable=arguments-differ
         if update_fields is not None and self.__changed_fields:
             update_fields = tuple(set(update_fields) | self.__changed_fields)
         ret = super().save(update_fields=update_fields, **kwargs)

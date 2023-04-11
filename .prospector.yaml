@@ -1,0 +1,35 @@
+inherits:
+  - default
+ignore-paths:
+  - venv
+  - jutut/secret_key.py
+ignore-patterns:
+  - ^.*\/migrations\/.*$
+
+pycodestyle:
+  disable:
+    - E722
+  options:
+    max-line-length: 119
+
+pylint:
+  enable:
+    - trailing-whitespace
+  disable:
+    - consider-using-f-string
+    - import-error
+    - protected-access
+    - django-not-configured
+    - relative-beyond-top-level
+    - cyclic-import
+  options:
+    jobs: 0
+    additional-builtins:
+      - exec_git
+      - exec_manage
+      - exec_pg
+      - exec_user
+      - exec_venv
+
+pyflakes:
+  run: false

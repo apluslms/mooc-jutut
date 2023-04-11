@@ -1,6 +1,5 @@
 import logging
 from collections import Counter
-from datetime import timedelta
 from functools import partial
 from urllib.parse import urlsplit, urljoin, urlencode
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, Http404
@@ -109,9 +108,16 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
         if post_url.path and path_key:
             self.form_cache_key = cache_key = ''.join((post_url.netloc, post_url.path, path_key))
             try:
-                form_obj = CachedForm.get(cache_key, lambda: self.grading_data.form_spec, lambda: self.grading_data.form_i18n)
+                form_obj = CachedForm.get(
+                    cache_key,
+                    lambda: self.grading_data.form_spec,
+                    lambda: self.grading_data.form_i18n,
+                )
             except ValueError as e:
-                logger.warning("failed to create form_spec: %s: %s; api: %s", e.__class__.__name__, e, self.grading_data.exercise_api)
+                logger.warning(
+                    "failed to create form_spec: %s: %s; api: %s",
+                    e.__class__.__name__, e, self.grading_data.exercise_api,
+                )
 
         # if we can't use cache, use the "old way"
         else:
@@ -121,7 +127,10 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
                 try:
                     form_obj = FeedbackForm.objects.get_or_create(form_spec=form_spec, form_i18n=form_i18n)
                 except ValueError as e:
-                    logger.warning("failed to create form_spec: %s: %s; api: %s", e.__class__.__name__, e, self.grading_data.exercise_api)
+                    logger.warning(
+                        "failed to create form_spec: %s: %s; api: %s",
+                        e.__class__.__name__, e, self.grading_data.exercise_api,
+                    )
 
         if form_obj:
             self.form_obj = form_obj
@@ -129,12 +138,15 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
             try:
                 self.form_class = form_class = partial(form_obj.form_class, auto_id=auto_id)
             except AttributeError as e:
-                logger.error("form_spec contained invalid data: %s: %s; api: %s", e.__class__.__name__, e, self.grading_data.exercise_api)
-                raise Http404("form_spec contained invalid data")
+                logger.error(
+                    "form_spec contained invalid data: %s: %s; api: %s",
+                    e.__class__.__name__, e, self.grading_data.exercise_api,
+                )
+                raise Http404("form_spec contained invalid data") from e
             return form_class
-        else:
-            logger.critical("form_spec not resolved from submission_url '%s'", self.submission_url)
-            raise Http404("form_spec not found from provided submission_url")
+
+        logger.critical("form_spec not resolved from submission_url '%s'", self.submission_url)
+        raise Http404("form_spec not found from provided submission_url")
 
     def reload_form_class(self):
         cache_key = self.form_cache_key
@@ -177,7 +189,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
         context['aplus_path'] = self.submission_url
         return context
 
-    def form_valid(self, form):
+    def form_valid(self, form): # pylint: disable=too-many-locals
         gd = self.grading_data
         path_key = self.path_key
         exercise_obj = gd.exercise
@@ -185,7 +197,10 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
         # If it does not exist yet, the exercise is created in the Jutut database.
         # When the exercise is created, the other fields are filled in with
         # the data from exercise_obj.
-        exercise, created = Exercise.objects.get_or_create(exercise_obj, select_related=('course', 'course__namespace')) if exercise_obj else (None, False)
+        exercise, _created = Exercise.objects.get_or_create(
+            exercise_obj,
+            select_related=('course', 'course__namespace'),
+        ) if exercise_obj else (None, False)
         if not exercise:
             logger.warning("exercise not resolved from submission_url '%s'", self.submission_url)
             return HttpResponseBadRequest("exercise not found from provided submission_url")
@@ -275,6 +290,7 @@ class ManageSiteMixin(CheckManagementPermissionsMixin):
             context['sitelist'] = CachedSites.get
         else:
             visible_sites = self.visible_sites
+            # pylint: disable-next=no-value-for-parameter
             context['sitelist'] = [site for site in CachedSites.get() if site.id in visible_sites]
         site = context.get('site', None)
         if site:
@@ -381,14 +397,14 @@ def get_tag_list(tags, feedback, get_tag_url=None):
     )
 
 
-def get_feedback_dict(feedback, get_form, response_form_class,
+def get_feedback_dict(feedback, get_form, response_form_class, # pylint: disable=too-many-arguments
                       get_post_url=None, get_status_url=None,
                       tags=None, get_tag_url=None):
     form = get_form(feedback)
     data = {
         'form': response_form_class(instance=feedback),
         'feedback': feedback,
-         # TODO: keep tags in some consistent order
+        # TODO: keep tags in some consistent order
         'feedback_tags': set(feedback.tags.all()),
         'feedback_form': form,
         'feedback_form_grading': feedback.max_grade > 1 and (form.is_dummy_form or form.is_graded)
@@ -401,7 +417,7 @@ def get_feedback_dict(feedback, get_form, response_form_class,
         data['tags'] = get_tag_list(tags, feedback, get_tag_url)
     return data
 
-
+# pylint: disable-next=too-many-arguments
 def update_context_for_feedbacks(request, context, course=None, feedbacks=None, get_form=None, post_url=True):
     # defaults for parameters
     if not course:
@@ -409,7 +425,7 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
     if not feedbacks:
         feedbacks = context['object_list']
     if not get_form:
-        get_form = lambda o: o.get_form_obj(dummy=True)
+        get_form = lambda o: o.get_form_obj(dummy=True) # pylint: disable=unnecessary-lambda-assignment
     course_id = course.id
 
     # get_post_url
@@ -471,7 +487,10 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
             ('exercise', lambda feedback, iterable: {
                 'feedback': feedback,
                 'exercise': feedback.exercise,
-                'num_submissions': Feedback.objects.filter(exercise=feedback.exercise, student=feedback.student).count(),
+                'num_submissions': Feedback.objects.filter(
+                    exercise=feedback.exercise,
+                    student=feedback.student
+                ).count(),
                 'all_feedbacks_for_exercise_url' : get_all_feedbacks_for_exercise_url(feedback),
                 'all_student_feedbacks_for_exercise_url': get_all_student_feedbacks_for_exercise_url(feedback),
                 'feedbacks_per_exercise': iterable,
@@ -492,7 +511,7 @@ class PaginatedMixin():
     paginate_by = 50
     PAGE_SIZE_CHOICES = ("20", "50", "100", "200")
 
-    def get_paginate_by(self, queryset):
+    def get_paginate_by(self, queryset): # pylint: disable=unused-argument
         value = self.request.GET.get('paginate_by')
         if value is not None and value in self.PAGE_SIZE_CHOICES:
             self.paginate_by = int(value)
@@ -530,6 +549,7 @@ class ManageFeedbacksListView(ManageCourseMixin, PaginatedMixin, ListView):
     def get_queryset(self):
         course = self.course
         queryset = Feedback.objects.filter(exercise__course=course)
+        # pylint: disable-next=redefined-builtin
         self.feedback_filter = filter = FeedbackFilter(self.request.GET, queryset, course=course)
         return filter.qs
 
@@ -572,6 +592,7 @@ class UserFeedbackListView(ManageCourseMixin, ListView):
             lambda o: (course.id,),
             query_func=lambda f: {'student': self.student.id, 'exercise': f['exercise_id']},
         )
+
         def get_feedback(f):
             f['exercise'] = exercise = exercises[f['exercise_id']]
             f['exercise_path'] = Feedback.get_exercise_path(exercise, f['path_key'])
@@ -595,9 +616,11 @@ class UserFeedbackView(ManageCourseMixin, TemplateView):
         exercise = get_object_or_404(Exercise.objects.with_course(), pk=exercise_id, course=self.course)
         feedbacks = (
             obj_with_attrs(obj, student=student, exercise=exercise)
-            for obj in self.model.objects.all()
+            for obj in (
+                self.model.objects.all()
                 .filter(student=student, exercise=exercise)
                 .order_by('-timestamp')
+            )
         )
         form_cache = FormCache()
         update_context_for_feedbacks(self.request, context,
@@ -748,7 +771,7 @@ class FeedbackTagView(CheckManagementPermissionsMixin, View):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data()
-        feedback, tag = self.tag_objects
+        feedback, _tag = self.tag_objects
         context['feedback'] = feedback
         return context
 

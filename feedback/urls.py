@@ -1,11 +1,10 @@
 from django.conf import settings
 from django.conf.urls import url
 from django.views.decorators.cache import cache_page
-
-cache = cache_page(60 * 15) if not settings.DEBUG else lambda x: x
-
 from .apps import FeedbackConfig
 from . import views
+
+cache = cache_page(60 * 15) if not settings.DEBUG else lambda x: x
 
 FeedbackSubmissionView_view = cache(views.FeedbackSubmissionView.as_view())
 ManageCourseListView_view = views.ManageCourseListView.as_view()
@@ -66,7 +65,8 @@ urlpatterns = [
     url(r'^manage/(?P<course_id>\d+)/byuser/(?P<user_id>\d+)/(?P<exercise_id>\d+)/$',
         UserFeedbackView_view,
         name='byuser'),
-    url(r'^manage/(?P<course_id>\d+)/byuser/(?P<user_id>\d+)/(?P<exercise_id>\d+)/(?P<path_filter>{path_regex}*)$'.format(path_regex=PATH_REGEX),
+    url(r'^manage/(?P<course_id>\d+)/byuser/(?P<user_id>\d+)/(?P<exercise_id>\d+)/(?P<path_filter>{path_regex}*)$'
+    .format(path_regex=PATH_REGEX),
         UserFeedbackView_view,
         name='byuser'),
     url(r'^manage/(?P<course_id>\d+)/tags/$',
@@ -94,7 +94,8 @@ urlpatterns = [
     # support for old urls
     url(r'^manage/notresponded/course/(?P<course_id>\d+)/$',
          ManageNotRespondedListView_view),
-    url(r'^manage/notresponded/course/(?P<course_id>\d+)/(?P<path_filter>{path_regex}*)$'.format(path_regex=PATH_REGEX),
+    url(r'^manage/notresponded/course/(?P<course_id>\d+)/(?P<path_filter>{path_regex}*)$'
+    .format(path_regex=PATH_REGEX),
          ManageNotRespondedListView_view),
     url(r'^manage/user/(?P<course_id>\d+)/$',
         UserListView_view),
@@ -102,6 +103,7 @@ urlpatterns = [
         UserFeedbackListView_view),
     url(r'^manage/byuser/(?P<course_id>\d+)/(?P<user_id>\d+)/(?P<exercise_id>\d+)/$',
         UserFeedbackView_view),
-    url(r'^manage/byuser/(?P<course_id>\d+)/(?P<user_id>\d+)/(?P<exercise_id>\d+)/(?P<path_filter>{path_regex}*)$'.format(path_regex=PATH_REGEX),
+    url(r'^manage/byuser/(?P<course_id>\d+)/(?P<user_id>\d+)/(?P<exercise_id>\d+)/(?P<path_filter>{path_regex}*)$'
+    .format(path_regex=PATH_REGEX),
         UserFeedbackView_view),
 ]
