@@ -4,8 +4,10 @@ MOOC jutut
 
 A-Plus grading service that provides course module feedback gathering, response management and analysis.
 Service expects that A-Plus is configured with correct form layout and layout is requested from A-Plus.
-[MOOC Grader](https://github.com/Aalto-LeTech/mooc-grader) is used to configure A-Plus for this task.
+[MOOC Grader](https://github.com/apluslms/mooc-grader) is used to configure A-Plus for this task.
 
+There is a Docker container image available for local testing and development of the system:
+[run-mooc-jutut](https://github.com/apluslms/run-mooc-jutut)
 
 Requirements
 ------------
