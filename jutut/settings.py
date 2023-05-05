@@ -24,6 +24,7 @@ from r_django_essentials.conf import (
 
 
 ## Base options
+DEBUG = False
 BASE_DIR = dirname(dirname(abspath(__file__)))
 EMAIL_SUBJECT_PREFIX = '[MOOC-Jutut] '
 WSGI_APPLICATION = 'jutut.wsgi.application'
@@ -390,3 +391,18 @@ update_secret_from_file(__name__, environ.get('JUTUT_SECRET_KEY_FILE', 'secret_k
 
 # Resolve app dependencies, check context processors and so on...
 update_settings_fixes(__name__)
+
+# Set up Django Debug Toolbar.
+if DEBUG:
+    INSTALLED_APPS += ('debug_toolbar',)
+    # Add the debug toolbar middleware to the start of MIDDLEWARE.
+    MIDDLEWARE.insert(
+        0,
+        'debug_toolbar.middleware.DebugToolbarMiddleware',
+    )
+    # The following variables may have been defined in local_settings.py or environment variables.
+    try:
+        if '127.0.0.1' not in INTERNAL_IPS:
+            INTERNAL_IPS.append('127.0.0.1')
+    except NameError:
+        INTERNAL_IPS = ['127.0.0.1']
