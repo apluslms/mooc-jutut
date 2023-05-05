@@ -1,5 +1,5 @@
 from hashlib import sha1
-from collections import Iterable # pylint: disable=deprecated-class
+from collections.abc import Iterable
 from itertools import chain as iterchain
 from operator import itemgetter
 from django.utils import translation
