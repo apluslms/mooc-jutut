@@ -375,6 +375,10 @@ CELERY_BEAT_SCHEDULE = {
 # so that it is possible to enable and disable the toolbar regardless of
 # the DEBUG value.
 ENABLE_DJANGO_DEBUG_TOOLBAR = False
+INTERNAL_IPS = []
+DEBUG_TOOLBAR_CONFIG = {
+    'SHOW_TOOLBAR_CONFIG': 'lib.helpers.show_debug_toolbar',
+}
 
 
 ################################################################################
@@ -406,15 +410,7 @@ if ENABLE_DJANGO_DEBUG_TOOLBAR:
         'debug_toolbar.middleware.DebugToolbarMiddleware',
     )
     # The following variables may have been defined in local_settings.py or environment variables.
-    try:
-        if '127.0.0.1' not in INTERNAL_IPS:
-            INTERNAL_IPS.append('127.0.0.1')
-    except NameError:
-        INTERNAL_IPS = ['127.0.0.1']
-    try:
-        # pylint: disable-next=used-before-assignment
-        DEBUG_TOOLBAR_CONFIG.setdefault('SHOW_TOOLBAR_CONFIG', 'lib.helpers.show_debug_toolbar')
-    except NameError:
-        DEBUG_TOOLBAR_CONFIG = {
-            'SHOW_TOOLBAR_CALLBACK': 'lib.helpers.show_debug_toolbar',
-        }
+    if '127.0.0.1' not in INTERNAL_IPS:
+        INTERNAL_IPS.append('127.0.0.1')
+
+    DEBUG_TOOLBAR_CONFIG.setdefault('SHOW_TOOLBAR_CONFIG', 'lib.helpers.show_debug_toolbar')
