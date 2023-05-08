@@ -371,6 +371,11 @@ CELERY_BEAT_SCHEDULE = {
     },
 }
 
+# We have a separate variable from DEBUG to enable the Django Debug Toolbar
+# so that it is possible to enable and disable the toolbar regardless of
+# the DEBUG value.
+ENABLE_DJANGO_DEBUG_TOOLBAR = False
+
 
 ################################################################################
 # Do some updates and additions to above settings
@@ -393,7 +398,7 @@ update_secret_from_file(__name__, environ.get('JUTUT_SECRET_KEY_FILE', 'secret_k
 update_settings_fixes(__name__)
 
 # Set up Django Debug Toolbar.
-if DEBUG:
+if ENABLE_DJANGO_DEBUG_TOOLBAR:
     INSTALLED_APPS += ('debug_toolbar',)
     # Add the debug toolbar middleware to the start of MIDDLEWARE.
     MIDDLEWARE.insert(
@@ -406,3 +411,10 @@ if DEBUG:
             INTERNAL_IPS.append('127.0.0.1')
     except NameError:
         INTERNAL_IPS = ['127.0.0.1']
+    try:
+        # pylint: disable-next=used-before-assignment
+        DEBUG_TOOLBAR_CONFIG.setdefault('SHOW_TOOLBAR_CONFIG', 'lib.helpers.show_debug_toolbar')
+    except NameError:
+        DEBUG_TOOLBAR_CONFIG = {
+            'SHOW_TOOLBAR_CALLBACK': 'lib.helpers.show_debug_toolbar',
+        }

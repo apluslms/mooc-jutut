@@ -18,7 +18,7 @@ urlpatterns = [
     url(r'^accounts/', include(accounts.urls)),
 ]
 
-if settings.DEBUG:
+if settings.ENABLE_DJANGO_DEBUG_TOOLBAR:
     import debug_toolbar
     urlpatterns.insert(
         0,
