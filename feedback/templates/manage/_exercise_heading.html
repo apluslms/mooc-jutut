@@ -9,7 +9,15 @@
 		all_feedbacks_for_exercise_url
 {% endcomment %}
 <div class="panel-heading clearfix">
-	<span class="panel-title">{{ feedback.exercise_path }}</span>
+	<a rel="external"
+        class="panel-title"
+        data-toggle="tooltip"
+		data-trigger="hover"
+		data-placement="top"
+		title="{% trans 'Show exercise in A+' %}"
+		href="{{ exercise.html_url }}">
+        {{ exercise.context_name }}
+    </a>
 	<div class="btn-toolbar pull-right">
 		<a
 			class="btn btn-default btn-xs"
@@ -31,15 +39,5 @@
 			href="{{ all_feedbacks_for_exercise_url }}">
 			<span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
 			{% trans "Exercise" %}</a>
-		<a rel="external"
-			class="btn btn-default btn-xs"
-			data-toggle="tooltip"
-			data-trigger="hover"
-			data-placement="top"
-			title="{% trans 'Show exercise in A+' %}"
-			href="{{ exercise.html_url }}"
-			>
-			<span class="glyphicon glyphicon-book" aria-hidden="true"></span>
-			A+</a>
 	</div>
 </div>

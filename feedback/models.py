@@ -13,6 +13,8 @@ from django.utils.translation import get_language, gettext_lazy as _
 from django_colortag.models import ColorTag
 from r_django_essentials.fields import Enum
 
+from lib.helpers import str_in_selected_language
+
 from aplus_client.django.models import ( # pylint: disable=unused-import
     ApiNamespace as Site, # mooc-jutut refers api namespaces as sites
     NamespacedApiObject,
@@ -144,6 +146,7 @@ class Exercise(NestedApiObject):
     course = models.ForeignKey(Course,
                                related_name='exercises',
                                on_delete=models.PROTECT)
+    parent_name = models.CharField(max_length=255, default='')
 
     IS_HIERARCHICAL_NAME = re.compile(r"^(?P<round>\d+)\.(?P<chapter>\d+)(\.\d+)* ")
 
@@ -162,7 +165,7 @@ class Exercise(NestedApiObject):
         return Feedback.objects.get_notresponded(exercise_id=self.id)
 
     def __str__(self):
-        return self.display_name
+        return str_in_selected_language(self.display_name)
 
     def get_module_and_chapter_numbers_or_keys(self):
         m = self.IS_HIERARCHICAL_NAME.match(self.display_name)
@@ -178,6 +181,11 @@ class Exercise(NestedApiObject):
             module_key = url_parts[5]
             chapter_key = url_parts[6]
         return module_key, chapter_key
+
+    @property
+    def context_name(self):
+        s = self.parent_name if self.parent_name else self.display_name
+        return str_in_selected_language(s)
 
 
 class FeedbackQuerySet(models.QuerySet):
