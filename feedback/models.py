@@ -146,9 +146,13 @@ class Exercise(NestedApiObject):
     course = models.ForeignKey(Course,
                                related_name='exercises',
                                on_delete=models.PROTECT)
+    consecutive_order = models.IntegerField(default=0)
     parent_name = models.CharField(max_length=255, default='')
 
     IS_HIERARCHICAL_NAME = re.compile(r"^(?P<round>\d+)\.(?P<chapter>\d+)(\.\d+)* ")
+
+    class Meta:
+        ordering = ["consecutive_order"]
 
     @property
     def namespace(self):
