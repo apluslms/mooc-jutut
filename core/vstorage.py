@@ -7,7 +7,6 @@ from django.conf import settings
 from django.core.files.storage import Storage
 from django.contrib.staticfiles.finders import BaseFinder
 from django.template.loader import get_template
-from django.utils import timezone
 from django.contrib.staticfiles.utils import get_files
 
 
@@ -15,7 +14,7 @@ if DJANGO_VERSION >= (1, 10):
     def datetime_from_timestamp(ts):
         # src: django.core.files.storage.FileSystemStorage._datetime_from_timestamp
         if settings.USE_TZ:
-            return datetime.utcfromtimestamp(ts).replace(tzinfo=timezone.utc)
+            return datetime.utcfromtimestamp(ts).replace(tzinfo=datetime.timezone.utc)
         return datetime.fromtimestamp(ts)
 else:
     datetime_from_timestamp = datetime.fromtimestamp

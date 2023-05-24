@@ -65,7 +65,7 @@ INSTALLED_APPS = [
     'js_jquery_toggle',
     # libs
     'django_lti_login',
-    'aplus_client',
+    'aplus_client.django.apps.AplusClientConfig',
     'dynamic_forms',
     'django_colortag',
     'django_dictiterators',

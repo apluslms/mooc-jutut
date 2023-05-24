@@ -1,5 +1,4 @@
-from django.conf.urls import url
-from django.urls import include, path
+from django.urls import include, path, re_path
 from django.conf import settings
 from django.contrib import admin
 
@@ -10,12 +9,12 @@ import timeusage.urls
 
 
 urlpatterns = [
-    url(r'^', include(feedback.urls)),
-    url(r'^timeusage/', include(timeusage.urls)),
-    url(r'^', include(core.urls)),
-    url(r'^i18n/', include('django.conf.urls.i18n')),
-    url(r'^admin/', admin.site.urls),
-    url(r'^accounts/', include(accounts.urls)),
+    re_path(r'^', include(feedback.urls)),
+    re_path(r'^timeusage/', include(timeusage.urls)),
+    re_path(r'^', include(core.urls)),
+    re_path(r'^i18n/', include('django.conf.urls.i18n')),
+    re_path(r'^admin/', admin.site.urls),
+    re_path(r'^accounts/', include(accounts.urls)),
 ]
 
 if settings.ENABLE_DJANGO_DEBUG_TOOLBAR:

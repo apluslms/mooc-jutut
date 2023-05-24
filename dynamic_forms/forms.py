@@ -423,6 +423,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
         return dict((k, v) for k, v in cleaned_data.items() if v is not None)
 
     def as_div(self):
+        # TODO: fix this, _html_output deprecated in Django 4.0
         "Returns this form rendered as HTML <div>s."
         return self._html_output(
             normal_row='<div%(html_class_attr)s>%(help_text)s %(label)s %(field)s</div>',
