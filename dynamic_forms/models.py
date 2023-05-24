@@ -78,11 +78,13 @@ class Form(models.Model):
                 'form_spec': format_lazy(_("Invalid form_spec: {error}"), error=str(e)),
             }) from e
 
-    def save(self, **kwargs): # pylint: disable=arguments-differ
+    def save(self, update_fields=None, **kwargs): # pylint: disable=arguments-differ
         if not self.sha1:
             self.frozen_spec = frozen_spec = bytefy(self.form_spec)
             self.frozen_i18n = frozen_i18n = bytefy(self.form_i18n)
             self.sha1 = freeze_digest(frozen_spec, frozen_i18n)
+            if update_fields is not None:
+                update_fields = tuple(set(update_fields) | {"sha1"})
         return super().save(**kwargs)
 
     def __str__(self):

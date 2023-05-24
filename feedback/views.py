@@ -2,6 +2,7 @@ import logging
 from collections import Counter
 from functools import partial
 from urllib.parse import urlsplit, urljoin, urlencode
+from django.forms import Form
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, Http404
 from django.utils.text import slugify
 from django.utils.timezone import now as timezone_now
@@ -14,6 +15,7 @@ from django.utils.functional import cached_property
 from lib.postgres import PgAvg
 from lib.mixins import CSRFExemptMixin, ConditionalMixin
 from lib.views import ListCreateView
+from lib.helpers import is_ajax
 from aplus_client.django.views import AplusGraderMixin
 
 from django_dictiterators.utils import NestedDictIterator
@@ -680,7 +682,7 @@ class RespondFeedbackMixin(FeedbackMixin):
 
     def form_valid(self, form):
         result = super().form_valid(form)
-        if isinstance(result, HttpResponseRedirect) and self.request.is_ajax():
+        if isinstance(result, HttpResponseRedirect) and is_ajax(self.request):
             # return form as we would have done with invalid case, but signal client with 201 code that it was created
             logger.debug("Ajax POST ok, returning original form with status 201")
             return self.render_to_response(self.get_context_data(form=form), status=201)
@@ -722,7 +724,7 @@ class ResponseStatusView(ConditionalMixin,
 
 def respond_feedback_view_select(normal_view, ajax_view):
     def dispatch(request, *args, **kwargs):
-        view = ajax_view if request.is_ajax() else normal_view
+        view = ajax_view if is_ajax(request) else normal_view
         return view(request, *args, **kwargs)
     return dispatch
 
@@ -743,6 +745,9 @@ class FeedbackTagEditView(FeedbackTagMixin, UpdateView):
 
 class FeedbackTagDeleteView(FeedbackTagMixin, DeleteView):
     template_name = "feedback_tags/tag_confirm_delete.html"
+    # Use an empty form that is always valid, deletion form doesn't need to
+    # require all the fields of the FeedbackTag model
+    form_class = Form
 
 
 class FeedbackTagListView(FeedbackTagMixin, ListCreateView):
