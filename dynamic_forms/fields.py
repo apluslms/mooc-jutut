@@ -33,6 +33,7 @@ class LabelField(Field):
         if 'initial' not in kwargs:
             kwargs['initial'] = help_ or label
         kwargs['required'] = False
+        kwargs['disabled'] = True # displayed, but not editable
         super().__init__(*args, **kwargs)
 
     def clean(self, value):
