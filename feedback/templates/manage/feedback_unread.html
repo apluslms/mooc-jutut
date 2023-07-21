@@ -22,7 +22,7 @@
 
 	{% if feedback_filter != None %}
 		<div class="col-xs-12">
-			{% include "manage/_filter_bar.html" %}
+			{% include "manage/_filter_bar.html" with url_pattern="feedback:list" %}
 		</div>
 	{% endif%}
 

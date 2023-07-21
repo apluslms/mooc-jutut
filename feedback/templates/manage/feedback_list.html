@@ -12,7 +12,7 @@
 {% block content %}
 	<h1>{% blocktrans %}Feedback for {{course}}{% endblocktrans %}</h1>
 
-	{% include "manage/_filter_bar.html" %}
+	{% include "manage/_filter_bar.html" with url_pattern="feedback:list" %}
 
 	{% include "manage/_conversations_as_list.html" %}
 

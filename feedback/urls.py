@@ -11,7 +11,6 @@ ManageCourseListView_view = views.ManageCourseListView.as_view()
 ManageNotRespondedListView_view = views.ManageNotRespondedListView.as_view()
 UserListView_view = views.UserListView.as_view()
 UserFeedbackListView_view = views.UserFeedbackListView.as_view()
-UserFeedbackView_view = views.UserFeedbackView.as_view()
 RespondFeedbackView_view = views.respond_feedback_view_select(
     views.RespondFeedbackView.as_view(),
     views.RespondFeedbackViewAjax.as_view()
@@ -62,13 +61,6 @@ urlpatterns = [
     re_path(r'^manage/(?P<course_id>\d+)/byuser/(?P<user_id>\d+)/$',
         UserFeedbackListView_view,
         name='byuser'),
-    re_path(r'^manage/(?P<course_id>\d+)/byuser/(?P<user_id>\d+)/(?P<exercise_id>\d+)/$',
-        UserFeedbackView_view,
-        name='byuser'),
-    re_path(r'^manage/(?P<course_id>\d+)/byuser/(?P<user_id>\d+)/(?P<exercise_id>\d+)/(?P<path_filter>{path_regex}*)$'
-    .format(path_regex=PATH_REGEX),
-        UserFeedbackView_view,
-        name='byuser'),
     re_path(r'^manage/(?P<course_id>\d+)/tags/$',
         views.FeedbackTagListView.as_view(),
         name='tags'),
@@ -101,9 +93,4 @@ urlpatterns = [
         UserListView_view),
     re_path(r'^manage/byuser/(?P<course_id>\d+)/(?P<user_id>\d+)/$',
         UserFeedbackListView_view),
-    re_path(r'^manage/byuser/(?P<course_id>\d+)/(?P<user_id>\d+)/(?P<exercise_id>\d+)/$',
-        UserFeedbackView_view),
-    re_path(r'^manage/byuser/(?P<course_id>\d+)/(?P<user_id>\d+)/(?P<exercise_id>\d+)/(?P<path_filter>{path_regex}*)$'
-    .format(path_regex=PATH_REGEX),
-        UserFeedbackView_view),
 ]

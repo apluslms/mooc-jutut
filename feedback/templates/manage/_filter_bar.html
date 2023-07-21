@@ -8,7 +8,7 @@
 		</h3>
 	</div>
 	<div id="filter-panel" class="panel-body collapse in">
-		<form id="filter-form" role="form" action="{% url 'feedback:list' course_id=course.id %}" method="GET" class="form-horizontal" autocomplete="off">
+		<form id="filter-form" role="form" action="{% url url_pattern course_id=course.id %}" method="GET" class="form-horizontal" autocomplete="off">
 			{{ feedback_filter.form }}
 		</form>
 	</div>

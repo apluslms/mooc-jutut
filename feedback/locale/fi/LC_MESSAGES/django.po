@@ -174,7 +174,6 @@ msgid "Response notify"
 msgstr "Ilmoitus vastauksesta"
 
 #: feedback/templates/feedback/avglist.html
-#: feedback/templates/manage/user_feedback.html
 msgid "No feedback yet."
 msgstr "Ei palautetta."
 
@@ -497,15 +496,6 @@ msgstr "Poistetut tägit"
 msgid "This user is not authenticated using LTI and doesn't have api token."
 msgstr ""
 "Käyttäjä ei ole kirjautunut LTI:n kautta, joten sillä ei ole api avainta."
-
-#: feedback/templates/manage/user_feedback.html
-#, python-format
-msgid ""
-"\n"
-"List of student feedback to %(ex)s\n"
-msgstr ""
-"\n"
-"Luettelo opiskelijapalautteesta tehtävään %(ex)s\n"
 
 #: feedback/templates/manage/user_list.html
 msgid "List of students with feedback"

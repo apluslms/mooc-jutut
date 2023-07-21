@@ -32,7 +32,6 @@ from .models import (
     FeedbackTag,
 )
 from .cached import (
-    FormCache,
     CachedForm,
     CachedSites,
     CachedCourses,
@@ -603,33 +602,6 @@ class UserFeedbackListView(ManageCourseMixin, ListView):
             return f
         context['feedbacks'] = (get_feedback(feedback) for feedback in feedbacks)
         context['student'] = self.student
-        return context
-
-
-class UserFeedbackView(ManageCourseMixin, TemplateView):
-    model = Feedback
-    template_name = "manage/user_feedback.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        student_id = self.kwargs['user_id']
-        exercise_id = self.kwargs['exercise_id']
-        student = get_object_or_404(Student, pk=student_id)
-        exercise = get_object_or_404(Exercise.objects.with_course(), pk=exercise_id, course=self.course)
-        feedbacks = (
-            obj_with_attrs(obj, student=student, exercise=exercise)
-            for obj in (
-                self.model.objects.all()
-                .filter(student=student, exercise=exercise)
-                .order_by('-timestamp')
-            )
-        )
-        form_cache = FormCache()
-        update_context_for_feedbacks(self.request, context,
-            feedbacks=feedbacks, get_form=form_cache.get)
-        context['student'] = student
-        context['exercise'] = exercise
         return context
 
 
