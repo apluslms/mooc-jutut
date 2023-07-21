@@ -208,7 +208,11 @@ class FeedbackFilter(django_filters.FilterSet):
                                           extra_filter=lambda q: q.exclude(response_time=None),
                                           widget=forms.CheckboxSelectMultiple())
     flags = FlagFilter(label=_("Flags"))
-    tags = ColortagIEAndOrFilter(queryset=FeedbackTag.objects.none(), label=_("Tags"))
+    tags = ColortagIEAndOrFilter(
+        queryset=FeedbackTag.objects.none(),
+        field_name='conversation__tags',
+        label=_("Tags"),
+    )
     student_tags = ColortagIEAndOrFilter(
         queryset=StudentTag.objects.none(),
         field_name='student__tags', label=_("Student tags"),

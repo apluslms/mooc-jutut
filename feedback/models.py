@@ -314,6 +314,34 @@ class FeedbackQuerySet(models.QuerySet):
 ResponseUploaded = namedtuple('ResponseUploaded',
                               ('ok', 'when', 'code', 'attempts'))
 
+class Conversation(models.Model):
+
+    class Meta:
+        unique_together = [
+            ('exercise', 'student')
+        ]
+
+    exercise = models.ForeignKey(
+        Exercise,
+        related_name='conversations',
+        on_delete=models.PROTECT,
+        verbose_name=_("Exercise"),
+    )
+    student = models.ForeignKey(
+        Student,
+        related_name='conversations',
+        on_delete=models.CASCADE,
+        verbose_name=_("Student"),
+    )
+
+    @cached_property
+    def course(self):
+        return self.exercise.course
+
+    def __str__(self):
+        return 'All feedback by {} to {}'.format(
+            self.student, self.exercise
+        )
 
 class Feedback(models.Model):
     objects = FeedbackQuerySet.as_manager()
@@ -351,6 +379,12 @@ class Feedback(models.Model):
     submission_id = models.IntegerField()
     path_key = models.CharField(max_length=255, db_index=True)
     max_grade = models.PositiveSmallIntegerField(default=MAX_GRADE)
+
+    conversation = models.ForeignKey(
+        Conversation,
+        related_name='feedbacks',
+        on_delete=models.PROTECT,
+    )
 
     # feedback
     timestamp = models.DateTimeField(default=timezone.now, db_index=True)
@@ -470,7 +504,7 @@ class Feedback(models.Model):
 
     @property
     def waiting_for_response_msg(self):
-        return not self.response_msg and not self.superseded_by_id
+        return not self.response_time and not self.superseded_by_id
 
     @property
     def can_be_responded(self):
@@ -522,6 +556,10 @@ class Feedback(models.Model):
         old feedbacks by same user to defined resource
         """
         kwargs = {k: v for k,v in kwargs.items() if v is not None}
+        student = kwargs['student']
+        exercise = kwargs['exercise']
+        conv, _created = Conversation.objects.get_or_create(student=student, exercise=exercise)
+        kwargs['conversation'] = conv
         new = cls.objects.create(**kwargs)
         assert new.pk is not None, "New feedback doesn't have primary key"
         new.supersede_older()
@@ -553,8 +591,10 @@ class FeedbackTag(ColorTag):
     course = models.ForeignKey(Course,
                                related_name="tags",
                                on_delete=models.CASCADE)
-    feedbacks = models.ManyToManyField(Feedback,
-                                       related_name="tags")
+    conversations = models.ManyToManyField(
+        Conversation,
+        related_name="tags",
+    )
 
     class Meta(ColorTag.Meta):
         unique_together = ('course', 'slug')

@@ -269,125 +269,228 @@ body {
 	content: "\e013";
 }
 
+.hover-btn {
+	background: none;
+	border-color: rgba(150, 150, 150, 0.2);
+}
+.hover-btn > .glyphicon {
+	top: 0.2em
+}
+.hover-btn:hover {
+	background-color: rgba(150, 150, 150, 0.3);
+}
+
+
 /* feedback/response panel */
 .feedback-response-panel {
-	border-left: 0;
-	border-right:  0;
+	border-width: 1px;
 	background: #fbfbfb;
 	margin-bottom: 1em;
-
 	border-color: #ddd;
 }
+
 .feedback-response-panel > .panel-heading {
 	padding: 0.4em 0.6em;
+	background-image: linear-gradient(to bottom,#3c3c3c 0,#222 100%);
+	background-color: #222;
+	border-color: #080808;
 }
-.feedback-response-panel > .panel-heading .panel-title {
+.feedback-response-panel > .panel-heading a.student-name {
 	font-weight: bold;
 	font-size: 14px;
+	color: #fff;
+}
+.feedback-response-panel > .panel-heading a.student-name:hover {
+	color: #ddf;
+}
+.feedback-response-panel > .panel-heading .hover-btn {
+	color: #fff;
 }
 .feedback-response-panel > .panel-heading .label {
 	font-size: 70%;
 }
+
 .feedback-response-panel > .panel-body {
 	padding: 0;
+	display: flex;
+	flex-wrap: wrap;
+}
+.feedback-response-panel > .panel-body > .conversation-panel {
+	flex: 400px;
+	padding: 0.5em;
+}
+.feedback-response-panel > .panel-body > .conversation-tag-panel {
+	flex: 2 240px;
+	padding: 0.5em;
+	display: flex;
+	flex-direction: row;
+	flex-wrap: wrap;
+	justify-content: flex-end;
+	align-content: flex-start;
+}
+@media (max-width: 700px) {
+	.feedback-response-panel > .panel-body > .conversation-panel,
+	.feedback-response-panel > .panel-body > .conversation-tag-panel {
+		width: 100%;
+	}
+	.feedback-response-panel > .panel-body > .conversation-tag-panel {
+		justify-content: flex-start;
+	}
 }
 
-/* Feedback exercise panel */
-.feedback-exercise-panel > .panel-heading {
-	padding: 0.2em;
+/* Feedback exercise/chapter heading */
+.conversation-panel > .panel-heading {
+	padding: 0;
+	display: flex;
+	justify-content: space-between;
+	flex-wrap: wrap;
 }
-.feedback-exercise-panel > .panel-heading .panel-title {
+.conversation-panel > .panel-heading .panel-title {
 	font-size: 13px;
 }
-.feedback-exercise-panel > .panel-heading .badge {
-	font-size: 11px;
+.conversation-panel > .panel-heading .hover-btn {
+	color: #000;
+}
+.conversation-panel > .panel-heading > .feedback-context-container {
+	flex-grow: 1;
+}
+.conversation-panel > .panel-heading .feedback-context > span.label {
+	margin-left: 0.5em;
 }
 
-/* Feedback response body (feedback and response forms) */
-.feedback-response-body {
-	padding: 0.3em 0 0 0;
-	border-bottom: 1px solid #ccc;
+/* Conversation panel basic structure*/
+.conversation-panel-body {
+	display: flex;
+	flex-direction: column;
 }
-.feedback-response-body.panel-danger {
-	background: #fcf8f8;
+.feedback-message,
+.response-message {
+	width: 80%;
+	border-radius: 8px;
+	border: 1px solid #bbb;
+	margin-top: 0.5em;
 }
-.feedback-response-body.panel-warning {
-	background: #fefdf6;
+.feedback-message {
+	align-self: flex-start;
+	background-color: #f7f7f7;
+	min-height: 1.5em;
+	position: relative; /* for positioning timestamp */
 }
-.feedback-response-body.panel-success {
-	background: #f6fbf4;
+.response-message-container {
+	width: 100%;
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-start;
 }
-.feedback-response-body:last-child {
-	padding-bottom: 0;
-}
-.feedback-response-body > div {
-	padding: 0;
-}
-@media (min-width: 1200px) /* from bootstrap */ {
-	.feedback-response-body > div.col-lg-6:nth-child(odd) {
-		padding-right: 0.2em;
-	}
-	.feedback-response-body > div.col-lg-6:nth-child(even) {
-		padding-left: 0.2em;
-	}
-}
-.feedback-response-body .panel {
-    margin: 0 0 0.3em 0;
+.response-message {
+	background-color: #eee;
+	position: relative; /* for positioning respond-buttons */
 }
 
-/* feedback + response hilights */
-.feedback-panel, .response-panel {
-	border-width: 2px;
+/* Feedback message */
+.feedback-message.active {
+	background-color: #fff;
 }
-.feedback-panel.panel-danger, .response-panel.panel-danger {
-	border-color: #ce828f;
-}
-.feedback-panel.panel-warning, .response-panel.panel-warning {
-	border-color: #e6d270;
-}
-.feedback-panel.panel-success, .response-panel.panel-success {
-	border-color: #a2cf7d;
-}
-
-/* feedback panel */
-.feedback-panel > .panel-footer {
-	padding: 0.2em 0.2em 0.3em 0.2em;
-	cursor: pointer;
-}
-
-/* response panel */
-.response-panel > .panel-heading {
-	padding: 0.4em 0.4em 0.6em 0.4em;
-}
-.response-panel > .panel-body {
-	padding: 0.4em;
-}
-.response-panel > .panel-footer {
-	padding: 0.2em 0.2em 0.3em 0.2em;
-}
-.response-panel .form-group {
-	margin-bottom: 0.6em;
-}
-.response-panel .form-group:last-child {
+.feedback-message table.table {
 	margin-bottom: 0;
 }
-.response-panel span.textarea {
-	min-height: 3em;
+.feedback-message col.field-names {
+	width: 8em;
 }
+
 @media (min-width: 992px) /* from bootstrap */ {
-	body.ok .feedback-panel tr .glyphicon,
-	body.ok .feedback-panel tr .label {
+	body.ok .feedback-message tr .glyphicon,
+	body.ok .feedback-message tr .label {
 		opacity: 0.2;
 		transition: opacity 200ms linear;
 	}
-	body.ok .feedback-panel tr:hover .glyphicon,
-	body.ok .feedback-panel tr:hover .label {
+	body.ok .feedback-message tr:hover .glyphicon,
+	body.ok .feedback-message tr:hover .label {
 		opacity: 1;
 	}
 }
-body.ios .feedback-panel tr .glyphicon {
+body.ios .feedback-message tr .glyphicon {
 	display: none;
 }
+
+.feedback-message > .panel-footer {
+	display: flex;
+	flex-direction: row-reverse;
+	justify-content: space-between;
+	align-items: center;
+	padding: 0.2em;
+	cursor: pointer;
+}
+.feedback-message > .panel-footer.collapsed {
+	background: transparent;
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	border-top: 0;
+	padding-bottom: 0;
+	color: #777;
+}
+.timestamp {
+	font-size: 0.8em;
+	font-family: Arial, Helvetica, sans-serif;
+}
+.feedback-message > .panel-footer .timestamp:after {
+	position: relative;
+	top: 1px;
+	display: inline-block;
+	font-family: 'Glyphicons Halflings';
+	font-style: normal;
+	font-size: 11px;
+	font-weight: 400;
+	line-height: 0.7;
+	margin-left: 0.1em;
+	margin-right: 0.2em;
+	-webkit-font-smoothing: antialiased;
+	-moz-osx-font-smoothing: grayscale;
+	content: "\e260";
+}
+.feedback-message > .panel-footer.collapsed .timestamp:after {
+	content: "\e259";
+}
+
+.feedback-message > .panel-footer > .feedback-msg-bottom.in {
+	padding-left: 0.3em;
+}
+
+/* Response message */
+.response-message:has(.edit-response[style*="display: none"]) {
+	/* Fit content if textbox isn't displayed */
+	/* Doesn't work on Firefox unless user has enabled has-selector */
+	max-width: 80%;
+	min-width: 12em;
+	width: fit-content;
+}
+.response-message .form-group {
+	margin-bottom: 0;
+}
+.response-message div.display-response {
+	padding: 5px 5px 0;
+}
+.response-message textarea {
+	resize: vertical;
+}
+.response-message .respond-btn-container {
+	float: right;
+	margin: 0.2em;
+}
+.response-message .timestamp {
+	position: absolute;
+	bottom: 0;
+	right: 0;
+	margin-right: 0.5em;
+}
+
+.response-msg-bottom {
+	padding: 0.3em;
+	display: flex;
+	align-items: flex-end;
+}
+
 
 /* spin animation, src: http://bootsnipp.com/snippets/featured/glyphicon-animate-rotation-and-flip */
 .gly-spin {

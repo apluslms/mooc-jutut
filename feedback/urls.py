@@ -84,10 +84,10 @@ urlpatterns = [
     re_path(r'^manage/status/(?P<feedback_id>\d+)/$',
         views.ResponseStatusView.as_view(),
         name='status'),
-    re_path(r'^manage/tag/(?P<feedback_id>\d+)/$',
+    re_path(r'^manage/tag/(?P<conversation_id>\d+)/$',
         views.FeedbackTagView.as_view(),
         name='tag-list'),
-    re_path(r'^manage/tag/(?P<feedback_id>\d+)/(?P<tag_id>\d+)/$',
+    re_path(r'^manage/tag/(?P<conversation_id>\d+)/(?P<tag_id>\d+)/$',
         views.FeedbackTagView.as_view(),
         name='tag'),
 

@@ -93,7 +93,7 @@ def notresponded_post_feedback_save(sender, instance, **kwargs): # pylint: disab
     feedback = instance
     CachedNotrespondedCount.clear(feedback.exercise.course)
 
-@receiver(m2m_changed, sender=FeedbackTag.feedbacks.through)
+@receiver(m2m_changed, sender=FeedbackTag.conversations.through)
 # pylint: disable-next=unused-argument
 def notresponded_post_feedback_tag_change(sender, instance, action, reverse, **kwargs):
     if action not in ('post_add', 'post_remove', 'post_clear'):

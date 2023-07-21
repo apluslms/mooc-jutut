@@ -5,24 +5,48 @@
 	expects to be used under bootstrapped.html
 	expects from context:
 		course
+		conv
 		user
 {% endcomment %}
 <div class="panel-heading">
-	<span class="panel-title">
-		{{ user }}
+	<span class="student-info">
+		<a class="student-name"
+			data-toggle="tooltip"
+			data-trigger="hover"
+			data-placement="top"
+			title="{% trans 'Open student page in A+' %}"
+			href="{{ conv.student_aplus_url }}"
+			target="_blank">
+			{{ user.full_name }}
+		</a>
+		<a class="btn btn-xs hover-btn"
+			data-toggle="tooltip"
+			data-trigger="hover"
+			data-placement="top"
+			title="{% trans 'Show all feedback for this student' %}"
+			href="{{ conv.all_feedback_for_student_url }}">
+			<span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
+		</a>
 		{% for tag in user|studenttags_for_course:course %}
 			{{ tag|colortag }}
 		{% endfor %}
 	</span>
 	<div class="btn-group pull-right">
-		<a class="btn btn-default btn-xs" href="{{ all_feedbacks_url }}">
-			<span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
-			{% trans "Student" %}
+		<a class="btn btn-default btn-xs hidden"
+			data-toggle="tooltip"
+			data-trigger="hover"
+			data-placement="top"
+			title="{% trans "Show the student's response to the background questionnaire" %}"
+			href="{{ conv.background_url }}">
+			{% trans 'Background' %}
 		</a>
-		<!-- <a class="btn btn-primary btn-xs" href="#">All submissions in A+</a> -->
-		<a class="btn btn-default btn-xs" href="{{ student_aplus_url }}" target="_blank">
-			<span class="glyphicon glyphicon-book" aria-hidden="true"></span>
-			{% translate "A+" %}
+		<a class="btn btn-default btn-xs hidden"
+			data-toggle="tooltip"
+			data-trigger="hover"
+			data-placement="top"
+			title="{% trans "Show the student's points" %}"
+			href="">
+			{% trans 'Points' %}
 		</a>
 	</div>
 </diV>

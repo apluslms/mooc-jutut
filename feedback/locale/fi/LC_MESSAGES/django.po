@@ -197,7 +197,7 @@ msgstr "Tallenna"
 
 #: feedback/templates/feedback_tags/_tag_form.html
 #: feedback/templates/feedback_tags/tag_confirm_delete.html
-#: feedback/templates/manage/_response_panel.html
+#: feedback/templates/manage/_response_message.html
 msgid "Cancel"
 msgstr "Takaisin"
 
@@ -254,95 +254,102 @@ msgstr "muokkaa"
 msgid "remove"
 msgstr "poista"
 
-#: feedback/templates/manage/_exercise_heading.html
-msgid "Show feedbacks for this execise by the student"
-msgstr "Näytä tämän opiskelijan palautteet tähän tehtävään"
+#: feedback/templates/manage/_conversations_as_list.html
+msgid "No feedback shown as there are errors in the filter form"
+msgstr "Palautteita ei näytetä, sillä lomakkeessa on virhe"
 
-#: feedback/templates/manage/_exercise_heading.html
-msgid "Exercise and student"
-msgstr "Tehtävä ja opiskelija"
+#: feedback/templates/manage/_conversations_as_list.html
+msgid "No feedback shown as there is no filter selection"
+msgstr "Palautteita ei näytetä, sillä mitään rajoitteita ei ole valittu"
 
-#: feedback/templates/manage/_exercise_heading.html
-msgid "Show all feedbacks for this execise"
-msgstr "Näytä kaikki palautteet tähän tehtävään"
+#: feedback/templates/manage/_conversations_as_list.html
+msgid "No feedback found"
+msgstr "Yhtään palautetta ei löytynyt"
+
+#: feedback/templates/manage/_conversations_as_list.html
+msgid "No unread feedback."
+msgstr "Ei lukemattomia palautteita"
 
 #: feedback/templates/manage/_exercise_heading.html
 msgid "Show exercise in A+"
 msgstr "Näytä tehtävä A+:ssa"
 
-#: feedback/templates/manage/_feedback_panel.html
+#: feedback/templates/manage/_exercise_heading.html
+msgid "Show all feedback for this execise"
+msgstr "Näytä kaikki palautteet tähän tehtävään"
+
+#: feedback/templates/manage/_exercise_heading.html
+msgid "Show feedback for this execise by the student"
+msgstr "Näytä tämän opiskelijan palautteet tähän tehtävään"
+
+#: feedback/templates/manage/_feedback_message.html
 msgid "This field was <b>not</b> required"
 msgstr "Tämä kenttä <b>ei</b> ollut pakollinen"
 
-#: feedback/templates/manage/_feedback_panel.html
+#: feedback/templates/manage/_feedback_message.html
 msgid "optional"
 msgstr "valinnainen"
 
-#: feedback/templates/manage/_feedback_panel.html
+#: feedback/templates/manage/_feedback_message.html
 msgid "Show all feedback fields"
 msgstr "Näytä kaikki palautekentät"
 
-#: feedback/templates/manage/_feedback_panel.html
+#: feedback/templates/manage/_feedback_message.html
 msgid "Show submission in A+"
 msgstr "Näytä palautus A+:ssa"
-
-#: feedback/templates/manage/_feedbacks_as_list.html
-msgid "No feedback shown as there is errors in the filter form"
-msgstr "Palautteita ei näytetä, sillä lomakkeessa on virhe"
-
-#: feedback/templates/manage/_feedbacks_as_list.html
-msgid "No feedback shown as there is no filter selection"
-msgstr "Palautteita ei näytetä, sillä mitään rajoitteita ei ole valittu"
-
-#: feedback/templates/manage/_feedbacks_as_list.html
-msgid "No feedback found"
-msgstr "Yhtään palautetta ei löytynyt"
-
-#: feedback/templates/manage/_feedbacks_as_list.html
-msgid "No unread feedback."
-msgstr "Ei lukemattomia palautteita"
 
 #: feedback/templates/manage/_filter_bar.html
 #, python-format
 msgid "Filter options (%(number)s active)"
 msgstr "Rajausvalinnat (%(number)s aktiivista)"
 
-#: feedback/templates/manage/_response_panel.html
+#: feedback/templates/manage/_response_message.html
 msgid "Update"
 msgstr "Päivitä"
 
-#: feedback/templates/manage/_response_panel.html
+#: feedback/templates/manage/_response_message.html
 msgid "Respond"
 msgstr "Vastaa"
 
-#: feedback/templates/manage/_response_panel.html
+#: feedback/templates/manage/_response_message.html
 msgid "Conflict"
 msgstr "Ristiriita"
 
-#: feedback/templates/manage/_response_panel.html
+#: feedback/templates/manage/_response_message.html
 msgid "not saved"
 msgstr "tallentamaton"
 
-#: feedback/templates/manage/_response_panel.html
-msgid "Reset"
-msgstr "Peru"
-
-#: feedback/templates/manage/_response_panel.html
-#, python-format
-msgid "%(time)s by %(user)s"
-msgstr "%(time)s, %(user)s"
-
-#: feedback/templates/manage/_response_panel.html
+#: feedback/templates/manage/_response_message.html
 msgid "This feedback was automatically accepted"
 msgstr "Palaute on automaattisesti hyväksytty"
 
-#: feedback/templates/manage/_response_panel.html
+#: feedback/templates/manage/_response_message.html
 msgid "auto"
 msgstr "auto"
 
 #: feedback/templates/manage/_submitter_heading.html
-msgid "A+"
-msgstr "A+"
+msgid "Open student page in A+"
+msgstr "Avaa opiskelijasivu A+:ssa"
+
+#: feedback/templates/manage/_submitter_heading.html
+msgid "Show all feedback for this student"
+msgstr "Näytä kaikki palautteet tältä opiskelijalta"
+
+#: feedback/templates/manage/_submitter_heading.html
+msgid "Show the student's response to the background questionnaire"
+msgstr "Näytä opiskelijan vastaus taustatietokyselyyn"
+
+#: feedback/templates/manage/_submitter_heading.html
+msgid "Background"
+msgstr "Taustatieto"
+
+#: feedback/templates/manage/_submitter_heading.html
+msgid "Show the student's points"
+msgstr "Näytä opiskelijan pisteet"
+
+#: feedback/templates/manage/_submitter_heading.html
+msgid "Points"
+msgstr "Pisteet"
 
 #: feedback/templates/manage/_upload_status.html
 #, python-format

@@ -56,7 +56,7 @@ def on_state(cur_state, on_state='default'):
     attrs = {
         'data-onstate': on_state,
     }
-    if not on_state.startswith(cur_state):
+    if cur_state not in on_state.split():
         attrs['style'] = "display: none;" # hide
 
     return flatatt(attrs)
