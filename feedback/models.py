@@ -1,6 +1,5 @@
 import datetime
 import re
-import shlex
 
 from collections import namedtuple
 from functools import reduce
@@ -256,16 +255,48 @@ class FeedbackQuerySet(models.QuerySet):
     def filter_contains_text_content(self):
         return self.filter(Q(response_time=None) | ~Q(response_by=None))
 
-    def filter_data(self, search):
-        if '*' in search:
-            search = search.replace('*', '%')
-        else:
-            search = ''.join(('%', '%'.join(shlex.split(search)), '%'))
-        # TODO: enable AND/OR and friends + make more efficient?
-        return self.extra(
-            where=['form_data::text ilike %s'],
-            params=[search],
-        )
+    def filter_text(self, name, search):
+        """Filter for strings indicated 'search' from the field 'name'.
+        Provides basic support for operators AND, OR, and NOT (case-sensitive).
+        Does not support quotes or parentheses to group search terms, treats
+        each word (separated by whitespace) as a separate search term, joins
+        search terms by default with 'AND'.
+        """
+        parts = search.split()
+        term_w_ops = []
+        cur = {
+            'NOT': False,
+            'op': False, # AND: False; OR: True
+        }
+        for p in parts:
+            if p == "OR":
+                cur['op'] = True
+            elif p == "AND":
+                cur['op'] = False
+            elif p == "NOT":
+                cur['NOT'] = True
+            else:
+                cur['word'] = p
+                # add term to list and reset cur
+                term_w_ops.append(cur)
+                cur = {
+                    'NOT': False,
+                    'op': False,
+                }
+
+        def term_dict_to_q(td):
+            # change term_w_ops dict to Q object
+            q_obj = Q(('%s__icontains' % name, td['word']))
+            if td['NOT']:
+                q_obj = ~q_obj
+            return q_obj
+        # reduce Q objects to a single Q object
+        res = term_dict_to_q(term_w_ops[0])
+        for cur in term_w_ops[1:]:
+            use_or = cur['op']
+            q = term_dict_to_q(cur)
+            res = (res | q) if use_or else (res & q)
+        return self.filter(res)
 
     def filter_missed_upload(self, time_gap_min=15):
         gap = timezone.now() - datetime.timedelta(minutes=time_gap_min)

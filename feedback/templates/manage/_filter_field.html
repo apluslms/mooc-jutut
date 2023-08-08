@@ -5,6 +5,10 @@
 			{% if label_classes %}
 				class="{{ label_classes }}"
 			{% endif %}
+            {% if field.help_text %}
+				data-toggle="tooltip" data-placement="top"
+				title="{{field.help_text}}"
+			{% endif %}
 		>
 			{{ field.label }}:
 		</label>

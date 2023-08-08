@@ -54,8 +54,47 @@ msgid "Exercise identifier"
 msgstr "Tehtävän tunniste"
 
 #: feedback/filters.py
-msgid "Form content"
-msgstr "Lomakkeen sisältö"
+msgid ""
+"Filter based on the exercise path key (typically of the format "
+"'modulekey_chapterkey_exercisekey'). The filter uses case-insensitive "
+"regular expression match."
+msgstr ""
+"Suodata tehtävän polkutunnisteen perusteella. (Tunniste on tyypillisesti "
+"muodossa 'moduulintunniste_luvuntunniste_tehtäväntunniste'). Suodatin "
+"tarkistaa vastaako tunniste aakkoskoosta riippumatta säännöllistä lauseketta "
+"(case-insensitive regex)."
+
+#: feedback/filters.py
+msgid "Student content"
+msgstr "Opiskelijan sisältö"
+
+#: feedback/filters.py
+msgid ""
+"Filter conversations based on content of the student feedback responses. "
+"Unfortunately this includes the field names as well as non-textual "
+"responses. The operators 'AND', 'OR' and 'NOT' (case-sensitive) are "
+"supported. Otherwise the search is case-insensitive."
+msgstr ""
+"Suodata keskusteluita opiskelijoiden palautteen sisällön perusteella. "
+"Valitettavasti tämä sisältää myös palautekenttien nimet sekä muutkin "
+"vastaukset kirjallisten vastausten lisäksi. Haku tukee operaattoreiden "
+"'AND', 'OR' ja 'NOT' käyttöä. (Operaattorit ovat aakkoskoosta riippuvia, "
+"mutta muutoin haku on aakkoskoosta riippumaton.)"
+
+#: feedback/filters.py
+msgid "Teacher content"
+msgstr "Opettajan vastaus"
+
+#: feedback/filters.py
+msgid ""
+"Filter conversations based on text in the teacher responses. The operators "
+"'AND', 'OR' and 'NOT' (case-sensitive) are supported. Otherwise the search "
+"is case-insensitive."
+msgstr ""
+"Suodata keskusteluita opettajien vastauksissa esiintyvän tekstin palautteen "
+"sisällön perusteella. Haku tukee operaattoreiden 'AND', 'OR' ja 'NOT' "
+"käyttöä. (Operaattorit ovat aakkoskoosta riippuvia, mutta muutoin haku on "
+"aakkoskoosta riippumaton.)"
 
 #: feedback/filters.py
 msgid "Display only feedback with text content"

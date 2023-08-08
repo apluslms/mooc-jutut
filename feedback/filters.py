@@ -230,7 +230,28 @@ class FeedbackFilter(django_filters.FilterSet):
     student = django_filters.ModelChoiceFilter(queryset=Student.objects.none())
     timestamp = DateTimeFromToRangeFilter(label=_("Timestamp"))
     path_key = django_filters.CharFilter(lookup_expr='icontains', label=_("Exercise identifier"))
-    form_data = django_filters.CharFilter(method='filter_form_data', label=_("Form content"))
+    student_text = django_filters.CharFilter(
+        field_name='form_data',
+        method='filter_text',
+        label=_("Student content"),
+        help_text=_(
+            "Filter conversations based on content of the student "
+            "feedback responses. Unfortunately this includes the field "
+            "names as well as non-textual responses. "
+            "The operators 'AND', 'OR' and 'NOT' (case-sensitive) are supported. "
+            "Otherwise the search is case-insensitive."
+        ),
+    )
+    teacher_text = django_filters.CharFilter(
+        field_name='response_msg',
+        method='filter_text',
+        label=_("Teacher content"),
+        help_text=_(
+            "Filter conversations based on text in the teacher responses. "
+            "The operators 'AND', 'OR' and 'NOT' (case-sensitive) are supported. "
+            "Otherwise the search is case-insensitive."
+        ),
+    )
     contains_text = ContainsTextFilter(
         label=_("Display only feedback with text content"),
         help_text=_(
@@ -254,7 +275,8 @@ class FeedbackFilter(django_filters.FilterSet):
             'timestamp',
             'path_key',
             'contains_text',
-            'form_data',
+            'student_text',
+            'teacher_text',
             'response_by',
             'response_grade',
             'flags',
@@ -291,5 +313,5 @@ class FeedbackFilter(django_filters.FilterSet):
         return form
 
     @staticmethod
-    def filter_form_data(queryset, name, value): # pylint: disable=unused-argument
-        return queryset.filter_data(value)
+    def filter_text(queryset, name, value):
+        return queryset.filter_text(name, value)
