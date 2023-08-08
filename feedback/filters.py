@@ -229,7 +229,15 @@ class FeedbackFilter(django_filters.FilterSet):
     exercise = django_filters.ModelChoiceFilter(queryset=Exercise.objects.none())
     student = django_filters.ModelChoiceFilter(queryset=Student.objects.none())
     timestamp = DateTimeFromToRangeFilter(label=_("Timestamp"))
-    path_key = django_filters.CharFilter(lookup_expr='icontains', label=_("Exercise identifier"))
+    path_key = django_filters.CharFilter(
+        lookup_expr='iregex',
+        label=_("Exercise identifier"),
+        help_text=_(
+            "Filter based on the exercise path key (typically of the "
+            "format 'modulekey_chapterkey_exercisekey'). "
+            "The filter uses case-insensitive regular expression match."
+        )
+    )
     student_text = django_filters.CharFilter(
         field_name='form_data',
         method='filter_text',
