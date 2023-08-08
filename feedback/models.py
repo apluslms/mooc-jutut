@@ -253,6 +253,9 @@ class FeedbackQuerySet(models.QuerySet):
         q = reduce(Q.__and__, filters)
         return self.filter(q)
 
+    def filter_contains_text_content(self):
+        return self.filter(Q(response_time=None) | ~Q(response_by=None))
+
     def filter_data(self, search):
         if '*' in search:
             search = search.replace('*', '%')

@@ -156,6 +156,15 @@ class FlagFilter(django_filters.MultipleChoiceFilter):
         return qs.filter_flags(*value)
 
 
+class ContainsTextFilter(django_filters.BooleanFilter):
+    field_class = forms.BooleanField
+
+    def filter(self, qs, value):
+        if value:
+            return qs.filter_contains_text_content()
+        return qs
+
+
 class OrderingFilter(django_filters.filters.ChoiceFilter):
     """Simple ordering filter that works with radio select"""
     def __init__(self, *args, **kwargs):
@@ -222,6 +231,14 @@ class FeedbackFilter(django_filters.FilterSet):
     timestamp = DateTimeFromToRangeFilter(label=_("Timestamp"))
     path_key = django_filters.CharFilter(lookup_expr='icontains', label=_("Exercise identifier"))
     form_data = django_filters.CharFilter(method='filter_form_data', label=_("Form content"))
+    contains_text = ContainsTextFilter(
+        label=_("Display only feedback with text content"),
+        help_text=_(
+            "Filter out automatically graded feedback. Display only "
+            "responses that contain text responses as well as feedback "
+            "that a teacher has responded to."
+        )
+    )
 
     order_by = OrderingFilter(label=_("Sort"),
                               choices=ORDER_BY_CHOICE,
@@ -236,6 +253,7 @@ class FeedbackFilter(django_filters.FilterSet):
             'student',
             'timestamp',
             'path_key',
+            'contains_text',
             'form_data',
             'response_by',
             'response_grade',

@@ -58,6 +58,19 @@ msgid "Form content"
 msgstr "Lomakkeen sisältö"
 
 #: feedback/filters.py
+msgid "Display only feedback with text content"
+msgstr "Näytä ainoastaan palautteet, joissa on tekstisisältöä"
+
+#: feedback/filters.py
+msgid ""
+"Filter out automatically graded feedback. Display only responses that "
+"contain text responses as well as feedback that a teacher has responded to."
+msgstr ""
+"Jätä pois automaattisesti arvostellut palautteet. Näytä ainoastaan "
+"palautteet, joissa opiskelija on vastannut kirjallisesti, sekä palautteet, "
+"joihin opettaja on vastannut."
+
+#: feedback/filters.py
 msgid "Sort"
 msgstr "Järjestä"
 
