@@ -7,6 +7,7 @@ from django.forms import Form
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, Http404
 from django.utils.text import slugify
 from django.utils.timezone import now as timezone_now
+from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404
 from django.views.generic import FormView, ListView, DetailView, UpdateView, DeleteView, TemplateView, View
 from django.urls import reverse
@@ -30,6 +31,7 @@ from .models import (
     Feedback,
     FeedbackForm,
     FeedbackTag,
+    ContextTag,
 )
 from .cached import (
     CachedForm,
@@ -41,6 +43,7 @@ from .cached import (
 from .forms import (
     ResponseForm,
     FeedbackTagForm,
+    ContextTagForm,
 )
 from .filters import FeedbackFilter
 from .permissions import (
@@ -471,6 +474,11 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
                                            ('conversation_id', 'tag_id'),
                                            lambda c, t: (c.id, t.id))
 
+    course_context_tags = ContextTag.objects.filter(course=course_id)
+    context_tag_groups: Dict[str, Dict[str, ContextTag]] = {} # {question_key: {response_value: ContextTag}}
+    for tag in course_context_tags:
+        tag_group = context_tag_groups.setdefault(tag.question_key, {})
+        tag_group[tag.response_value] = tag
 
     # group feedbacks by conversation
     convs: Dict[Conversation, List[Feedback]] = {}
@@ -491,6 +499,23 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
                 active=(f in fbs)
             ) for f in conv.feedbacks.all().order_by('timestamp')
         ]
+        # check whether feedback should have context tags, and if so, list them w/ tooltips
+        context_tags = []
+        last_fb_dict = conv_feedback[-1]
+        for key, field in last_fb_dict['feedback_form'].fields.items():
+            if key in context_tag_groups:
+                r_value = last_fb_dict['feedback'].form_data[key]
+                if r_value in context_tag_groups[key]:
+                    c_tag = context_tag_groups[key][r_value]
+                    tooltip_text = field.help_text
+                    if hasattr(field, 'choices'):
+                        map_ = {k: v for k, v in field.choices}
+                        display_value = map_[r_value]
+                    else:
+                        display_value = r_value
+                    tooltip_text += " -- " + display_value
+                    context_tags.append((c_tag, tooltip_text))
+
         conv_dict = {
             'student': conv.student,
             'exercise': conv.exercise,
@@ -499,6 +524,7 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
             'background_url': '', #TODO
             'all_feedback_for_exercise_url' : get_all_feedbacks_for_exercise_url(conv),
             'student_feedback_for_exercise_url': get_all_student_feedbacks_for_exercise_url(conv),
+            'context_tags': context_tags,
             'conversation_tags': set(conv.tags.all()),
             'feedback_list': conv_feedback,
         }
@@ -714,6 +740,13 @@ class FeedbackTagMixin(ManageCourseMixin):
     def get_success_url(self):
         return reverse('feedback:tags', kwargs={'course_id': self.course.id})
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['edit_model_text'] = _("Edit feedback tag")
+        context['add_model_text'] = _("Add new feedback tag")
+        context['urlpattern'] = "feedback:tags"
+        return context
+
 
 class FeedbackTagEditView(FeedbackTagMixin, UpdateView):
     template_name = "feedback_tags/tag_edit.html"
@@ -767,3 +800,43 @@ class FeedbackTagView(CheckManagementPermissionsMixin, View):
         conversation, tag = self.tag_objects
         conversation.tags.remove(tag)
         return HttpResponse("ok")
+
+
+class ContextTagMixin(ManageCourseMixin):
+    model = ContextTag
+    form_class = ContextTagForm
+    pk_url_kwarg = 'tag_id'
+    context_object_name = "tag"
+
+    def get_success_url(self):
+        return reverse('feedback:contexttags', kwargs={'course_id': self.course.id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['edit_model_text'] = _("Edit context tag")
+        context['add_model_text'] = _("Add new context tag")
+        context['urlpattern'] = "feedback:contexttags"
+        return context
+
+
+class ContextTagEditView(ContextTagMixin, UpdateView):
+    template_name = "feedback_tags/tag_edit.html"
+
+
+class ContextTagDeleteView(ContextTagMixin, DeleteView):
+    template_name = "feedback_tags/contexttag_confirm_delete.html"
+    # Use an empty form that is always valid, deletion form doesn't need to
+    # require all the fields of the FeedbackTag model
+    form_class = Form
+
+
+class ContextTagListView(ContextTagMixin, ListCreateView):
+    template_name = "feedback_tags/contexttag_list.html"
+    context_object_name = "tags"
+
+    def get_queryset(self):
+        return self.model.objects.filter(course=self.course)
+
+    def get_form_kwargs(self):
+        self.object = self.model(course=self.course)
+        return super().get_form_kwargs()

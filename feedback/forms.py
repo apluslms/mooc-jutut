@@ -13,6 +13,7 @@ from django_colortag.forms import ColorTagForm
 from .models import (
     Feedback,
     FeedbackTag,
+    ContextTag,
 )
 from .tasks import async_response_upload
 
@@ -174,3 +175,9 @@ class FeedbackTagForm(ColorTagForm):
         exclude = super()._get_validation_exclusions()
         exclude.remove('course')
         return exclude
+
+
+class ContextTagForm(forms.ModelForm):
+    class Meta:
+        model = ContextTag
+        fields = ['question_key', 'response_value', 'color', 'content']

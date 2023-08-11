@@ -9,7 +9,9 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import get_language, gettext_lazy as _
+from colorfield import ColorField
 from django_colortag.models import ColorTag
+from django_colortag.utils import use_white_font
 from r_django_essentials.fields import Enum
 
 from lib.helpers import str_in_selected_language
@@ -650,3 +652,49 @@ class FeedbackTag(ColorTag):
         ).exclude(
             pk=self.pk,
         ).exists()
+
+class ContextTag(models.Model):
+    """A tag to represent an answer option of especially a 'pick-one'
+    directive or other question with limited answer options.
+    """
+    course = models.ForeignKey(
+        Course,
+        related_name="context_tag_groups",
+        on_delete=models.CASCADE
+    )
+    question_key = models.CharField(
+        max_length=128,
+        verbose_name=_("Question key"),
+    )
+    response_value = models.CharField(
+        max_length=16,
+        verbose_name=_("Response value"),
+        help_text=_("Indicate for which response value this tag should be displayed."),
+    )
+    color = ColorField(
+        default="#CD0000",
+        verbose_name=_("Color"),
+        help_text=_("Color that is used as background for this tag"),
+    )
+    content = models.CharField(
+        max_length=16,
+        verbose_name=_("Content"),
+        help_text=_("Content which is displayed in the tag."),
+    )
+
+    class Meta:
+        unique_together = ('course', 'question_key', 'response_value')
+        ordering = ['question_key', 'response_value']
+
+    @cached_property
+    def font_white(self) -> bool:
+        return use_white_font(self.color)
+
+    @cached_property
+    def font_color(self):
+        return '#FFF' if self.font_white else '#000'
+
+    def __str__(self):
+        return 'ContextTag({!r}, {!r}, {!r})'.format(
+            self.question_key, self.response_value, self.content
+        )

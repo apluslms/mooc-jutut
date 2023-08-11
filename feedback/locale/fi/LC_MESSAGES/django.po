@@ -225,18 +225,37 @@ msgstr "Arvosana"
 msgid "Response notify"
 msgstr "Ilmoitus vastauksesta"
 
+#: feedback/models.py feedback/templates/feedback_tags/contexttag_list.html
+msgid "Question key"
+msgstr "Kysymyksen avain"
+
+#: feedback/models.py feedback/templates/feedback_tags/contexttag_list.html
+msgid "Response value"
+msgstr "Vastausvaihtoehto"
+
+#: feedback/models.py
+msgid "Indicate for which response value this tag should be displayed."
+msgstr "Mitä vastausvaihtoehtoa tämä tägi kuvastaa."
+
+#: feedback/models.py
+msgid "Color"
+msgstr "Väri"
+
+#: feedback/models.py
+msgid "Color that is used as background for this tag"
+msgstr "Tägin taustaväri"
+
+#: feedback/models.py
+msgid "Content"
+msgstr "Sisältö"
+
+#: feedback/models.py
+msgid "Content which is displayed in the tag."
+msgstr "Sisältö, joka näkyy tägissä."
+
 #: feedback/templates/feedback/avglist.html
 msgid "No feedback yet."
 msgstr "Ei palautetta."
-
-#: feedback/templates/feedback_tags/_tag_form.html
-msgid "Add new feedback tag"
-msgstr "Lisää uusi palautetägi"
-
-#: feedback/templates/feedback_tags/_tag_form.html
-#: feedback/templates/feedback_tags/tag_edit.html
-msgid "Edit feedback tag"
-msgstr "Muokkaa palautetägiä"
 
 #: feedback/templates/feedback_tags/_tag_form.html
 msgid "Add"
@@ -247,14 +266,52 @@ msgid "Save"
 msgstr "Tallenna"
 
 #: feedback/templates/feedback_tags/_tag_form.html
+#: feedback/templates/feedback_tags/contexttag_confirm_delete.html
 #: feedback/templates/feedback_tags/tag_confirm_delete.html
 #: feedback/templates/manage/_response_message.html
 msgid "Cancel"
 msgstr "Takaisin"
 
+#: feedback/templates/feedback_tags/contexttag_confirm_delete.html
 #: feedback/templates/feedback_tags/tag_confirm_delete.html
 msgid "Confirm feedback tag removal"
 msgstr "Vahvista palautetägin poisto"
+
+#: feedback/templates/feedback_tags/contexttag_confirm_delete.html
+#, python-format
+msgid ""
+"Are you sure you want to remove the context tag %(tag)s from course "
+"%(course)s?"
+msgstr ""
+"Oletko varma, että haluat poistaa palaute tägin %(tag)s kurssilta %(course)s?"
+
+#: feedback/templates/feedback_tags/contexttag_confirm_delete.html
+#: feedback/templates/feedback_tags/tag_confirm_delete.html
+msgid "Confirm"
+msgstr "Vahvista"
+
+#: feedback/templates/feedback_tags/contexttag_list.html
+msgid "List of context tags"
+msgstr "Luettelo kontekstitägeistä"
+
+#: feedback/templates/feedback_tags/contexttag_list.html
+msgid "Context tag"
+msgstr "Kontekstitägi"
+
+#: feedback/templates/feedback_tags/contexttag_list.html
+#: feedback/templates/feedback_tags/tag_list.html
+msgid "Actions"
+msgstr "Toiminnot"
+
+#: feedback/templates/feedback_tags/contexttag_list.html
+#: feedback/templates/feedback_tags/tag_list.html
+msgid "edit"
+msgstr "muokkaa"
+
+#: feedback/templates/feedback_tags/contexttag_list.html
+#: feedback/templates/feedback_tags/tag_list.html
+msgid "remove"
+msgstr "poista"
 
 #: feedback/templates/feedback_tags/tag_confirm_delete.html
 #, python-format
@@ -273,10 +330,6 @@ msgstr ""
 "tägätty.\n"
 "\t\t\t\t\t"
 
-#: feedback/templates/feedback_tags/tag_confirm_delete.html
-msgid "Confirm"
-msgstr "Vahvista"
-
 #: feedback/templates/feedback_tags/tag_list.html
 msgid "List of feedback tags"
 msgstr "Luettelo palautetägeistä"
@@ -292,18 +345,6 @@ msgstr "Tunniste"
 #: feedback/templates/feedback_tags/tag_list.html
 msgid "Description"
 msgstr "Kuvaus"
-
-#: feedback/templates/feedback_tags/tag_list.html
-msgid "Actions"
-msgstr "Toiminnot"
-
-#: feedback/templates/feedback_tags/tag_list.html
-msgid "edit"
-msgstr "muokkaa"
-
-#: feedback/templates/feedback_tags/tag_list.html
-msgid "remove"
-msgstr "poista"
 
 #: feedback/templates/manage/_conversations_as_list.html
 msgid "No feedback shown as there are errors in the filter form"
@@ -456,6 +497,10 @@ msgid "Manage feedback tags"
 msgstr "Hallitse palautetägejä"
 
 #: feedback/templates/manage/base.html
+msgid "Manage context tags"
+msgstr "Hallitse kontekstitägejä"
+
+#: feedback/templates/manage/base.html
 msgid "Student list"
 msgstr "Opiskelijalista"
 
@@ -585,3 +630,19 @@ msgstr "Palaute"
 #, python-format
 msgid "Feedback <i>%(jutut)s</i> for <i>%(aplus)s</i>"
 msgstr "Palaute <i>%(jutut)s</i> palvelulle <i>%(aplus)s</i>"
+
+#: feedback/views.py
+msgid "Edit feedback tag"
+msgstr "Muokkaa palautetägiä"
+
+#: feedback/views.py
+msgid "Add new feedback tag"
+msgstr "Lisää uusi palautetägi"
+
+#: feedback/views.py
+msgid "Edit context tag"
+msgstr "Muokkaa kontekstitägiä"
+
+#: feedback/views.py
+msgid "Add new context tag"
+msgstr "Lisää uusi kontekstitägi"

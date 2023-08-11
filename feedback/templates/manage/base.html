@@ -134,6 +134,10 @@
 									<i class="glyphicon glyphicon-tags"></i>
 									{% trans "Manage feedback tags" %}
 								</a></li>
+								<li><a href="{% url "feedback:contexttags" course_id=course.id %}">
+									<i class="glyphicon glyphicon-tag"></i>
+									{% trans "Manage context tags" %}
+								</a></li>
 								<li><a href="{% url "feedback:user-list" course_id=course.id %}">
 									<i class="glyphicon glyphicon-list"></i>
 									{% trans "Student list" %}

@@ -356,6 +356,10 @@ body {
 }
 .conversation-panel > .panel-heading .feedback-context > span.label {
 	margin-left: 0.5em;
+	margin-top: 0;
+}
+.conversation-panel > .panel-heading .feedback-context > span.context-tag {
+	margin-left: 0.2em;
 }
 
 /* Conversation panel basic structure*/
