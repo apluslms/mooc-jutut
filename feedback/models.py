@@ -24,6 +24,7 @@ from aplus_client.django.models import ( # pylint: disable=unused-import
 from dynamic_forms.models import Form
 
 from .forms_dynamic import DynamicFeedbacForm
+from .templatetags.contexttag import render_context_tag
 
 Q = models.Q
 
@@ -654,8 +655,10 @@ class FeedbackTag(ColorTag):
         ).exists()
 
 class ContextTag(models.Model):
-    """A tag to represent an answer option of especially a 'pick-one'
-    directive or other question with limited answer options.
+    """A tag to represent an answer. Can be used especially to
+    represent answer options of a 'pick-one' directive or other
+    question with limited answer options.
+    This is also used to display time spent.
     """
     course = models.ForeignKey(
         Course,
@@ -667,9 +670,12 @@ class ContextTag(models.Model):
         verbose_name=_("Question key"),
     )
     response_value = models.CharField(
-        max_length=16,
+        max_length=128,
         verbose_name=_("Response value"),
-        help_text=_("Indicate for which response value this tag should be displayed."),
+        help_text=_(
+            "Indicate for which response values this tag should be "
+            "displayed. This can be a regex pattern."
+        ),
     )
     color = ColorField(
         default="#CD0000",
@@ -679,7 +685,12 @@ class ContextTag(models.Model):
     content = models.CharField(
         max_length=16,
         verbose_name=_("Content"),
-        help_text=_("Content which is displayed in the tag."),
+        help_text=_(
+            "Content which is displayed in the tag. The response value "
+            "can be included by writing '{}' where the value is desired. "
+            "However, it is recommended to display the value only if "
+            "it is known to be short, e.g. timespent."
+        ),
     )
 
     class Meta:
@@ -693,6 +704,9 @@ class ContextTag(models.Model):
     @cached_property
     def font_color(self):
         return '#FFF' if self.font_white else '#000'
+
+    def render_tag(self, tooltip="", value="") -> str:
+        return render_context_tag(self, tooltip, value)
 
     def __str__(self):
         return 'ContextTag({!r}, {!r}, {!r})'.format(

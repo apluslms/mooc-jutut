@@ -2,6 +2,7 @@ import logging
 from typing import Dict, List, Tuple
 from collections import Counter
 from functools import partial
+from re import fullmatch
 from urllib.parse import urlsplit, urljoin, urlencode
 from django.forms import Form
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, Http404
@@ -499,22 +500,23 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
                 active=(f in fbs)
             ) for f in conv.feedbacks.all().order_by('timestamp')
         ]
-        # check whether feedback should have context tags, and if so, list them w/ tooltips
+        # check whether feedback should have context tags, and if so, render them
         context_tags = []
         last_fb_dict = conv_feedback[-1]
         for key, field in last_fb_dict['feedback_form'].fields.items():
             if key in context_tag_groups:
-                r_value = last_fb_dict['feedback'].form_data[key]
-                if r_value in context_tag_groups[key]:
-                    c_tag = context_tag_groups[key][r_value]
-                    tooltip_text = field.help_text
-                    if hasattr(field, 'choices'):
-                        map_ = {k: v for k, v in field.choices}
-                        display_value = map_[r_value]
-                    else:
-                        display_value = r_value
-                    tooltip_text += " -- " + display_value
-                    context_tags.append((c_tag, tooltip_text))
+                r_value = str(last_fb_dict['feedback'].form_data[key])
+                for r_k in context_tag_groups[key].keys():
+                    if fullmatch(r_k, r_value):
+                        c_tag = context_tag_groups[key][r_k]
+                        tooltip_text = field.help_text
+                        if hasattr(field, 'choices'):
+                            map_ = dict(field.choices)
+                            display_value = map_[r_value]
+                        else:
+                            display_value = r_value
+                        tooltip_text += " -- " + display_value
+                        context_tags.append(c_tag.render_tag(tooltip_text, r_value))
 
         conv_dict = {
             'student': conv.student,

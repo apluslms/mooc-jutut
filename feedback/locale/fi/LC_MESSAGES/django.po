@@ -234,8 +234,12 @@ msgid "Response value"
 msgstr "Vastausvaihtoehto"
 
 #: feedback/models.py
-msgid "Indicate for which response value this tag should be displayed."
-msgstr "Mitä vastausvaihtoehtoa tämä tägi kuvastaa."
+msgid ""
+"Indicate for which response values this tag should be displayed. This can be "
+"a regex pattern."
+msgstr ""
+"Mitä vastausvaihtoehtoja tämä tägi kuvastaa. Tämä voi olla säännöllinen "
+"lauseke."
 
 #: feedback/models.py
 msgid "Color"
@@ -250,8 +254,14 @@ msgid "Content"
 msgstr "Sisältö"
 
 #: feedback/models.py
-msgid "Content which is displayed in the tag."
-msgstr "Sisältö, joka näkyy tägissä."
+msgid ""
+"Content which is displayed in the tag. The response value can be included by "
+"writing '{}' where the value is desired. However, it is recommended to "
+"display the value only if it is known to be short, e.g. timespent."
+msgstr ""
+"Sisältö, joka näkyy tägissä. Vastaus itse voidaan esittää tägissä "
+"laittamalla '{}' kohtaan, johon se halutaan. Kuitenkin, vastausta ei kannata "
+"näyttää tägissä ellei sen tiedetä olevan lyhyt, kuten käytetyn ajan arvio."
 
 #: feedback/templates/feedback/avglist.html
 msgid "No feedback yet."

@@ -40,13 +40,9 @@
 	</div>
 	<div class="feedback-context-container">
 		<div class="btn-toolbar pull-right feedback-context">
-            {% with time=last_fb.feedback.form_data.timespent %}
-                {% if time %}
-                    {# TODO: use expected time to set different colors #}
-                    <span class="label label-default time-label">{{ time }} mins</span>
-                {% endif %}
-            {# TODO: Add label indicating understanding feedback #}
-            {% endwith %}
+			{% for tag in conv.context_tags %}
+				{{ tag }}
+			{% endfor %}
 		</div>
 	</div>
 </div>

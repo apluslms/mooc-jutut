@@ -15,7 +15,7 @@
 
 		<div class="panel-body">
 			<div class="conversation-panel">
-				{% include "manage/_exercise_heading.html" with exercise=conv.exercise last_fb=conv.feedback_list|last %}
+				{% include "manage/_exercise_heading.html" with exercise=conv.exercise %}
 				<div class="conversation-panel-body">
 					{% for fb in conv.feedback_list %}
 						<div class="feedback-response-pair">
