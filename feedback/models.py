@@ -527,6 +527,14 @@ class Feedback(models.Model):
         return self.NOTIFY_APLUS.get(self.response_notify, '')
 
     @property
+    def newest_version(self):
+        return self.__class__.objects.get(
+            exercise_id = self.exercise_id,
+            student_id = self.student_id,
+            superseded_by = None,
+        )
+
+    @property
     def older_versions(self):
         return self.__class__.objects.filter(
             ~models.Q(pk=self.pk),
