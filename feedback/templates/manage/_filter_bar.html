@@ -9,7 +9,7 @@
 	</div>
 	<div id="filter-panel" class="panel-body collapse in">
 		<form id="filter-form" role="form" action="{% url url_pattern course_id=course.id %}" method="GET" class="form-horizontal" autocomplete="off">
-			{{ feedback_filter.form }}
+			{% include "manage/filter_form.html" with form=feedback_filter.form %}
 		</form>
 	</div>
 </div>

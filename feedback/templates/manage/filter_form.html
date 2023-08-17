@@ -7,13 +7,19 @@
 		{% include "manage/_filter_field.html" with field=form.student label_classes="right-align" input_classes="input-flex" %}
 		{% include "manage/_filter_field.html" with field=form.exercise label_classes="right-align" input_classes="input-flex" %}
 		{% include "manage/_filter_field.html" with field=form.path_key label_classes="right-align" input_classes="input-flex" %}
-		{% include "manage/_filter_field.html" with field=form.student_text label_classes="right-align" input_classes="input-flex" %}
-		{% include "manage/_filter_field.html" with field=form.teacher_text label_classes="right-align" input_classes="input-flex" %}
-        {% include "manage/_filter_field.html" with field=form.contains_text %}
+		{% if not time_usage %}
+			{% include "manage/_filter_field.html" with field=form.student_text label_classes="right-align" input_classes="input-flex" %}
+			{% include "manage/_filter_field.html" with field=form.teacher_text label_classes="right-align" input_classes="input-flex" %}
+			{% include "manage/_filter_field.html" with field=form.contains_text %}
+		{% endif %}
 	</div>
 
 	<div id="feedback-tag-filter-pane" class="tag-filter-pane">
-		{% include "manage/_filter_field.html" with field=form.tags %}
+		{% if time_usage %}
+			{% include "manage/_filter_field.html" with field=form.student_tags %}
+		{% else %}
+			{% include "manage/_filter_field.html" with field=form.tags %}
+		{% endif %}
 	</div>
 
 	<div id="extra-filter-pane" class="input-filter-pane collapse filter-collapse"
@@ -28,13 +34,21 @@
 	<div id="student-tag-filter-pane" class="tag-filter-pane collapse filter-collapse"
 		aria-expanded="false"
 	>
-		{% include "manage/_filter_field.html" with field=form.student_tags %}
+		{% if time_usage %}
+			{% include "manage/_filter_field.html" with field=form.tags %}
+		{% else %}
+			{% include "manage/_filter_field.html" with field=form.student_tags %}
+		{% endif %}
 	</div>
 
 	<div id="filter-panel-bottom">
+		{% if not time_usage %}
 		<div id="order-filter-pane">
 			{% include "manage/_filter_field.html" with field=form.order_by %}
 		</div>
+		{% else %}
+		<div></div>
+		{% endif %}
 
 		<div id="filter-action-buttons">
 			<button type="button" id="extra-filters-btn"

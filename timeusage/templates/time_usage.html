@@ -11,7 +11,7 @@
 {% block content %}
 	<h1>Time usage for {{course}}</h1>
 
-	{% include "manage/_filter_bar.html" with url_pattern="timeusage:time-usage" %}
+	{% include "manage/_filter_bar.html" with url_pattern="timeusage:time-usage" time_usage=True %}
 
 	{% autoescape off %}
 		<h2>Chapters</h2>
