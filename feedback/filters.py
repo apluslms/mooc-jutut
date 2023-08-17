@@ -18,7 +18,7 @@ from .models import (
 
 
 PRIMITIVE_TYPES = (int, float, str)
-EMPTY_VALUES = ('', slice(None, None, None))
+EMPTY_VALUES = ('', False, slice(None, None, None))
 
 def is_empty_value(value):
     if isinstance(value, (tuple, list)): # tags
@@ -100,13 +100,28 @@ class MultipleChoiceFilter(django_filters.MultipleChoiceFilter):
             fqs = self._extra(fqs)
         return fqs
 
+class SegmentedSelect(forms.RadioSelect):
+    template_name = "feedback/widgets/segmented_select.html"
+    option_template_name = "feedback/widgets/segmented_option.html"
+
+    def __init__(self, attrs=None, choices=()):
+        add_classes = "segmented-select sm"
+        if not attrs:
+            attrs = {
+                "class": add_classes,
+            }
+        elif not attrs.get("class"):
+            attrs["class"] = add_classes
+        else:
+            attrs["class"] += " " + add_classes
+        super().__init__(attrs, choices)
 
 class FlagWidget(forms.MultiWidget):
     template_name = "feedback/widgets/flag_multiwidget.html"
 
     def __init__(self, attrs=None):
         widgets = tuple(
-            forms.Select(attrs, fg.choices) for fg in FeedbackQuerySet.FLAG_GROUPS
+            SegmentedSelect(attrs, fg.choices) for fg in FeedbackQuerySet.FLAG_GROUPS
         )
         super().__init__(widgets, attrs)
 
@@ -157,6 +172,7 @@ class OrderingFilter(django_filters.filters.ChoiceFilter):
 
 class FeedbackFilterForm(forms.Form):
     """Add 00:00 times to timestamp inputs"""
+    template_name = "manage/filter_form.html"
 
     def __init__(self, *args, initial=None, **kwargs):
         if not initial:
@@ -203,7 +219,7 @@ class FeedbackFilter(django_filters.FilterSet):
     path_key = django_filters.CharFilter(lookup_expr='icontains', label=_("Exercise identifier"))
     form_data = django_filters.CharFilter(method='filter_form_data', label=_("Form content"))
 
-    order_by = OrderingFilter(label=_("Order by"),
+    order_by = OrderingFilter(label=_("Sort"),
                               choices=ORDER_BY_CHOICE,
                               initial=ORDER_BY_DEFAULT)
 

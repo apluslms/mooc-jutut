@@ -58,8 +58,8 @@ msgid "Form content"
 msgstr "Lomakkeen sisältö"
 
 #: feedback/filters.py
-msgid "Order by"
-msgstr "Järjestys"
+msgid "Sort"
+msgstr "Järjestä"
 
 #: feedback/forms.py
 msgid "older versions"
@@ -74,28 +74,16 @@ msgstr ""
 "muuttunut."
 
 #: feedback/models.py
-msgid "Newest versions?"
-msgstr "Uusimmat versiot?"
-
-#: feedback/models.py
-msgid "Newest versions"
-msgstr "Uusimmat versiot"
-
-#: feedback/models.py
-msgid "Read?"
-msgstr "Luettu?"
-
-#: feedback/models.py
 msgid "Read"
 msgstr "Luettu"
 
 #: feedback/models.py
-msgid "Unread"
-msgstr "Lukematon"
+msgid "Both"
+msgstr "Molemmat"
 
 #: feedback/models.py
-msgid "Graded?"
-msgstr "Arvosteltu?"
+msgid "Unread"
+msgstr "Lukematon"
 
 #: feedback/models.py
 msgid "Graded"
@@ -106,20 +94,12 @@ msgid "Ungraded"
 msgstr "Ei arvosteltu"
 
 #: feedback/models.py
-msgid "Graded how?"
-msgstr "Arvosteltu miten?"
-
-#: feedback/models.py
 msgid "Manually graded"
 msgstr "Käsin arvosteltu"
 
 #: feedback/models.py
 msgid "Automatically graded"
 msgstr "Automaattisesti arvosteltu"
-
-#: feedback/models.py
-msgid "Responded?"
-msgstr "Vastattu?"
 
 #: feedback/models.py
 msgid "Responded"
@@ -130,16 +110,20 @@ msgid "Unresponded"
 msgstr "Vastaamaton"
 
 #: feedback/models.py
-msgid "Upload has error?"
-msgstr "Epäonnistuiko lähetys?"
-
-#: feedback/models.py
 msgid "Upload has error"
 msgstr "Lähetys on epäonnistunut"
 
 #: feedback/models.py
 msgid "Upload ok"
 msgstr "Lähetys on onnistunut"
+
+#: feedback/models.py
+msgid "Exercise"
+msgstr "Tehtävä"
+
+#: feedback/models.py
+msgid "Student"
+msgstr "Opiskelija"
 
 #: feedback/models.py
 msgid "No response"
@@ -168,14 +152,6 @@ msgstr "Normaali ilmoitus"
 #: feedback/models.py
 msgid "Important notification"
 msgstr "Tärkeä ilmoitus"
-
-#: feedback/models.py feedback/templates/manage/_exercise_heading.html
-msgid "Exercise"
-msgstr "Tehtävä"
-
-#: feedback/models.py feedback/templates/manage/_submitter_heading.html
-msgid "Student"
-msgstr "Opiskelija"
 
 #: feedback/models.py
 msgid "Response time"
@@ -414,7 +390,7 @@ msgstr "Lisää"
 
 #: feedback/templates/manage/base.html
 #: feedback/templates/manage/feedback_unread.html
-msgid "Filter feedbacks"
+msgid "Filter feedback"
 msgstr "Rajaa palautteita"
 
 #: feedback/templates/manage/base.html
@@ -465,6 +441,18 @@ msgstr "Palautteet kurssilla '%(course)s'"
 #: feedback/templates/manage/feedback_unread.html
 msgid "Unread Feedback"
 msgstr "Lukemattomat palautteet"
+
+#: feedback/templates/manage/filter_form.html
+msgid "Fewer options"
+msgstr "Vähemmän valintoja"
+
+#: feedback/templates/manage/filter_form.html
+msgid "More options"
+msgstr "Lisää valintoja"
+
+#: feedback/templates/manage/filter_form.html
+msgid "Filter"
+msgstr "Suodata"
 
 #: feedback/templates/manage/site_list.html
 msgid "List of known sites in feedback management"

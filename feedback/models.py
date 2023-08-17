@@ -194,38 +194,34 @@ class Exercise(NestedApiObject):
 
 class FeedbackQuerySet(models.QuerySet):
 
-    NEWEST_FLAG = Enum(
-        ('', None, _("Newest versions?")),
-        ('NEWEST', 'n', _("Newest versions")),
-    )
+    NEWEST = ('NEWEST', 'n', ("Newest versions"))
     READ_FLAG = Enum(
-        ('', None, _("Read?")),
         ('READ', 'r', _("Read")),
+        ('', None, _("Both")),
         ('UNREAD', 'u', _("Unread")),
     )
     GRADED_FLAG = Enum(
-        ('', None, _("Graded?")),
         ('GRADED', 'g', _("Graded")),
+        ('', None, _("Both")),
         ('UNGRADED', 'q', _("Ungraded")),
     )
     MANUALLY_FLAG = Enum(
-        ('', None, _("Graded how?")),
         ('MANUAL', 'm', _("Manually graded")),
+        ('', None, _("Both")),
         ('AUTO', 'a', _("Automatically graded")),
     )
     RESPONDED_FLAG = Enum(
-        ('', None, _("Responded?")),
         ('RESPONDED', 'h', _("Responded")),
+        ('', None, _("Both")),
         ('UNRESPONDED', 'i', _("Unresponded")),
     )
     UPLOAD_FLAG = Enum(
-        ('', None, _("Upload has error?")),
         ('UPL_ERROR', 'e', _("Upload has error")),
+        ('', None, _("Both")),
         ('UPL_OK', 'o', _("Upload ok")),
     )
 
     FLAG_GROUPS = [
-        NEWEST_FLAG,
         READ_FLAG,
         GRADED_FLAG,
         MANUALLY_FLAG,
@@ -234,9 +230,9 @@ class FeedbackQuerySet(models.QuerySet):
     ]
 
     FILTERS = {
-        NEWEST_FLAG.NEWEST: Q(superseded_by=None),
-        READ_FLAG.UNREAD: Q(response_time=None) & Q(tags=None),
-        READ_FLAG.READ: ~(Q(response_time=None) & Q(tags=None)),
+        NEWEST: Q(superseded_by=None),
+        READ_FLAG.UNREAD: Q(response_time=None),
+        READ_FLAG.READ: ~Q(response_time=None),
         GRADED_FLAG.UNGRADED: Q(response_time=None),
         GRADED_FLAG.GRADED: ~Q(response_time=None),
         RESPONDED_FLAG.UNRESPONDED: Q(response_msg='') | Q(response_msg=None),
@@ -301,7 +297,7 @@ class FeedbackQuerySet(models.QuerySet):
 
     def get_notresponded(self, exercise_id=None, course_id=None, path_filter=None):
         qs = self.select_related('form', 'exercise').filter_flags(
-            self.NEWEST_FLAG.NEWEST,
+            self.NEWEST,
             self.READ_FLAG.UNREAD,
         )
         if exercise_id is not None:

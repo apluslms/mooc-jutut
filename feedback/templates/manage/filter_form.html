@@ -1,0 +1,53 @@
+{% load i18n %}
+
+{{ form.non_field_errors }}
+
+<div id="filter-container">
+	<div id="general-filter-pane" class="input-filter-pane">
+		{% include "manage/_filter_field.html" with field=form.student label_classes="right-align" input_classes="input-flex" %}
+		{% include "manage/_filter_field.html" with field=form.exercise label_classes="right-align" input_classes="input-flex" %}
+		{% include "manage/_filter_field.html" with field=form.path_key label_classes="right-align" input_classes="input-flex" %}
+		{% include "manage/_filter_field.html" with field=form.form_data label_classes="right-align" input_classes="input-flex" %}
+	</div>
+
+	<div id="feedback-tag-filter-pane" class="tag-filter-pane">
+		{% include "manage/_filter_field.html" with field=form.tags %}
+	</div>
+
+	<div id="extra-filter-pane" class="input-filter-pane collapse filter-collapse"
+		aria-expanded="false"
+	>
+		{% include "manage/_filter_field.html" with field=form.timestamp label_classes="right-align" %}
+		{% include "manage/_filter_field.html" with field=form.response_by label_classes="right-align" input_classes="input-flex" %}
+		{% include "manage/_filter_field.html" with field=form.response_grade %}
+		{% include "manage/_filter_field.html" with field=form.flags hide_label=True %}
+	</div>
+
+	<div id="student-tag-filter-pane" class="tag-filter-pane collapse filter-collapse"
+		aria-expanded="false"
+	>
+		{% include "manage/_filter_field.html" with field=form.student_tags %}
+	</div>
+
+	<div id="filter-panel-bottom">
+		<div id="order-filter-pane">
+			{% include "manage/_filter_field.html" with field=form.order_by %}
+		</div>
+
+		<div id="filter-action-buttons">
+			<button type="button" id="extra-filters-btn"
+				class="btn btn-default"
+				data-toggle="collapse" data-target=".filter-collapse"
+				data-expanded-text="{% trans 'Fewer options' %}"
+				data-collapsed-text="{% trans 'More options' %}"
+				onclick="toggleExtraOptions(this)"
+			>
+				{% trans "More options" %}
+			</button>
+			<button type="submit" class="btn btn-primary">
+				<span class="glyphicon glyphicon-repeat"></span>
+				{% trans "Filter" %}
+			</button>
+		</div>
+	</div>
+</div>
