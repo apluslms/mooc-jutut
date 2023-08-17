@@ -26,6 +26,14 @@ msgid "Newest first"
 msgstr "Uudemmat ensin"
 
 #: feedback/filters.py
+msgid "Exercise order"
+msgstr "Tehtäväjärjestys"
+
+#: feedback/filters.py
+msgid "Reverse exercise order"
+msgstr "Käänteinen tehtäväjärjestys"
+
+#: feedback/filters.py
 msgid "Flags"
 msgstr "Liput"
 

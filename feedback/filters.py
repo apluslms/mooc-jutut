@@ -144,7 +144,7 @@ class FlagFilter(django_filters.MultipleChoiceFilter):
 class OrderingFilter(django_filters.filters.ChoiceFilter):
     """Simple ordering filter that works with radio select"""
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('widget', forms.RadioSelect)
+        kwargs.setdefault('widget', forms.Select)
         kwargs.setdefault('empty_label', None)
         super().__init__(*args, **kwargs)
 
@@ -183,8 +183,10 @@ class FeedbackFilter(django_filters.FilterSet):
     ORDER_BY_CHOICE = (
             ('timestamp', _('Oldest first')),
             ('-timestamp', _('Newest first')),
+            ('exercise', _('Exercise order')),
+            ('-exercise', _('Reverse exercise order')),
     )
-    ORDER_BY_DEFAULT = '-timestamp'
+    ORDER_BY_DEFAULT = 'timestamp'
 
     response_grade = MultipleChoiceFilter(choices=Feedback.GRADE_CHOICES,
                                           extra_filter=lambda q: q.exclude(response_time=None),
