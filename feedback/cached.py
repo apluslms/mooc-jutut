@@ -1,6 +1,6 @@
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
-from django.db.models.signals import post_save, m2m_changed
+from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 
 from .models import (
@@ -114,6 +114,11 @@ CachedTags = CachedTags()
 
 @receiver(post_save, sender=FeedbackTag)
 def post_tag_save(sender, instance, **kwargs): # pylint: disable=unused-argument
+    tag = instance
+    CachedTags.clear(tag.course)
+
+@receiver(post_delete, sender=FeedbackTag)
+def post_tag_delete(sender, instance, **kwargs): # pylint: disable=unused-argument
     tag = instance
     CachedTags.clear(tag.course)
 
