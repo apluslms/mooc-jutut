@@ -430,6 +430,10 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
         get_form = lambda o: o.get_form_obj(dummy=True) # pylint: disable=unnecessary-lambda-assignment
     course_id = course.id
 
+    keep_queries = {}
+    if "contains_text" in request.GET:
+        keep_queries["contains_text"] = request.GET["contains_text"]
+
     # get_post_url
     get_post_url = get_url_reverse_resolver(
         'feedback:respond',
@@ -450,7 +454,11 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
         'feedback:list',
         ('course_id',),
         lambda f: (course_id,),
-        query_func=lambda f: {'student': f.student.id, 'exercise': f.exercise.id},
+        query_func=lambda f: {
+            'student': f.student.id,
+            'exercise': f.exercise.id,
+            **keep_queries,
+        },
     )
 
     # all_feedbacks_url
@@ -458,7 +466,7 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
         'feedback:list',
         ('course_id',),
         lambda o: (course_id,),
-        query_func=lambda f: {'student': f.student.id,},
+        query_func=lambda f: {'student': f.student.id, **keep_queries,},
     )
 
     # all_feedbacks_for_exercise_url
@@ -466,7 +474,7 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
         'feedback:list',
         ('course_id',),
         lambda o: (course_id,),
-        query_func=lambda f: {'exercise': f.exercise.id,},
+        query_func=lambda f: {'exercise': f.exercise.id, **keep_queries,},
     )
 
     # get_tag_url
