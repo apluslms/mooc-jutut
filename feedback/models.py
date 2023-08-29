@@ -1,6 +1,5 @@
 import datetime
 import re
-import shlex
 
 from collections import namedtuple
 from functools import reduce
@@ -10,8 +9,12 @@ from django.conf import settings
 from django.utils import timezone
 from django.utils.functional import cached_property
 from django.utils.translation import get_language, gettext_lazy as _
+from colorfield import ColorField
 from django_colortag.models import ColorTag
+from django_colortag.utils import use_white_font
 from r_django_essentials.fields import Enum
+
+from lib.helpers import str_in_selected_language
 
 from aplus_client.django.models import ( # pylint: disable=unused-import
     ApiNamespace as Site, # mooc-jutut refers api namespaces as sites
@@ -21,6 +24,7 @@ from aplus_client.django.models import ( # pylint: disable=unused-import
 from dynamic_forms.models import Form
 
 from .forms_dynamic import DynamicFeedbacForm
+from .templatetags.contexttag import render_context_tag
 
 Q = models.Q
 
@@ -144,8 +148,13 @@ class Exercise(NestedApiObject):
     course = models.ForeignKey(Course,
                                related_name='exercises',
                                on_delete=models.PROTECT)
+    consecutive_order = models.IntegerField(default=0)
+    parent_name = models.CharField(max_length=255, default='')
 
     IS_HIERARCHICAL_NAME = re.compile(r"^(?P<round>\d+)\.(?P<chapter>\d+)(\.\d+)* ")
+
+    class Meta:
+        ordering = ["consecutive_order"]
 
     @property
     def namespace(self):
@@ -162,7 +171,7 @@ class Exercise(NestedApiObject):
         return Feedback.objects.get_notresponded(exercise_id=self.id)
 
     def __str__(self):
-        return self.display_name
+        return str_in_selected_language(self.display_name)
 
     def get_module_and_chapter_numbers_or_keys(self):
         m = self.IS_HIERARCHICAL_NAME.match(self.display_name)
@@ -179,41 +188,42 @@ class Exercise(NestedApiObject):
             chapter_key = url_parts[6]
         return module_key, chapter_key
 
+    @property
+    def context_name(self):
+        s = self.parent_name if self.parent_name else self.display_name
+        return str_in_selected_language(s)
+
 
 class FeedbackQuerySet(models.QuerySet):
 
-    NEWEST_FLAG = Enum(
-        ('', None, _("Newest versions?")),
-        ('NEWEST', 'n', _("Newest versions")),
-    )
+    NEWEST = ('NEWEST', 'n', ("Newest versions"))
     READ_FLAG = Enum(
-        ('', None, _("Read?")),
         ('READ', 'r', _("Read")),
+        ('', None, _("Both")),
         ('UNREAD', 'u', _("Unread")),
     )
     GRADED_FLAG = Enum(
-        ('', None, _("Graded?")),
         ('GRADED', 'g', _("Graded")),
+        ('', None, _("Both")),
         ('UNGRADED', 'q', _("Ungraded")),
     )
     MANUALLY_FLAG = Enum(
-        ('', None, _("Graded how?")),
         ('MANUAL', 'm', _("Manually graded")),
+        ('', None, _("Both")),
         ('AUTO', 'a', _("Automatically graded")),
     )
     RESPONDED_FLAG = Enum(
-        ('', None, _("Responded?")),
         ('RESPONDED', 'h', _("Responded")),
+        ('', None, _("Both")),
         ('UNRESPONDED', 'i', _("Unresponded")),
     )
     UPLOAD_FLAG = Enum(
-        ('', None, _("Upload has error?")),
         ('UPL_ERROR', 'e', _("Upload has error")),
+        ('', None, _("Both")),
         ('UPL_OK', 'o', _("Upload ok")),
     )
 
     FLAG_GROUPS = [
-        NEWEST_FLAG,
         READ_FLAG,
         GRADED_FLAG,
         MANUALLY_FLAG,
@@ -222,9 +232,9 @@ class FeedbackQuerySet(models.QuerySet):
     ]
 
     FILTERS = {
-        NEWEST_FLAG.NEWEST: Q(superseded_by=None),
-        READ_FLAG.UNREAD: Q(response_time=None) & Q(tags=None),
-        READ_FLAG.READ: ~(Q(response_time=None) & Q(tags=None)),
+        NEWEST: Q(superseded_by=None),
+        READ_FLAG.UNREAD: Q(response_time=None),
+        READ_FLAG.READ: ~Q(response_time=None),
         GRADED_FLAG.UNGRADED: Q(response_time=None),
         GRADED_FLAG.GRADED: ~Q(response_time=None),
         RESPONDED_FLAG.UNRESPONDED: Q(response_msg='') | Q(response_msg=None),
@@ -245,16 +255,51 @@ class FeedbackQuerySet(models.QuerySet):
         q = reduce(Q.__and__, filters)
         return self.filter(q)
 
-    def filter_data(self, search):
-        if '*' in search:
-            search = search.replace('*', '%')
-        else:
-            search = ''.join(('%', '%'.join(shlex.split(search)), '%'))
-        # TODO: enable AND/OR and friends + make more efficient?
-        return self.extra(
-            where=['form_data::text ilike %s'],
-            params=[search],
-        )
+    def filter_contains_text_content(self):
+        return self.filter(Q(response_time=None) | ~Q(response_by=None))
+
+    def filter_text(self, name, search):
+        """Filter for strings indicated 'search' from the field 'name'.
+        Provides basic support for operators AND, OR, and NOT (case-sensitive).
+        Does not support quotes or parentheses to group search terms, treats
+        each word (separated by whitespace) as a separate search term, joins
+        search terms by default with 'AND'.
+        """
+        parts = search.split()
+        term_w_ops = []
+        cur = {
+            'NOT': False,
+            'op': False, # AND: False; OR: True
+        }
+        for p in parts:
+            if p == "OR":
+                cur['op'] = True
+            elif p == "AND":
+                cur['op'] = False
+            elif p == "NOT":
+                cur['NOT'] = True
+            else:
+                cur['word'] = p
+                # add term to list and reset cur
+                term_w_ops.append(cur)
+                cur = {
+                    'NOT': False,
+                    'op': False,
+                }
+
+        def term_dict_to_q(td):
+            # change term_w_ops dict to Q object
+            q_obj = Q(('%s__icontains' % name, td['word']))
+            if td['NOT']:
+                q_obj = ~q_obj
+            return q_obj
+        # reduce Q objects to a single Q object
+        res = term_dict_to_q(term_w_ops[0])
+        for cur in term_w_ops[1:]:
+            use_or = cur['op']
+            q = term_dict_to_q(cur)
+            res = (res | q) if use_or else (res & q)
+        return self.filter(res)
 
     def filter_missed_upload(self, time_gap_min=15):
         gap = timezone.now() - datetime.timedelta(minutes=time_gap_min)
@@ -289,7 +334,7 @@ class FeedbackQuerySet(models.QuerySet):
 
     def get_notresponded(self, exercise_id=None, course_id=None, path_filter=None):
         qs = self.select_related('form', 'exercise').filter_flags(
-            self.NEWEST_FLAG.NEWEST,
+            self.NEWEST,
             self.READ_FLAG.UNREAD,
         )
         if exercise_id is not None:
@@ -306,6 +351,34 @@ class FeedbackQuerySet(models.QuerySet):
 ResponseUploaded = namedtuple('ResponseUploaded',
                               ('ok', 'when', 'code', 'attempts'))
 
+class Conversation(models.Model):
+
+    class Meta:
+        unique_together = [
+            ('exercise', 'student')
+        ]
+
+    exercise = models.ForeignKey(
+        Exercise,
+        related_name='conversations',
+        on_delete=models.PROTECT,
+        verbose_name=_("Exercise"),
+    )
+    student = models.ForeignKey(
+        Student,
+        related_name='conversations',
+        on_delete=models.CASCADE,
+        verbose_name=_("Student"),
+    )
+
+    @cached_property
+    def course(self):
+        return self.exercise.course
+
+    def __str__(self):
+        return 'All feedback by {} to {}'.format(
+            self.student, self.exercise
+        )
 
 class Feedback(models.Model):
     objects = FeedbackQuerySet.as_manager()
@@ -343,6 +416,12 @@ class Feedback(models.Model):
     submission_id = models.IntegerField()
     path_key = models.CharField(max_length=255, db_index=True)
     max_grade = models.PositiveSmallIntegerField(default=MAX_GRADE)
+
+    conversation = models.ForeignKey(
+        Conversation,
+        related_name='feedbacks',
+        on_delete=models.PROTECT,
+    )
 
     # feedback
     timestamp = models.DateTimeField(default=timezone.now, db_index=True)
@@ -462,7 +541,7 @@ class Feedback(models.Model):
 
     @property
     def waiting_for_response_msg(self):
-        return not self.response_msg and not self.superseded_by_id
+        return not self.response_time and not self.superseded_by_id
 
     @property
     def can_be_responded(self):
@@ -483,6 +562,14 @@ class Feedback(models.Model):
     @property
     def response_notify_aplus(self):
         return self.NOTIFY_APLUS.get(self.response_notify, '')
+
+    @property
+    def newest_version(self):
+        return self.__class__.objects.get(
+            exercise_id = self.exercise_id,
+            student_id = self.student_id,
+            superseded_by = None,
+        )
 
     @property
     def older_versions(self):
@@ -514,6 +601,10 @@ class Feedback(models.Model):
         old feedbacks by same user to defined resource
         """
         kwargs = {k: v for k,v in kwargs.items() if v is not None}
+        student = kwargs['student']
+        exercise = kwargs['exercise']
+        conv, _created = Conversation.objects.get_or_create(student=student, exercise=exercise)
+        kwargs['conversation'] = conv
         new = cls.objects.create(**kwargs)
         assert new.pk is not None, "New feedback doesn't have primary key"
         new.supersede_older()
@@ -545,8 +636,10 @@ class FeedbackTag(ColorTag):
     course = models.ForeignKey(Course,
                                related_name="tags",
                                on_delete=models.CASCADE)
-    feedbacks = models.ManyToManyField(Feedback,
-                                       related_name="tags")
+    conversations = models.ManyToManyField(
+        Conversation,
+        related_name="tags",
+    )
 
     class Meta(ColorTag.Meta):
         unique_together = ('course', 'slug')
@@ -560,3 +653,62 @@ class FeedbackTag(ColorTag):
         ).exclude(
             pk=self.pk,
         ).exists()
+
+class ContextTag(models.Model):
+    """A tag to represent an answer. Can be used especially to
+    represent answer options of a 'pick-one' directive or other
+    question with limited answer options.
+    This is also used to display time spent.
+    """
+    course = models.ForeignKey(
+        Course,
+        related_name="context_tag_groups",
+        on_delete=models.CASCADE
+    )
+    question_key = models.CharField(
+        max_length=128,
+        verbose_name=_("Question key"),
+    )
+    response_value = models.CharField(
+        max_length=128,
+        verbose_name=_("Response value"),
+        help_text=_(
+            "Indicate for which response values this tag should be "
+            "displayed. This can be a regex pattern."
+        ),
+    )
+    color = ColorField(
+        default="#CD0000",
+        verbose_name=_("Color"),
+        help_text=_("Color that is used as background for this tag"),
+    )
+    content = models.CharField(
+        max_length=16,
+        verbose_name=_("Content"),
+        help_text=_(
+            "Content which is displayed in the tag. The response value "
+            "can be included by writing '{}' where the value is desired. "
+            "However, it is recommended to display the value only if "
+            "it is known to be short, e.g. timespent."
+        ),
+    )
+
+    class Meta:
+        unique_together = ('course', 'question_key', 'response_value')
+        ordering = ['question_key', 'response_value']
+
+    @cached_property
+    def font_white(self) -> bool:
+        return use_white_font(self.color)
+
+    @cached_property
+    def font_color(self):
+        return '#FFF' if self.font_white else '#000'
+
+    def render_tag(self, tooltip="", value="") -> str:
+        return render_context_tag(self, tooltip, value)
+
+    def __str__(self):
+        return 'ContextTag({!r}, {!r}, {!r})'.format(
+            self.question_key, self.response_value, self.content
+        )

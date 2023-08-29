@@ -54,8 +54,3 @@ msgstr "palautetta sivulla"
 #: templates/bootstrapform/field.html
 msgid "(*) Required"
 msgstr "(*) Pakollinen"
-
-#: timeusage/templates/_filter_bar.html
-#, python-format
-msgid "Filter options (%(number)s active)"
-msgstr "Rajausvalinnat (%(number)s aktiivista)"

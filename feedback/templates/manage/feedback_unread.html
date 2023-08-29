@@ -12,19 +12,19 @@
 	<h1>{% trans "Unread Feedback" %}</h1>
 	<h3>{{ course }}
 		{% if feedback_filter == None %}
-			<a href="{% url "feedback:list" course_id=course.id %}"
+			<a href="{% url "feedback:list" course_id=course.id %}?contains_text=on"
 				class="btn btn-success btn-sm pull-right"
 				>
 				<span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
-				{% trans "Filter feedbacks" %}</a>
+				{% trans "Filter feedback" %}</a>
 		{% endif %}
 	</h3>
 
 	{% if feedback_filter != None %}
 		<div class="col-xs-12">
-			{% include "manage/_filter_bar.html" %}
+			{% include "manage/_filter_bar.html" with url_pattern="feedback:list" %}
 		</div>
 	{% endif%}
 
-	{% include "manage/_feedbacks_as_list.html" %}
+	{% include "manage/_conversations_as_list.html" %}
 {% endblock %}

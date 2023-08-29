@@ -26,6 +26,14 @@ msgid "Newest first"
 msgstr "Uudemmat ensin"
 
 #: feedback/filters.py
+msgid "Exercise order"
+msgstr "Tehtäväjärjestys"
+
+#: feedback/filters.py
+msgid "Reverse exercise order"
+msgstr "Käänteinen tehtäväjärjestys"
+
+#: feedback/filters.py
 msgid "Flags"
 msgstr "Liput"
 
@@ -46,12 +54,64 @@ msgid "Exercise identifier"
 msgstr "Tehtävän tunniste"
 
 #: feedback/filters.py
-msgid "Form content"
-msgstr "Lomakkeen sisältö"
+msgid ""
+"Filter based on the exercise path key (typically of the format "
+"'modulekey_chapterkey_exercisekey'). The filter uses case-insensitive "
+"regular expression match."
+msgstr ""
+"Suodata tehtävän polkutunnisteen perusteella. (Tunniste on tyypillisesti "
+"muodossa 'moduulintunniste_luvuntunniste_tehtäväntunniste'). Suodatin "
+"tarkistaa vastaako tunniste aakkoskoosta riippumatta säännöllistä lauseketta "
+"(case-insensitive regex)."
 
 #: feedback/filters.py
-msgid "Order by"
-msgstr "Järjestys"
+msgid "Student content"
+msgstr "Opiskelijan sisältö"
+
+#: feedback/filters.py
+msgid ""
+"Filter conversations based on content of the student feedback responses. "
+"Unfortunately this includes the field names as well as non-textual "
+"responses. The operators 'AND', 'OR' and 'NOT' (case-sensitive) are "
+"supported. Otherwise the search is case-insensitive."
+msgstr ""
+"Suodata keskusteluita opiskelijoiden palautteen sisällön perusteella. "
+"Valitettavasti tämä sisältää myös palautekenttien nimet sekä muutkin "
+"vastaukset kirjallisten vastausten lisäksi. Haku tukee operaattoreiden "
+"'AND', 'OR' ja 'NOT' käyttöä. (Operaattorit ovat aakkoskoosta riippuvia, "
+"mutta muutoin haku on aakkoskoosta riippumaton.)"
+
+#: feedback/filters.py
+msgid "Teacher content"
+msgstr "Opettajan vastaus"
+
+#: feedback/filters.py
+msgid ""
+"Filter conversations based on text in the teacher responses. The operators "
+"'AND', 'OR' and 'NOT' (case-sensitive) are supported. Otherwise the search "
+"is case-insensitive."
+msgstr ""
+"Suodata keskusteluita opettajien vastauksissa esiintyvän tekstin palautteen "
+"sisällön perusteella. Haku tukee operaattoreiden 'AND', 'OR' ja 'NOT' "
+"käyttöä. (Operaattorit ovat aakkoskoosta riippuvia, mutta muutoin haku on "
+"aakkoskoosta riippumaton.)"
+
+#: feedback/filters.py
+msgid "Display only feedback with text content"
+msgstr "Näytä ainoastaan palautteet, joissa on tekstisisältöä"
+
+#: feedback/filters.py
+msgid ""
+"Filter out automatically graded feedback. Display only responses that "
+"contain text responses as well as feedback that a teacher has responded to."
+msgstr ""
+"Jätä pois automaattisesti arvostellut palautteet. Näytä ainoastaan "
+"palautteet, joissa opiskelija on vastannut kirjallisesti, sekä palautteet, "
+"joihin opettaja on vastannut."
+
+#: feedback/filters.py
+msgid "Sort"
+msgstr "Järjestä"
 
 #: feedback/forms.py
 msgid "older versions"
@@ -66,28 +126,16 @@ msgstr ""
 "muuttunut."
 
 #: feedback/models.py
-msgid "Newest versions?"
-msgstr "Uusimmat versiot?"
-
-#: feedback/models.py
-msgid "Newest versions"
-msgstr "Uusimmat versiot"
-
-#: feedback/models.py
-msgid "Read?"
-msgstr "Luettu?"
-
-#: feedback/models.py
 msgid "Read"
 msgstr "Luettu"
 
 #: feedback/models.py
-msgid "Unread"
-msgstr "Lukematon"
+msgid "Both"
+msgstr "Molemmat"
 
 #: feedback/models.py
-msgid "Graded?"
-msgstr "Arvosteltu?"
+msgid "Unread"
+msgstr "Lukematon"
 
 #: feedback/models.py
 msgid "Graded"
@@ -98,20 +146,12 @@ msgid "Ungraded"
 msgstr "Ei arvosteltu"
 
 #: feedback/models.py
-msgid "Graded how?"
-msgstr "Arvosteltu miten?"
-
-#: feedback/models.py
 msgid "Manually graded"
 msgstr "Käsin arvosteltu"
 
 #: feedback/models.py
 msgid "Automatically graded"
 msgstr "Automaattisesti arvosteltu"
-
-#: feedback/models.py
-msgid "Responded?"
-msgstr "Vastattu?"
 
 #: feedback/models.py
 msgid "Responded"
@@ -122,16 +162,20 @@ msgid "Unresponded"
 msgstr "Vastaamaton"
 
 #: feedback/models.py
-msgid "Upload has error?"
-msgstr "Epäonnistuiko lähetys?"
-
-#: feedback/models.py
 msgid "Upload has error"
 msgstr "Lähetys on epäonnistunut"
 
 #: feedback/models.py
 msgid "Upload ok"
 msgstr "Lähetys on onnistunut"
+
+#: feedback/models.py
+msgid "Exercise"
+msgstr "Tehtävä"
+
+#: feedback/models.py
+msgid "Student"
+msgstr "Opiskelija"
 
 #: feedback/models.py
 msgid "No response"
@@ -161,14 +205,6 @@ msgstr "Normaali ilmoitus"
 msgid "Important notification"
 msgstr "Tärkeä ilmoitus"
 
-#: feedback/models.py feedback/templates/manage/_exercise_heading.html
-msgid "Exercise"
-msgstr "Tehtävä"
-
-#: feedback/models.py feedback/templates/manage/_submitter_heading.html
-msgid "Student"
-msgstr "Opiskelija"
-
 #: feedback/models.py
 msgid "Response time"
 msgstr "Vastausaika"
@@ -189,19 +225,47 @@ msgstr "Arvosana"
 msgid "Response notify"
 msgstr "Ilmoitus vastauksesta"
 
+#: feedback/models.py feedback/templates/feedback_tags/contexttag_list.html
+msgid "Question key"
+msgstr "Kysymyksen avain"
+
+#: feedback/models.py feedback/templates/feedback_tags/contexttag_list.html
+msgid "Response value"
+msgstr "Vastausvaihtoehto"
+
+#: feedback/models.py
+msgid ""
+"Indicate for which response values this tag should be displayed. This can be "
+"a regex pattern."
+msgstr ""
+"Mitä vastausvaihtoehtoja tämä tägi kuvastaa. Tämä voi olla säännöllinen "
+"lauseke."
+
+#: feedback/models.py
+msgid "Color"
+msgstr "Väri"
+
+#: feedback/models.py
+msgid "Color that is used as background for this tag"
+msgstr "Tägin taustaväri"
+
+#: feedback/models.py
+msgid "Content"
+msgstr "Sisältö"
+
+#: feedback/models.py
+msgid ""
+"Content which is displayed in the tag. The response value can be included by "
+"writing '{}' where the value is desired. However, it is recommended to "
+"display the value only if it is known to be short, e.g. timespent."
+msgstr ""
+"Sisältö, joka näkyy tägissä. Vastaus itse voidaan esittää tägissä "
+"laittamalla '{}' kohtaan, johon se halutaan. Kuitenkin, vastausta ei kannata "
+"näyttää tägissä ellei sen tiedetä olevan lyhyt, kuten käytetyn ajan arvio."
+
 #: feedback/templates/feedback/avglist.html
-#: feedback/templates/manage/user_feedback.html
 msgid "No feedback yet."
 msgstr "Ei palautetta."
-
-#: feedback/templates/feedback_tags/_tag_form.html
-msgid "Add new feedback tag"
-msgstr "Lisää uusi palautetägi"
-
-#: feedback/templates/feedback_tags/_tag_form.html
-#: feedback/templates/feedback_tags/tag_edit.html
-msgid "Edit feedback tag"
-msgstr "Muokkaa palautetägiä"
 
 #: feedback/templates/feedback_tags/_tag_form.html
 msgid "Add"
@@ -212,14 +276,52 @@ msgid "Save"
 msgstr "Tallenna"
 
 #: feedback/templates/feedback_tags/_tag_form.html
+#: feedback/templates/feedback_tags/contexttag_confirm_delete.html
 #: feedback/templates/feedback_tags/tag_confirm_delete.html
-#: feedback/templates/manage/_response_panel.html
+#: feedback/templates/manage/_response_message.html
 msgid "Cancel"
 msgstr "Takaisin"
 
+#: feedback/templates/feedback_tags/contexttag_confirm_delete.html
 #: feedback/templates/feedback_tags/tag_confirm_delete.html
 msgid "Confirm feedback tag removal"
 msgstr "Vahvista palautetägin poisto"
+
+#: feedback/templates/feedback_tags/contexttag_confirm_delete.html
+#, python-format
+msgid ""
+"Are you sure you want to remove the context tag %(tag)s from course "
+"%(course)s?"
+msgstr ""
+"Oletko varma, että haluat poistaa palaute tägin %(tag)s kurssilta %(course)s?"
+
+#: feedback/templates/feedback_tags/contexttag_confirm_delete.html
+#: feedback/templates/feedback_tags/tag_confirm_delete.html
+msgid "Confirm"
+msgstr "Vahvista"
+
+#: feedback/templates/feedback_tags/contexttag_list.html
+msgid "List of context tags"
+msgstr "Luettelo kontekstitägeistä"
+
+#: feedback/templates/feedback_tags/contexttag_list.html
+msgid "Context tag"
+msgstr "Kontekstitägi"
+
+#: feedback/templates/feedback_tags/contexttag_list.html
+#: feedback/templates/feedback_tags/tag_list.html
+msgid "Actions"
+msgstr "Toiminnot"
+
+#: feedback/templates/feedback_tags/contexttag_list.html
+#: feedback/templates/feedback_tags/tag_list.html
+msgid "edit"
+msgstr "muokkaa"
+
+#: feedback/templates/feedback_tags/contexttag_list.html
+#: feedback/templates/feedback_tags/tag_list.html
+msgid "remove"
+msgstr "poista"
 
 #: feedback/templates/feedback_tags/tag_confirm_delete.html
 #, python-format
@@ -238,10 +340,6 @@ msgstr ""
 "tägätty.\n"
 "\t\t\t\t\t"
 
-#: feedback/templates/feedback_tags/tag_confirm_delete.html
-msgid "Confirm"
-msgstr "Vahvista"
-
 #: feedback/templates/feedback_tags/tag_list.html
 msgid "List of feedback tags"
 msgstr "Luettelo palautetägeistä"
@@ -258,107 +356,102 @@ msgstr "Tunniste"
 msgid "Description"
 msgstr "Kuvaus"
 
-#: feedback/templates/feedback_tags/tag_list.html
-msgid "Actions"
-msgstr "Toiminnot"
+#: feedback/templates/manage/_conversations_as_list.html
+msgid "No feedback shown as there are errors in the filter form"
+msgstr "Palautteita ei näytetä, sillä lomakkeessa on virhe"
 
-#: feedback/templates/feedback_tags/tag_list.html
-msgid "edit"
-msgstr "muokkaa"
+#: feedback/templates/manage/_conversations_as_list.html
+msgid "No feedback shown as there is no filter selection"
+msgstr "Palautteita ei näytetä, sillä mitään rajoitteita ei ole valittu"
 
-#: feedback/templates/feedback_tags/tag_list.html
-msgid "remove"
-msgstr "poista"
+#: feedback/templates/manage/_conversations_as_list.html
+msgid "No feedback found"
+msgstr "Yhtään palautetta ei löytynyt"
 
-#: feedback/templates/manage/_exercise_heading.html
-msgid "Show feedbacks for this execise by the student"
-msgstr "Näytä tämän opiskelijan palautteet tähän tehtävään"
-
-#: feedback/templates/manage/_exercise_heading.html
-msgid "Exercise and student"
-msgstr "Tehtävä ja opiskelija"
-
-#: feedback/templates/manage/_exercise_heading.html
-msgid "Show all feedbacks for this execise"
-msgstr "Näytä kaikki palautteet tähän tehtävään"
+#: feedback/templates/manage/_conversations_as_list.html
+msgid "No unread feedback."
+msgstr "Ei lukemattomia palautteita"
 
 #: feedback/templates/manage/_exercise_heading.html
 msgid "Show exercise in A+"
 msgstr "Näytä tehtävä A+:ssa"
 
-#: feedback/templates/manage/_feedback_panel.html
+#: feedback/templates/manage/_exercise_heading.html
+msgid "Show all feedback for this execise"
+msgstr "Näytä kaikki palautteet tähän tehtävään"
+
+#: feedback/templates/manage/_exercise_heading.html
+msgid "Show feedback for this execise by the student"
+msgstr "Näytä tämän opiskelijan palautteet tähän tehtävään"
+
+#: feedback/templates/manage/_feedback_message.html
 msgid "This field was <b>not</b> required"
 msgstr "Tämä kenttä <b>ei</b> ollut pakollinen"
 
-#: feedback/templates/manage/_feedback_panel.html
+#: feedback/templates/manage/_feedback_message.html
 msgid "optional"
 msgstr "valinnainen"
 
-#: feedback/templates/manage/_feedback_panel.html
+#: feedback/templates/manage/_feedback_message.html
 msgid "Show all feedback fields"
 msgstr "Näytä kaikki palautekentät"
 
-#: feedback/templates/manage/_feedback_panel.html
+#: feedback/templates/manage/_feedback_message.html
 msgid "Show submission in A+"
 msgstr "Näytä palautus A+:ssa"
-
-#: feedback/templates/manage/_feedbacks_as_list.html
-msgid "No feedback shown as there is errors in the filter form"
-msgstr "Palautteita ei näytetä, sillä lomakkeessa on virhe"
-
-#: feedback/templates/manage/_feedbacks_as_list.html
-msgid "No feedback shown as there is no filter selection"
-msgstr "Palautteita ei näytetä, sillä mitään rajoitteita ei ole valittu"
-
-#: feedback/templates/manage/_feedbacks_as_list.html
-msgid "No feedback found"
-msgstr "Yhtään palautetta ei löytynyt"
-
-#: feedback/templates/manage/_feedbacks_as_list.html
-msgid "No unread feedback."
-msgstr "Ei lukemattomia palautteita"
 
 #: feedback/templates/manage/_filter_bar.html
 #, python-format
 msgid "Filter options (%(number)s active)"
 msgstr "Rajausvalinnat (%(number)s aktiivista)"
 
-#: feedback/templates/manage/_response_panel.html
+#: feedback/templates/manage/_response_message.html
 msgid "Update"
 msgstr "Päivitä"
 
-#: feedback/templates/manage/_response_panel.html
+#: feedback/templates/manage/_response_message.html
 msgid "Respond"
 msgstr "Vastaa"
 
-#: feedback/templates/manage/_response_panel.html
+#: feedback/templates/manage/_response_message.html
 msgid "Conflict"
 msgstr "Ristiriita"
 
-#: feedback/templates/manage/_response_panel.html
+#: feedback/templates/manage/_response_message.html
 msgid "not saved"
 msgstr "tallentamaton"
 
-#: feedback/templates/manage/_response_panel.html
-msgid "Reset"
-msgstr "Peru"
-
-#: feedback/templates/manage/_response_panel.html
-#, python-format
-msgid "%(time)s by %(user)s"
-msgstr "%(time)s, %(user)s"
-
-#: feedback/templates/manage/_response_panel.html
+#: feedback/templates/manage/_response_message.html
 msgid "This feedback was automatically accepted"
 msgstr "Palaute on automaattisesti hyväksytty"
 
-#: feedback/templates/manage/_response_panel.html
+#: feedback/templates/manage/_response_message.html
 msgid "auto"
 msgstr "auto"
 
 #: feedback/templates/manage/_submitter_heading.html
-msgid "A+"
-msgstr "A+"
+msgid "Open student page in A+"
+msgstr "Avaa opiskelijasivu A+:ssa"
+
+#: feedback/templates/manage/_submitter_heading.html
+msgid "Show all feedback for this student"
+msgstr "Näytä kaikki palautteet tältä opiskelijalta"
+
+#: feedback/templates/manage/_submitter_heading.html
+msgid "Show the student's response to the background questionnaire"
+msgstr "Näytä opiskelijan vastaus taustatietokyselyyn"
+
+#: feedback/templates/manage/_submitter_heading.html
+msgid "Background"
+msgstr "Taustatieto"
+
+#: feedback/templates/manage/_submitter_heading.html
+msgid "Show the student's points"
+msgstr "Näytä opiskelijan pisteet"
+
+#: feedback/templates/manage/_submitter_heading.html
+msgid "Points"
+msgstr "Pisteet"
 
 #: feedback/templates/manage/_upload_status.html
 #, python-format
@@ -406,12 +499,16 @@ msgstr "Lisää"
 
 #: feedback/templates/manage/base.html
 #: feedback/templates/manage/feedback_unread.html
-msgid "Filter feedbacks"
+msgid "Filter feedback"
 msgstr "Rajaa palautteita"
 
 #: feedback/templates/manage/base.html
 msgid "Manage feedback tags"
 msgstr "Hallitse palautetägejä"
+
+#: feedback/templates/manage/base.html
+msgid "Manage context tags"
+msgstr "Hallitse kontekstitägejä"
 
 #: feedback/templates/manage/base.html
 msgid "Student list"
@@ -458,6 +555,18 @@ msgstr "Palautteet kurssilla '%(course)s'"
 msgid "Unread Feedback"
 msgstr "Lukemattomat palautteet"
 
+#: feedback/templates/manage/filter_form.html
+msgid "Fewer options"
+msgstr "Vähemmän valintoja"
+
+#: feedback/templates/manage/filter_form.html
+msgid "More options"
+msgstr "Lisää valintoja"
+
+#: feedback/templates/manage/filter_form.html
+msgid "Filter"
+msgstr "Suodata"
+
 #: feedback/templates/manage/site_list.html
 msgid "List of known sites in feedback management"
 msgstr "Luettelo tunnetuista sivustoista palautteenhallinnassa"
@@ -495,15 +604,6 @@ msgid "This user is not authenticated using LTI and doesn't have api token."
 msgstr ""
 "Käyttäjä ei ole kirjautunut LTI:n kautta, joten sillä ei ole api avainta."
 
-#: feedback/templates/manage/user_feedback.html
-#, python-format
-msgid ""
-"\n"
-"List of student feedback to %(ex)s\n"
-msgstr ""
-"\n"
-"Luettelo opiskelijapalautteesta tehtävään %(ex)s\n"
-
 #: feedback/templates/manage/user_list.html
 msgid "List of students with feedback"
 msgstr "Luettelo opiskelijoista, joilla on palautetta"
@@ -540,3 +640,19 @@ msgstr "Palaute"
 #, python-format
 msgid "Feedback <i>%(jutut)s</i> for <i>%(aplus)s</i>"
 msgstr "Palaute <i>%(jutut)s</i> palvelulle <i>%(aplus)s</i>"
+
+#: feedback/views.py
+msgid "Edit feedback tag"
+msgstr "Muokkaa palautetägiä"
+
+#: feedback/views.py
+msgid "Add new feedback tag"
+msgstr "Lisää uusi palautetägi"
+
+#: feedback/views.py
+msgid "Edit context tag"
+msgstr "Muokkaa kontekstitägiä"
+
+#: feedback/views.py
+msgid "Add new context tag"
+msgstr "Lisää uusi kontekstitägi"

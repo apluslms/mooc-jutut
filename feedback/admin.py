@@ -7,6 +7,7 @@ from .models import (
     Exercise,
     Feedback,
     FeedbackTag,
+    ContextTag,
 )
 
 
@@ -26,3 +27,4 @@ admin.site.register(Course, CachedAdmin)
 admin.site.register(Exercise, CachedAdmin)
 admin.site.register(Feedback, CachedAdmin)
 admin.site.register(FeedbackTag, FeedbackTagAdmin)
+admin.site.register(ContextTag, admin.ModelAdmin)

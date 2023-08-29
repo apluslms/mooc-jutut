@@ -1,0 +1,46 @@
+{% load i18n %}
+{% load feedback %}
+{% load colortag %}
+{% comment %}
+	expects to be used under bootstrapped.html
+	expects from context:
+		feedbacks created with get_feedback_dict
+{% endcomment %}
+
+{% include "_pagination.html" %}
+
+{% for conv in conversations %}
+	<div class="panel panel-default feedback-response-panel">
+		{% include "manage/_submitter_heading.html" with user=conv.student %}
+
+		<div class="panel-body">
+			<div class="conversation-panel">
+				{% include "manage/_exercise_heading.html" with exercise=conv.exercise %}
+				<div class="conversation-panel-body">
+					{% for fb in conv.feedback_list %}
+						<div class="feedback-response-pair">
+							{% include "manage/_feedback_message.html" with active=fb.active %}
+							{% include "manage/_response_message.html" with last=forloop.last form=fb.form feedback=fb.feedback feedback_form_grading=fb.feedback_form_grading post_url=fb.post_url status_url=fb.status_url %}
+						</div>
+					{% endfor %}
+				</div> <!-- /.conversation-panel-body -->
+			</div><!-- /.conversation-panel -->
+			<div class="conversation-tag-panel">
+				{% for tag in conv.tags %}
+					{{ tag|colortag_button }}
+				{% endfor %}
+			</div> <!-- /.conversation-tag-panel -->
+		</div> <!-- /.panel-body -->
+	</div> <!-- /.feedback-response-panel -->
+{% empty %}
+	{% if feedback_filter.form.errors %}
+		<p class="alert alert-danger" >{% trans "No feedback shown as there are errors in the filter form" %}</p>
+	{% elif not feedback_filter.form.contains_data %}
+		<p class="alert alert-warning">{% trans "No feedback shown as there is no filter selection" %}</p>
+	{% else %}
+		<p class="alert alert-warning">{% trans "No feedback found" %}</p>
+	{% endif %}
+	<!-- <p class="alert alert-success">{% trans "No unread feedback." %}</p> -->
+{% endfor %}
+
+{% include "_pagination.html" %}

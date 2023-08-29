@@ -4,17 +4,21 @@
 {% comment %}
 	expects to be used under bootstrapped.html
 	expects from context:
-		feedback
-		feedback_form
-		post_url
+		active
+		fb.feedback
+		fb.feedback_form
 {% endcomment %}
-<div class="panel panel-default feedback-panel reacts-to-status">
+
+{% with feedback=fb.feedback %}
+<div class="feedback-message {% if active %}active{% endif %}">
 	<table class="table table-condensed">
-		{% for field in feedback_form %}
+		<col class="field-names"/>
+		<col/>
+		{% for field in fb.feedback_form %}
 			{% if field.has_data %}
 				{# FIXME: clean this up #}
-				<tr class="{{ field.field.required|yesno:',info' }} {{ field.is_text|yesno:'text,data' }}" style="{{ field.is_text|yesno:',display: none;' }}">
-					<th style="{{ field.is_text|yesno:'display: none;,' }}">
+				<tr class="{{ field.is_text|yesno:'text,data only-expanded collapse' }}">
+					<th class="only-expanded collapse">
 						{{ field.label|default:field.name }}
 						{% if field.help_text %}
 							<span rel="tooltip"
@@ -51,25 +55,15 @@
 			{% endif %}
 		{% endfor %}
 	</table>
-	<div class="panel-footer" title="{% trans 'Show all feedback fields' %}">
-		<span class="show-all-fields" data-up="menu-up" data-down="menu-down"></span>
-		<span
-			rel="tooltip"
-			data-toggle="tooltip"
-			data-trigger="hover"
-			data-placement="bottom"
-			title="{{ feedback.timestamp }}">
-			{{ feedback.timestamp|naturaltime }}
+	<div class="toggle-showall panel-footer collapsed"
+		role="button" aria-expanded="false" tabindex=0
+		title="{% trans 'Show all feedback fields' %}"
+	>
+		<span class="timestamp">
+			{{ feedback.timestamp|date:"d/m" }} {{ feedback.timestamp|time:"H:i" }}
 		</span>
-		<div class="btn-toolbar pull-right" role="toolbar">
-			<div class="btn-group btn-group-xs" role="group">
-				{% with time=feedback.form_data.timespent %}
-					{% if time %}
-						{# FIXME: use expected time to set different colors #}
-						<span class="label label-default">{{ time }} mins</span>
-					{% endif %}
-				{% endwith %}
-			</div>
+	<!-- change collapse-functionality so that only the classes within the clicked message are toggled -->
+		<div class="feedback-msg-bottom only-expanded collapse">
 			<div class="btn-group btn-group-xs" role="group">
 				<a
 					class="btn btn-primary"
@@ -80,8 +74,11 @@
 					href="{{ feedback.submission_html_url }}"
 					>
 					<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
-					A+</a>
+					A+
+				</a>
 			</div>
+			<span>{{ feedback.timestamp|naturaltime }}</span>
 		</div>
-	</div>
+	</div> <!--.panel-footer-->
 </div>
+{% endwith %}

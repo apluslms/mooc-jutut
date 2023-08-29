@@ -2,12 +2,14 @@ import logging
 from datetime import timedelta
 from django.contrib.auth.signals import user_logged_in
 from django.core.exceptions import PermissionDenied
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 from django.urls import reverse
 from django.utils import timezone
 
 from django_lti_login.signals import lti_login_authenticated
 from . import SITES_SESSION_KEY, COURSES_SESSION_KEY
-from .models import Site, Course
+from .models import Site, Course, ContextTag
 
 
 CLEAR_COURSES_DELTA = timedelta(days=30)
@@ -87,3 +89,23 @@ def add_course_permissions(sender, **kwargs): # pylint: disable=too-many-locals 
 
 
 user_logged_in.connect(add_course_permissions)
+
+
+@receiver(post_save, sender=Course)
+def generate_default_context_tags(sender, instance, created, **kwargs): # pylint: disable=unused-argument
+    if created:
+        time_tag = ContextTag(course=instance,
+                              question_key='timespent', response_value='.*',
+                              color='#757575', content="{} mins")
+        time_tag.save()
+        for r_val, color, content in [
+            ('a', '#008800', "++"),
+            ('b', '#8AE234', "+"),
+            ('c', '#FCAF3E', "-"),
+            ('d', '#CD0000', "--"),
+            ('e', '#FCe94F', "?"),
+        ]:
+            u_tag = ContextTag(course=instance,
+                               question_key='understood', response_value=r_val,
+                               color=color, content=content)
+            u_tag.save()

@@ -1,0 +1,10 @@
+<input type="{{ widget.type }}" name="{{ widget.name }}"
+	class="btn-check"
+	{% if widget.value != None %} value="{{ widget.value|stringformat:'s' }}"{% endif %}
+{% include "django/forms/widgets/attrs.html" %}>
+<label
+	class="btn btn-outline-secondary"
+	{% if widget.attrs.id %} for="{{ widget.attrs.id }}"{% endif %}
+>
+	{{ widget.label }}
+</label>

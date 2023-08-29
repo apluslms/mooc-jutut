@@ -126,13 +126,17 @@
 								aria-haspopup="true" aria-expanded="false"
 								>{% trans "More" %} <span class="caret"></span></a>
 							<ul class="dropdown-menu">
-								<li><a href="{% url "feedback:list" course_id=course.id %}">
+								<li><a href="{% url "feedback:list" course_id=course.id %}?contains_text=on">
 									<i class="glyphicon glyphicon-filter"></i>
-									{% trans "Filter feedbacks" %}
+									{% trans "Filter feedback" %}
 								</a></li>
 								<li><a href="{% url "feedback:tags" course_id=course.id %}">
 									<i class="glyphicon glyphicon-tags"></i>
 									{% trans "Manage feedback tags" %}
+								</a></li>
+								<li><a href="{% url "feedback:contexttags" course_id=course.id %}">
+									<i class="glyphicon glyphicon-tag"></i>
+									{% trans "Manage context tags" %}
 								</a></li>
 								<li><a href="{% url "feedback:user-list" course_id=course.id %}">
 									<i class="glyphicon glyphicon-list"></i>

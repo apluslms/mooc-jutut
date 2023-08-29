@@ -7,11 +7,13 @@ from django.utils.text import format_lazy
 from django.utils.timezone import now as timezone_now
 from django.utils.translation import gettext_lazy as _
 from django.utils.html import mark_safe
+from django.utils.http import urlencode
 from django_colortag.forms import ColorTagForm
 
 from .models import (
     Feedback,
     FeedbackTag,
+    ContextTag,
 )
 from .tasks import async_response_upload
 
@@ -110,11 +112,8 @@ class ResponseForm(forms.ModelForm):
         data_changed_check = self.cleaned_data['data_changed_check']
         if data_changed_check != self.initial['data_changed_check']:
             self.has_expired = True
-            url = reverse('feedback:byuser', kwargs={
-                'course_id': self.instance.exercise.course.id,
-                'user_id': self.instance.student.id,
-                'exercise_id': self.instance.exercise.id,
-            })
+            url = reverse('feedback:list', kwargs={'course_id': self.instance.exercise.course.id})
+            url += '?' + urlencode({'student': self.instance.student.id, 'exercise': self.instance.exercise.id})
             link = '<a href="{url}" target="_blank" class="alert-link">{link_text}</a>'.format(
                 url=url,
                 link_text=_("older versions")
@@ -176,3 +175,9 @@ class FeedbackTagForm(ColorTagForm):
         exclude = super()._get_validation_exclusions()
         exclude.remove('course')
         return exclude
+
+
+class ContextTagForm(forms.ModelForm):
+    class Meta:
+        model = ContextTag
+        fields = ['question_key', 'response_value', 'color', 'content']

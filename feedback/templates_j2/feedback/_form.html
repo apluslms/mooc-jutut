@@ -45,20 +45,20 @@
 		{% if feedback.response_msg or older_count > 0 %}
 			<div class="well">
 				<ul class="list-group nav" style="margin-bottom: 0;">
-					{% if feedback.response_msg %}
-						{{ staff_response(feedback.response_msg) }}
-					{% endif %}
-					{{ student_message(feedback.text_feedback) }}
-
-					{% for oldfb in feedback.older_versions %}
-						{{ staff_response(oldfb.response_msg, loop.index) }}
-						{{ student_message(oldfb.text_feedback, loop.index) }}
-					{% endfor %}
-
 					{% if older_count > 2 %}
 						<li class="show-more">
-							{{ glyph("menu-down") }} {{ _("show more") }} {{ glyph("menu-down") }}
+							{{ glyph("menu-up") }} {{ _("show more") }} {{ glyph("menu-up") }}
 						</li>
+					{% endif %}
+
+					{% for oldfb in feedback.older_versions|reverse %}
+						{{ student_message(oldfb.text_feedback, loop.revindex) }}
+						{{ staff_response(oldfb.response_msg, loop.revindex) }}
+					{% endfor %}
+
+					{{ student_message(feedback.text_feedback) }}
+					{% if feedback.response_msg %}
+						{{ staff_response(feedback.response_msg) }}
 					{% endif %}
 				</ul>
 			</div>

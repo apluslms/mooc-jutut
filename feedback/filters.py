@@ -18,7 +18,7 @@ from .models import (
 
 
 PRIMITIVE_TYPES = (int, float, str)
-EMPTY_VALUES = ('', slice(None, None, None))
+EMPTY_VALUES = ('', False, slice(None, None, None))
 
 def is_empty_value(value):
     if isinstance(value, (tuple, list)): # tags
@@ -100,13 +100,28 @@ class MultipleChoiceFilter(django_filters.MultipleChoiceFilter):
             fqs = self._extra(fqs)
         return fqs
 
+class SegmentedSelect(forms.RadioSelect):
+    template_name = "feedback/widgets/segmented_select.html"
+    option_template_name = "feedback/widgets/segmented_option.html"
+
+    def __init__(self, attrs=None, choices=()):
+        add_classes = "segmented-select sm"
+        if not attrs:
+            attrs = {
+                "class": add_classes,
+            }
+        elif not attrs.get("class"):
+            attrs["class"] = add_classes
+        else:
+            attrs["class"] += " " + add_classes
+        super().__init__(attrs, choices)
 
 class FlagWidget(forms.MultiWidget):
     template_name = "feedback/widgets/flag_multiwidget.html"
 
     def __init__(self, attrs=None):
         widgets = tuple(
-            forms.Select(attrs, fg.choices) for fg in FeedbackQuerySet.FLAG_GROUPS
+            SegmentedSelect(attrs, fg.choices) for fg in FeedbackQuerySet.FLAG_GROUPS
         )
         super().__init__(widgets, attrs)
 
@@ -141,10 +156,19 @@ class FlagFilter(django_filters.MultipleChoiceFilter):
         return qs.filter_flags(*value)
 
 
+class ContainsTextFilter(django_filters.BooleanFilter):
+    field_class = forms.BooleanField
+
+    def filter(self, qs, value):
+        if value:
+            return qs.filter_contains_text_content()
+        return qs
+
+
 class OrderingFilter(django_filters.filters.ChoiceFilter):
     """Simple ordering filter that works with radio select"""
     def __init__(self, *args, **kwargs):
-        kwargs.setdefault('widget', forms.RadioSelect)
+        kwargs.setdefault('widget', forms.Select)
         kwargs.setdefault('empty_label', None)
         super().__init__(*args, **kwargs)
 
@@ -157,6 +181,7 @@ class OrderingFilter(django_filters.filters.ChoiceFilter):
 
 class FeedbackFilterForm(forms.Form):
     """Add 00:00 times to timestamp inputs"""
+    template_name = "manage/filter_form.html"
 
     def __init__(self, *args, initial=None, **kwargs):
         if not initial:
@@ -183,14 +208,20 @@ class FeedbackFilter(django_filters.FilterSet):
     ORDER_BY_CHOICE = (
             ('timestamp', _('Oldest first')),
             ('-timestamp', _('Newest first')),
+            ('exercise', _('Exercise order')),
+            ('-exercise', _('Reverse exercise order')),
     )
-    ORDER_BY_DEFAULT = '-timestamp'
+    ORDER_BY_DEFAULT = 'timestamp'
 
     response_grade = MultipleChoiceFilter(choices=Feedback.GRADE_CHOICES,
                                           extra_filter=lambda q: q.exclude(response_time=None),
                                           widget=forms.CheckboxSelectMultiple())
     flags = FlagFilter(label=_("Flags"))
-    tags = ColortagIEAndOrFilter(queryset=FeedbackTag.objects.none(), label=_("Tags"))
+    tags = ColortagIEAndOrFilter(
+        queryset=FeedbackTag.objects.none(),
+        field_name='conversation__tags',
+        label=_("Tags"),
+    )
     student_tags = ColortagIEAndOrFilter(
         queryset=StudentTag.objects.none(),
         field_name='student__tags', label=_("Student tags"),
@@ -198,10 +229,47 @@ class FeedbackFilter(django_filters.FilterSet):
     exercise = django_filters.ModelChoiceFilter(queryset=Exercise.objects.none())
     student = django_filters.ModelChoiceFilter(queryset=Student.objects.none())
     timestamp = DateTimeFromToRangeFilter(label=_("Timestamp"))
-    path_key = django_filters.CharFilter(lookup_expr='icontains', label=_("Exercise identifier"))
-    form_data = django_filters.CharFilter(method='filter_form_data', label=_("Form content"))
+    path_key = django_filters.CharFilter(
+        lookup_expr='iregex',
+        label=_("Exercise identifier"),
+        help_text=_(
+            "Filter based on the exercise path key (typically of the "
+            "format 'modulekey_chapterkey_exercisekey'). "
+            "The filter uses case-insensitive regular expression match."
+        )
+    )
+    student_text = django_filters.CharFilter(
+        field_name='form_data',
+        method='filter_text',
+        label=_("Student content"),
+        help_text=_(
+            "Filter conversations based on content of the student "
+            "feedback responses. Unfortunately this includes the field "
+            "names as well as non-textual responses. "
+            "The operators 'AND', 'OR' and 'NOT' (case-sensitive) are supported. "
+            "Otherwise the search is case-insensitive."
+        ),
+    )
+    teacher_text = django_filters.CharFilter(
+        field_name='response_msg',
+        method='filter_text',
+        label=_("Teacher content"),
+        help_text=_(
+            "Filter conversations based on text in the teacher responses. "
+            "The operators 'AND', 'OR' and 'NOT' (case-sensitive) are supported. "
+            "Otherwise the search is case-insensitive."
+        ),
+    )
+    contains_text = ContainsTextFilter(
+        label=_("Display only feedback with text content"),
+        help_text=_(
+            "Filter out automatically graded feedback. Display only "
+            "responses that contain text responses as well as feedback "
+            "that a teacher has responded to."
+        )
+    )
 
-    order_by = OrderingFilter(label=_("Order by"),
+    order_by = OrderingFilter(label=_("Sort"),
                               choices=ORDER_BY_CHOICE,
                               initial=ORDER_BY_DEFAULT)
 
@@ -214,7 +282,9 @@ class FeedbackFilter(django_filters.FilterSet):
             'student',
             'timestamp',
             'path_key',
-            'form_data',
+            'contains_text',
+            'student_text',
+            'teacher_text',
             'response_by',
             'response_grade',
             'flags',
@@ -251,5 +321,5 @@ class FeedbackFilter(django_filters.FilterSet):
         return form
 
     @staticmethod
-    def filter_form_data(queryset, name, value): # pylint: disable=unused-argument
-        return queryset.filter_data(value)
+    def filter_text(queryset, name, value):
+        return queryset.filter_text(name, value)

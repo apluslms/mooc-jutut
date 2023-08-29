@@ -1,11 +1,14 @@
 import logging
+from typing import Dict, List, Tuple
 from collections import Counter
 from functools import partial
+from re import fullmatch
 from urllib.parse import urlsplit, urljoin, urlencode
 from django.forms import Form
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, Http404
 from django.utils.text import slugify
 from django.utils.timezone import now as timezone_now
+from django.utils.translation import gettext_lazy as _
 from django.shortcuts import get_object_or_404
 from django.views.generic import FormView, ListView, DetailView, UpdateView, DeleteView, TemplateView, View
 from django.urls import reverse
@@ -18,8 +21,6 @@ from lib.views import ListCreateView
 from lib.helpers import is_ajax
 from aplus_client.django.views import AplusGraderMixin
 
-from django_dictiterators.utils import NestedDictIterator
-
 
 from .models import (
     Site,
@@ -27,12 +28,13 @@ from .models import (
     Exercise,
     Student,
     StudentTag,
+    Conversation,
     Feedback,
     FeedbackForm,
     FeedbackTag,
+    ContextTag,
 )
 from .cached import (
-    FormCache,
     CachedForm,
     CachedSites,
     CachedCourses,
@@ -42,6 +44,7 @@ from .cached import (
 from .forms import (
     ResponseForm,
     FeedbackTagForm,
+    ContextTagForm,
 )
 from .filters import FeedbackFilter
 from .permissions import (
@@ -389,37 +392,34 @@ class ManageUpdateStudenttagsView(ManageCourseMixin, TemplateView):
         return super().get(request, *args, **kwargs)
 
 
-def get_tag_list(tags, feedback, get_tag_url=None):
-    active = feedback.tags.all()
+def get_tag_list(tags, conversation, get_tag_url=None) -> Tuple[FeedbackTag]:
+    active = conversation.tags.all()
     return (
         obj_with_attrs(tag,
                        is_active=(tag in active),
-                       data_attrs=({'url': get_tag_url(feedback, tag)} if get_tag_url else None))
+                       data_attrs=({'url': get_tag_url(conversation, tag)} if get_tag_url else None))
         for tag in tags
     )
 
 
 def get_feedback_dict(feedback, get_form, response_form_class, # pylint: disable=too-many-arguments
                       get_post_url=None, get_status_url=None,
-                      tags=None, get_tag_url=None):
+                      active=True) -> dict:
     form = get_form(feedback)
     data = {
         'form': response_form_class(instance=feedback),
         'feedback': feedback,
-        # TODO: keep tags in some consistent order
-        'feedback_tags': set(feedback.tags.all()),
         'feedback_form': form,
-        'feedback_form_grading': feedback.max_grade > 1 and (form.is_dummy_form or form.is_graded)
+        'feedback_form_grading': feedback.max_grade > 1 and (form.is_dummy_form or form.is_graded),
+        'active': active,
     }
     if get_post_url:
         data['post_url'] = get_post_url(feedback)
     if get_status_url:
         data['status_url'] = get_status_url(feedback)
-    if tags:
-        data['tags'] = get_tag_list(tags, feedback, get_tag_url)
     return data
 
-# pylint: disable-next=too-many-arguments
+# pylint: disable-next=too-many-arguments, too-many-locals
 def update_context_for_feedbacks(request, context, course=None, feedbacks=None, get_form=None, post_url=True):
     # defaults for parameters
     if not course:
@@ -429,6 +429,10 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
     if not get_form:
         get_form = lambda o: o.get_form_obj(dummy=True) # pylint: disable=unnecessary-lambda-assignment
     course_id = course.id
+
+    keep_queries = {}
+    if "contains_text" in request.GET:
+        keep_queries["contains_text"] = request.GET["contains_text"]
 
     # get_post_url
     get_post_url = get_url_reverse_resolver(
@@ -450,7 +454,11 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
         'feedback:list',
         ('course_id',),
         lambda f: (course_id,),
-        query_func=lambda f: {'student': f.student.id, 'exercise': f.exercise.id},
+        query_func=lambda f: {
+            'student': f.student.id,
+            'exercise': f.exercise.id,
+            **keep_queries,
+        },
     )
 
     # all_feedbacks_url
@@ -458,7 +466,7 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
         'feedback:list',
         ('course_id',),
         lambda o: (course_id,),
-        query_func=lambda f: {'student': f.student.id, 'flags': 'n'},
+        query_func=lambda f: {'student': f.student.id, **keep_queries,},
     )
 
     # all_feedbacks_for_exercise_url
@@ -466,48 +474,76 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
         'feedback:list',
         ('course_id',),
         lambda o: (course_id,),
-        query_func=lambda f: {'exercise': f.exercise.id, 'flags': 'n'},
+        query_func=lambda f: {'exercise': f.exercise.id, **keep_queries,},
     )
 
     # get_tag_url
     tags = CachedTags.get(course)
     get_tag_url = get_url_reverse_resolver('feedback:tag',
-                                           ('feedback_id', 'tag_id'),
-                                           lambda f, t: (f.id, t.id))
+                                           ('conversation_id', 'tag_id'),
+                                           lambda c, t: (c.id, t.id))
 
+    course_context_tags = ContextTag.objects.filter(course=course_id)
+    context_tag_groups: Dict[str, Dict[str, ContextTag]] = {} # {question_key: {response_value: ContextTag}}
+    for tag in course_context_tags:
+        tag_group = context_tag_groups.setdefault(tag.question_key, {})
+        tag_group[tag.response_value] = tag
 
-    context['feedbacks'] = NestedDictIterator.from_iterable(
-        feedbacks,
-        (
-            ('student', lambda feedback, iterable: {
-                'feedback': feedback,
-                'student': feedback.student,
-                'all_feedbacks_url': get_all_feedbacks_url(feedback),
-                'feedbacks_per_student': iterable,
-                'student_aplus_url': course.html_url + f'teachers/participants/{feedback.student.api_id}',
-            }),
-            ('exercise', lambda feedback, iterable: {
-                'feedback': feedback,
-                'exercise': feedback.exercise,
-                'num_submissions': Feedback.objects.filter(
-                    exercise=feedback.exercise,
-                    student=feedback.student
-                ).count(),
-                'all_feedbacks_for_exercise_url' : get_all_feedbacks_for_exercise_url(feedback),
-                'all_student_feedbacks_for_exercise_url': get_all_student_feedbacks_for_exercise_url(feedback),
-                'feedbacks_per_exercise': iterable,
-            }),
-        ),
-        partial(
-            get_feedback_dict,
-            get_form=get_form,
-            response_form_class=ResponseForm,
-            get_post_url=get_post_url,
-            get_status_url=get_status_url,
-            tags=tags,
-            get_tag_url=get_tag_url,
-        )
-    )
+    # group feedbacks by conversation
+    convs: Dict[Conversation, List[Feedback]] = {}
+    for f in feedbacks:
+        if f.conversation in convs:
+            convs[f.conversation].append(f)
+        else:
+            convs[f.conversation] = [f]
+
+    def get_conversation_dict(conv: Conversation, fbs: List[Feedback]) -> Dict:
+        conv_feedback = [
+            get_feedback_dict(
+                f,
+                get_form=get_form,
+                response_form_class=ResponseForm,
+                get_post_url=get_post_url,
+                get_status_url=get_status_url,
+                active=(f in fbs)
+            ) for f in conv.feedbacks.all().order_by('timestamp')
+        ]
+        # check whether feedback should have context tags, and if so, render them
+        context_tags = []
+        last_fb_dict = conv_feedback[-1]
+        for key, field in last_fb_dict['feedback_form'].fields.items():
+            if key in context_tag_groups:
+                r_value = str(last_fb_dict['feedback'].form_data[key])
+                for r_k in context_tag_groups[key].keys():
+                    if fullmatch(r_k, r_value):
+                        c_tag = context_tag_groups[key][r_k]
+                        tooltip_text = field.help_text
+                        if hasattr(field, 'choices'):
+                            map_ = dict(field.choices)
+                            display_value = map_[r_value]
+                        else:
+                            display_value = r_value
+                        tooltip_text += " -- " + display_value
+                        context_tags.append(c_tag.render_tag(tooltip_text, r_value))
+
+        conv_dict = {
+            'student': conv.student,
+            'exercise': conv.exercise,
+            'all_feedback_for_student_url': get_all_feedbacks_url(conv),
+            'student_aplus_url': course.html_url + f'teachers/participants/{conv.student.api_id}',
+            'background_url': '', #TODO
+            'all_feedback_for_exercise_url' : get_all_feedbacks_for_exercise_url(conv),
+            'student_feedback_for_exercise_url': get_all_student_feedbacks_for_exercise_url(conv),
+            'context_tags': context_tags,
+            'conversation_tags': set(conv.tags.all()),
+            'feedback_list': conv_feedback,
+        }
+        if tags:
+            conv_dict['tags'] = get_tag_list(tags, conv, get_tag_url)
+        return conv_dict
+
+    context['conversations'] = [get_conversation_dict(c, fbs) for c, fbs in convs.items()]
+
 
 class PaginatedMixin():
     paginate_by = 50
@@ -605,33 +641,6 @@ class UserFeedbackListView(ManageCourseMixin, ListView):
         return context
 
 
-class UserFeedbackView(ManageCourseMixin, TemplateView):
-    model = Feedback
-    template_name = "manage/user_feedback.html"
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-
-        student_id = self.kwargs['user_id']
-        exercise_id = self.kwargs['exercise_id']
-        student = get_object_or_404(Student, pk=student_id)
-        exercise = get_object_or_404(Exercise.objects.with_course(), pk=exercise_id, course=self.course)
-        feedbacks = (
-            obj_with_attrs(obj, student=student, exercise=exercise)
-            for obj in (
-                self.model.objects.all()
-                .filter(student=student, exercise=exercise)
-                .order_by('-timestamp')
-            )
-        )
-        form_cache = FormCache()
-        update_context_for_feedbacks(self.request, context,
-            feedbacks=feedbacks, get_form=form_cache.get)
-        context['student'] = student
-        context['exercise'] = exercise
-        return context
-
-
 class FeedbackMixin(CheckManagementPermissionsMixin):
     model = Feedback
     context_object_name = 'feedback'
@@ -657,8 +666,11 @@ class SingleFeedbackMixin(FeedbackMixin):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         # unpack single feedback out of feedbacks
-        context['feedbacks'] = feedbacks = context['feedbacks'].get_list(flatten_last=True)
-        context.update(feedbacks[-1])
+        conv = context['conversations'][0]
+        for f_dict in conv['feedback_list']:
+            if f_dict['feedback'].id == context['feedback'].id:
+                context.update(f_dict)
+                break
         return context
 
 
@@ -738,6 +750,13 @@ class FeedbackTagMixin(ManageCourseMixin):
     def get_success_url(self):
         return reverse('feedback:tags', kwargs={'course_id': self.course.id})
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['edit_model_text'] = _("Edit feedback tag")
+        context['add_model_text'] = _("Add new feedback tag")
+        context['urlpattern'] = "feedback:tags"
+        return context
+
 
 class FeedbackTagEditView(FeedbackTagMixin, UpdateView):
     template_name = "feedback_tags/tag_edit.html"
@@ -766,28 +785,68 @@ class FeedbackTagView(CheckManagementPermissionsMixin, View):
     permission_classes = [AdminOrTagStaffPermission]
 
     @cached_property
-    def tag_objects(self):
+    def tag_objects(self) -> Tuple[Conversation, FeedbackTag]:
         kwargs = self.kwargs
-        feedback_id = kwargs['feedback_id']
+        conversation_id = kwargs['conversation_id']
         tag_id = kwargs.get('tag_id')
-        feedback = get_object_or_404(Feedback, id=feedback_id)
+        conversation = get_object_or_404(Conversation, id=conversation_id)
         tag = get_object_or_404(FeedbackTag, id=tag_id) if tag_id is not None else None
-        return (feedback, tag)
+        return (conversation, tag)
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data()
-        feedback, _tag = self.tag_objects
-        context['feedback'] = feedback
+        conversation, _tag = self.tag_objects
+        context['conversation'] = conversation
         return context
 
-    def put(self, *args, **kwargs):
-        feedback, tag = self.tag_objects
-        if feedback.exercise.course != tag.course:
+    def put(self, *args, **kwargs) -> HttpResponse:
+        conversation, tag = self.tag_objects
+        if conversation.exercise.course != tag.course:
             return HttpResponseBadRequest("Tag and feedback are not part of same course")
-        feedback.tags.add(tag)
+        conversation.tags.add(tag)
         return HttpResponse("ok")
 
-    def delete(self, *args, **kwargs):
-        feedback, tag = self.tag_objects
-        feedback.tags.remove(tag)
+    def delete(self, *args, **kwargs) -> HttpResponse:
+        conversation, tag = self.tag_objects
+        conversation.tags.remove(tag)
         return HttpResponse("ok")
+
+
+class ContextTagMixin(ManageCourseMixin):
+    model = ContextTag
+    form_class = ContextTagForm
+    pk_url_kwarg = 'tag_id'
+    context_object_name = "tag"
+
+    def get_success_url(self):
+        return reverse('feedback:contexttags', kwargs={'course_id': self.course.id})
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['edit_model_text'] = _("Edit context tag")
+        context['add_model_text'] = _("Add new context tag")
+        context['urlpattern'] = "feedback:contexttags"
+        return context
+
+
+class ContextTagEditView(ContextTagMixin, UpdateView):
+    template_name = "feedback_tags/tag_edit.html"
+
+
+class ContextTagDeleteView(ContextTagMixin, DeleteView):
+    template_name = "feedback_tags/contexttag_confirm_delete.html"
+    # Use an empty form that is always valid, deletion form doesn't need to
+    # require all the fields of the FeedbackTag model
+    form_class = Form
+
+
+class ContextTagListView(ContextTagMixin, ListCreateView):
+    template_name = "feedback_tags/contexttag_list.html"
+    context_object_name = "tags"
+
+    def get_queryset(self):
+        return self.model.objects.filter(course=self.course)
+
+    def get_form_kwargs(self):
+        self.object = self.model(course=self.course)
+        return super().get_form_kwargs()

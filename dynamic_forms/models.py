@@ -85,7 +85,7 @@ class Form(models.Model):
             self.sha1 = freeze_digest(frozen_spec, frozen_i18n)
             if update_fields is not None:
                 update_fields = tuple(set(update_fields) | {"sha1"})
-        return super().save(**kwargs)
+        return super().save(update_fields=update_fields, **kwargs)
 
     def __str__(self):
         return "<Form {}, {} fields, sha1:{}>".format(self.pk, len(self.form_spec), self.sha1)

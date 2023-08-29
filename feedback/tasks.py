@@ -24,6 +24,10 @@ def upload_response(self, feedback_id):
     ok, code, message = update_response_to_aplus(feedback)
     feedback.save(update_fields=[])
 
+    newest = feedback.newest_version
+    if feedback != newest:
+        update_response_to_aplus(newest)
+
     # on error, retry
     if not ok:
         logger.warning("Task upload_response failed with %d: %s", code, message)

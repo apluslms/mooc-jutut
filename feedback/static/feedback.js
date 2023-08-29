@@ -20,45 +20,13 @@ $(function() {
 
 	/* clear status tags from response form */
 	function clear_status_tags(panel) {
-		panel.find(".panel-footer .status-tag").remove();
+		panel.find(".status-tag-container .status-tag").remove();
 	}
 
 	/* add status tag to response form */
 	function add_status_tag(panel, text, color) {
 		var html = '<span class="status-tag label label-' + color + ' pull-right">' + text + '</span>';
-		panel.find(".panel-footer").append(html);
-	}
-
-	/* show all fields toggle buttons for feedback form */
-	function handle_showall_fields(event, active) {
-		var button = $(this);
-		var panel = button.closest('.feedback-panel');
-		panel.find('.data').toggle(active);
-		panel.find('.text th').toggle(active);
-	}
-	function setup_showall_buttons() {
-		var elem = $(this);
-		var click;
-		if (elem.is('button')) {
-			elem.addClass('btn');
-			click = elem;
-		} else {
-			click = elem.closest('div');
-		}
-
-		elem.makeToggleButton({
-			onicon: elem.data('up'),
-			officon: elem.data('down'),
-			nocolor: true,
-			clickHandler: false,
-		});
-		elem.on('state_change', handle_showall_fields);
-
-		click.on('click', function() {
-			$(this).find('.show-all-fields').each(function() {
-				$(this).triggerHandler('toggle_state');
-			});
-		});
+		panel.find(".status-tag-container").append(html);
 	}
 
 	/* update visible and hidden objects in stateful element */
@@ -68,10 +36,10 @@ $(function() {
 		if (new_state != cur_state) {
 			var elems = me.find('[data-onstate]');
 			elems.filter(function() {
-				return cur_state.startsWith(this.dataset.onstate);
+				return this.dataset.onstate.includes(cur_state);
 			}).hide();
 			elems.filter(function() {
-				return new_state.startsWith(this.dataset.onstate);
+				return this.dataset.onstate.includes(new_state);
 			}).show();
 			me.data('state', new_state);
 		}
@@ -80,35 +48,29 @@ $(function() {
 	/* Functions to track form changes and to reset them */
 	function form_changed() {
 		var form = $(this);
-		var stateful = form.closest('.response-panel').find('.stateful');
+		var stateful = form.closest('.response-message').find('.stateful');
 		var changed = false;
 		form.find('textarea').each(function() {
 			changed = this.value != this.defaultValue;
 			return !changed;
 		});
-		stateful.trigger('state_change', [(changed)?'edit-new':'default']);
+		stateful.trigger('state_change', [(changed)?'edit':'default']);
 	}
 	function on_textarea_change(e) {
 		$(this).closest('form').each(form_changed);
 	}
-	function on_reset_button(e) {
-		var me = $(this);
-		$('#' + me.data('form-id')).each(function() {
-			this.reset();
-			form_changed.call(this);
-		});
-	}
 
-	/* Functions to track form edit state and to cacel it */
+
+	/* Functions to track form edit state and to cancel it */
 	function enter_edit_state() {
-		var stateful = $(this).closest('.response-panel').find('.stateful');
-		stateful.trigger('state_change', ['edit-old']);
+		var stateful = $(this).closest('.response-message').find('.stateful');
+		stateful.trigger('state_change', ['edit']);
 	}
 	function on_cancel_button(e) {
 		var me = $(this);
 		$('#' + me.data('textarea-id')).each(function() {
 			var ta = $(this);
-			var stateful = ta.closest('.response-panel').find('.stateful');
+			var stateful = ta.closest('.response-message').find('.stateful');
 			stateful.trigger('state_change', ['default']);
 			ta.trigger('exit_edit');
 			ta.closest('form').each(function() { this.reset(); });
@@ -179,7 +141,7 @@ $(function() {
 		}
 		color = color[0].split('-')[1];
 
-		var elems = $(this).closest('.feedback-response-body').find('.reacts-to-status');
+		var elems = $(this).closest('.feedback-response-pair').find('.reacts-to-status');
 		elems.each(function() {
 			var old_classes = get_bootstrap_classes(this.className);
 			var new_classes = replace_bootstrap_classes(old_classes, color);
@@ -255,7 +217,7 @@ $(function() {
 					// no authentication
 					add_status_tag(panel, "Not authenticated!", "danger");
 					alert("You are not authenticated. Do that in another tab, then open this reponse in another tab and copy input. Then you can refesh this page.");
-					panel.find('.panel-footer').html('<a href="'+url+'">Link to this responses update page. Open in new tab!</a>');
+					panel.find('.response-label-container').html('<a href="'+url+'">Link to this responses update page. Open in new tab!</a>');
 				} else {
 					// axt on other errors: xhr.status
 					add_status_tag(panel, "Server returned " + xhr.status, "danger");
@@ -373,8 +335,6 @@ $(function() {
 		!nohover && dom.find('[data-toggle="tooltip"]').tooltip();
 		dom.find('.replace-with-buttons').each(replace_with_buttons);
 		dom.find('.feedback-status-label').each(update_feedback_status_colors);
-		dom.find('.show-all-fields').each(setup_showall_buttons);
-		dom.find('.show-all-fields').each(function() { $(this).triggerHandler('toggle_state'); });
 		if (!global && dom.prev().is('.panel-heading')) {
 			update_group_status(dom);
 		}
@@ -383,7 +343,6 @@ $(function() {
 		dom.find('form.ajax-form').submit(ajax_submit);
 		dom.find('textarea.track-change').on('change keyup paste', on_textarea_change);
 		dom.find('textarea.textarea').on('enter_edit', enter_edit_state);
-		dom.find('.reset-button[data-form-id]').on('click', on_reset_button);
 		dom.find('.cancel-button').on('click', on_cancel_button);
 		dom.find('.colortag').on('click', ajax_set_tag_state);
 		dom.find('.stateful').on('state_change', on_state_change);
@@ -409,3 +368,33 @@ $(function() {
 	});
 });
 
+
+function toggleShowAll(event) {
+	// Keypresses other then Enter and Space should not trigger a command
+	if (
+		event instanceof KeyboardEvent &&
+		event.key !== "Enter" &&
+		event.key !== " "
+	) return;
+
+	const collapsed = this.classList.toggle("collapsed");
+	this.setAttribute(
+		'aria-expanded',
+		collapsed ? 'false' : 'true'
+	  );
+	let elems = this.parentElement.getElementsByClassName('only-expanded');
+	for (let i = 0; i < elems.length; i++) {
+		elems[i].classList.toggle('in');
+	}
+}
+
+
+window.addEventListener("load", (event) => {
+	/* Set up showall buttons */
+	const showallDivs = document.getElementsByClassName("toggle-showall");
+	for (let i = 0; i < showallDivs.length; i++) {
+		const cur = showallDivs[i];
+		cur.onclick = toggleShowAll;
+		cur.onkeydown = toggleShowAll;
+	}
+});

@@ -12,7 +12,7 @@ function dynamic_forms_textarea() {
 		}
 		textbox.hide();
 		span = $('<span class="textarea"></span>');
-		span.text(base.val());
+		span.text(base.val() || "-"); // if blank response, display "-"
 		if (base.data('spantarget')) {
 			spanbox = $(base.data('spantarget')).first();
 			spanbox.show();

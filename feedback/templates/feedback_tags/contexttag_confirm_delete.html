@@ -1,0 +1,22 @@
+{% extends "manage/base.html" %}
+{% load i18n %}
+{% load contexttag %}
+
+{% block content %}
+	<h1>{% trans "Confirm feedback tag removal" %}</h1>
+
+	<div class="row">
+		<div class="col-xs-12">
+			<form action="" method="post">
+				{% csrf_token %}
+				<p class="alert alert-warning">
+					{% blocktrans trimmed with tag=tag|contexttag course=course %}
+						Are you sure you want to remove the context tag {{tag}} from course {{course}}?
+					{% endblocktrans %}
+				</p>
+				<input class="btn btn-danger" type="submit" value="{% trans 'Confirm' %}" />
+				<a class="btn btn-default" href="{% url 'feedback:contexttags' course_id=course.id %}">{% trans "Cancel" %}</a>
+			</form>
+		</div>
+	</div>
+{% endblock %}
