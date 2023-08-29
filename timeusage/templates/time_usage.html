@@ -9,14 +9,14 @@
 {% endblock %}
 
 {% block content %}
-	<h1>Time usage for {{course}}</h1>
+	<h1>{% blocktranslate trimmed %}Time usage for {{course}}{% endblocktranslate%}</h1>
 
 	{% include "manage/_filter_bar.html" with url_pattern="timeusage:time-usage" time_usage=True %}
 
 	{% autoescape off %}
-		<h2>Chapters</h2>
+		<h2>{% translate "Chapters" %}</h2>
 		<p>{{ c_plot }}<p>
-		<h2>Exercise rounds</h2>
+		<h2>{% translate "Modules" %}</h2>
 		<p>{{ r_plot }}</p>
 	{% endautoescape %}
 

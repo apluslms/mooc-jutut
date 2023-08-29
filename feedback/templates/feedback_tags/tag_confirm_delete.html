@@ -10,9 +10,9 @@
 			<form action="" method="post">
 				{% csrf_token %}
 				<p class="alert alert-warning">
-					{% blocktrans with tag=tag|colortag_button:'static' course=course %}
+					{% blocktrans trimmed with tag=tag|colortag_button:'static' course=course %}
 					Are you sure you want to remove feedback tag {{tag}} from course {{course}}?
-					This tag will be removed from all feedbacks it was associated with.
+					This tag will be removed from all conversations it was associated with.
 					{% endblocktrans %}
 				</p>
 				<input class="btn btn-danger" type="submit" value="{% trans 'Confirm' %}" />

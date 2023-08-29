@@ -38,8 +38,8 @@ msgid "Flags"
 msgstr "Liput"
 
 #: feedback/filters.py
-msgid "Tags"
-msgstr "Tägit"
+msgid "Feedback tags"
+msgstr "Palautetägit"
 
 #: feedback/filters.py
 msgid "Student tags"
@@ -280,7 +280,7 @@ msgstr "Tallenna"
 #: feedback/templates/feedback_tags/tag_confirm_delete.html
 #: feedback/templates/manage/_response_message.html
 msgid "Cancel"
-msgstr "Takaisin"
+msgstr "Peruuta"
 
 #: feedback/templates/feedback_tags/contexttag_confirm_delete.html
 #: feedback/templates/feedback_tags/tag_confirm_delete.html
@@ -293,7 +293,8 @@ msgid ""
 "Are you sure you want to remove the context tag %(tag)s from course "
 "%(course)s?"
 msgstr ""
-"Oletko varma, että haluat poistaa palaute tägin %(tag)s kurssilta %(course)s?"
+"Oletko varma, että haluat poistaa kontekstitägin %(tag)s kurssilta "
+"%(course)s?"
 
 #: feedback/templates/feedback_tags/contexttag_confirm_delete.html
 #: feedback/templates/feedback_tags/tag_confirm_delete.html
@@ -326,19 +327,11 @@ msgstr "poista"
 #: feedback/templates/feedback_tags/tag_confirm_delete.html
 #, python-format
 msgid ""
-"\n"
-"\t\t\t\t\tAre you sure you want to remove feedback tag %(tag)s from course "
-"%(course)s?\n"
-"\t\t\t\t\tThis tag will be removed from all feedbacks it was associated "
-"with.\n"
-"\t\t\t\t\t"
+"Are you sure you want to remove feedback tag %(tag)s from course %(course)s? "
+"This tag will be removed from all conversations it was associated with."
 msgstr ""
-"\n"
-"\t\t\t\t\tOletko varma, että haluat poistaa palaute tägin %(tag)s kurssilta "
-"%(course)s?\n"
-"\t\t\t\t\tTämä tägi poistetaan kaikista palautteista, joihin se oli "
-"tägätty.\n"
-"\t\t\t\t\t"
+"Oletko varma, että haluat poistaa palautetägin %(tag)s kurssilta %(course)s?"
+"Tämä tägi poistetaan kaikista keskusteluista, joihin se oli tägätty."
 
 #: feedback/templates/feedback_tags/tag_list.html
 msgid "List of feedback tags"

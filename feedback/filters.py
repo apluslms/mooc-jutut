@@ -220,7 +220,7 @@ class FeedbackFilter(django_filters.FilterSet):
     tags = ColortagIEAndOrFilter(
         queryset=FeedbackTag.objects.none(),
         field_name='conversation__tags',
-        label=_("Tags"),
+        label=_("Feedback tags"),
     )
     student_tags = ColortagIEAndOrFilter(
         queryset=StudentTag.objects.none(),
