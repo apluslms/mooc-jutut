@@ -9,7 +9,7 @@
 
 {% if next %}
     {% if user.is_authenticated %}
-    <p>{% blocktrans %}
+    <p>{% blocktrans trimmed %}
     Your account doesn't have access to this page. To proceed,
     please login with an account that has access.
     {% endblocktrans %}</p>

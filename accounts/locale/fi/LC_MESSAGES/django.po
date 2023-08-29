@@ -27,12 +27,9 @@ msgstr "Käyttäjätunnus ja salasana eivät täsmää. Ole hyvä ja yritä uude
 
 #: accounts/templates/registration/login.html
 msgid ""
-"\n"
-"    Your account doesn't have access to this page. To proceed,\n"
-"    please login with an account that has access.\n"
-"    "
+"Your account doesn't have access to this page. To proceed, please login with "
+"an account that has access."
 msgstr ""
-"\n"
 "Sinulla ei ole oikeuksia katsella tätä sivua. Jatkaaksesi kirjaudu toisella "
 "käyttäjätunnuksella sisään."
 

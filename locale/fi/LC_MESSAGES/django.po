@@ -34,14 +34,8 @@ msgstr "Edellinen"
 
 #: templates/_pagination.html
 #, python-format
-msgid ""
-"\n"
-"\t\t\t\tPage %(current)s of %(total)s\n"
-"\t\t\t\t"
-msgstr ""
-"\n"
-"\t\t\t\tSivu %(current)s/%(total)s\n"
-"\t\t\t\t"
+msgid "Page %(current)s of %(total)s"
+msgstr "Sivu %(current)s/%(total)s"
 
 #: templates/_pagination.html
 msgid "Next"
@@ -54,3 +48,16 @@ msgstr "palautetta sivulla"
 #: templates/bootstrapform/field.html
 msgid "(*) Required"
 msgstr "(*) Pakollinen"
+
+#: timeusage/templates/time_usage.html
+#, python-format
+msgid "Time usage for %(course)s"
+msgstr "Ajankäyttö kurssilla %(course)s"
+
+#: timeusage/templates/time_usage.html
+msgid "Chapters"
+msgstr "Luvut"
+
+#: timeusage/templates/time_usage.html
+msgid "Modules"
+msgstr "Moduulit"

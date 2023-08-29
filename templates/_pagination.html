@@ -28,7 +28,7 @@
 			</li>
 			<li class="page-item">
 				<span>
-				{% blocktrans with current=page_obj.number total=page_obj.paginator.num_pages %}
+				{% blocktrans trimmed with current=page_obj.number total=page_obj.paginator.num_pages %}
 				Page {{current}} of {{total}}
 				{% endblocktrans %}
 				</span>
