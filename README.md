@@ -14,7 +14,7 @@ Requirements
 
 * Python 3.8+
 * Django 4.2+
-* Postgresql 9.6+
+* Postgresql 12+
 
 More details of packages in installation documentation.
 
