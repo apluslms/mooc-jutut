@@ -7,7 +7,7 @@ import django.db.models.deletion
 def generate_conversations_for_old_feedback(apps, schema_editor):
     Conversation = apps.get_model("feedback", "Conversation")
     Feedback = apps.get_model("feedback", "Feedback")
-    for fb in Feedback.objects.all():
+    for fb in Feedback.objects.only('exercise', 'student', 'conversation'):
         conv, _created = Conversation.objects.get_or_create(
             exercise=fb.exercise,
             student=fb.student,
@@ -19,15 +19,15 @@ def generate_conversations_for_old_feedback(apps, schema_editor):
 def refer_tag_to_conversation(apps, schema_editor):
     FeedbackTag = apps.get_model("feedback", "FeedbackTag")
     for tag in FeedbackTag.objects.all():
-        tag.conversations.add(*[fb.conversation for fb in tag.feedbacks.all()])
+        tag.conversations.set([fb.conversation for fb in tag.feedbacks.only('conversation')])
         tag.feedbacks.clear()
 
 
-# Set feedback to newest feedback; not entirely accurate, but enables reversing migration
+# Set tag to refer to newest feedback of conversation; not entirely accurate, but enables reversing migration
 def refer_tag_to_feedback(apps, schema_editor):
     FeedbackTag = apps.get_model("feedback", "FeedbackTag")
     for tag in FeedbackTag.objects.all():
-        tag.feedbacks.add(*[fb.feedbacks.get(superseded_by=None) for fb in tag.conversations.all()])
+        tag.feedbacks.set([conv.feedbacks.get(superseded_by=None) for conv in tag.conversations.only('feedbacks')])
         tag.conversations.clear()
 
 
