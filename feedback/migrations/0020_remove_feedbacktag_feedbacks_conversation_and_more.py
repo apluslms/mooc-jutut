@@ -7,18 +7,22 @@ import django.db.models.deletion
 def generate_conversations_for_old_feedback(apps, schema_editor):
     Conversation = apps.get_model("feedback", "Conversation")
     Feedback = apps.get_model("feedback", "Feedback")
-    for fb in Feedback.objects.only('exercise', 'student', 'conversation'):
-        conv, _created = Conversation.objects.get_or_create(
-            exercise=fb.exercise,
-            student=fb.student,
-        )
+    fbs = list(Feedback.objects.only("exercise", "student", "conversation"))
+    new_convs = {}
+    for fb in fbs:
+        conv = new_convs.get((fb.exercise.pk, fb.student.pk))
+        if conv is None:
+            conv = Conversation(exercise=fb.exercise, student=fb.student)
+            new_convs[(fb.exercise.pk, fb.student.pk)] = conv
         fb.conversation = conv
-        fb.save()
+
+    Conversation.objects.bulk_create(new_convs.values(), batch_size=10000)
+    Feedback.objects.bulk_update(fbs, ["conversation"], batch_size=10000)
 
 
 def refer_tag_to_conversation(apps, schema_editor):
     FeedbackTag = apps.get_model("feedback", "FeedbackTag")
-    for tag in FeedbackTag.objects.all():
+    for tag in FeedbackTag.objects.iterator():
         tag.conversations.set([fb.conversation for fb in tag.feedbacks.only('conversation')])
         tag.feedbacks.clear()
 
@@ -26,7 +30,7 @@ def refer_tag_to_conversation(apps, schema_editor):
 # Set tag to refer to newest feedback of conversation; not entirely accurate, but enables reversing migration
 def refer_tag_to_feedback(apps, schema_editor):
     FeedbackTag = apps.get_model("feedback", "FeedbackTag")
-    for tag in FeedbackTag.objects.all():
+    for tag in FeedbackTag.objects.iterator():
         tag.feedbacks.set([conv.feedbacks.get(superseded_by=None) for conv in tag.conversations.only('feedbacks')])
         tag.conversations.clear()
 
