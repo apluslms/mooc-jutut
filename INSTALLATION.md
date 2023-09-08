@@ -95,7 +95,8 @@ Celery logs with `journalctl -t mooc-jutut-celery`.
   ```
 
 * Install requirements.txt
-* Install gunicorn
+* Install gunicorn (`pip install gunicorn`)
+* Install pytz (`pip install pytz`) (required by the Celerybeat service)
 * Configure local_settings.py
 * Django migrate
 * Django compilemessages
