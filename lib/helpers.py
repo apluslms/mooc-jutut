@@ -1,5 +1,4 @@
 from django.conf import settings
-from django.utils.translation import get_language
 
 
 def show_debug_toolbar(request):
@@ -14,24 +13,23 @@ def is_ajax(request):
     return request.headers.get('x-requested-with') == 'XMLHttpRequest'
 
 
-def str_in_selected_language(string):
-    """If a string includes alternate translations wrapped with |-characters,
-    return a version of the string with only the text in the language the page
-    is in.
-    If the language alternatives don't include the selected language, return
-    the first alternative.
+def pick_localized(entry, lang):
     """
-    if string.count('|') < 2:
-        # string doesn't include alternate translations
-        return string
-    parts = string.split('|')
-    lang_alts = dict(map(
-        lambda s: s.split(':'), # language key, text
-        parts[1:-1] # only use parts between the | chars
-    ))
-    cur_lang = get_language()
-    if cur_lang in lang_alts:
-        content = lang_alts[cur_lang]
-    else: # default to first value
-        content = list(lang_alts.values())[0]
-    return parts[0] + content + parts[-1]
+    Picks the selected language's value from
+    |lang:value|lang:value| -format text.
+    """
+    # Note: This method is a direct copy from the a-plus repo.
+    # In future we may want to consider a "a-plus-common" submodule for common utility functions
+    text = entry if isinstance(entry, str) else str(entry)
+    variants = text.split('|')
+    if len(variants) > 2:
+        prefix = variants[0]
+        suffix = variants[-1]
+        variants = variants[1:-1]
+        for variant in variants:
+            if variant.startswith(lang + ":"):
+                return prefix + variant[(len(lang)+1):] + suffix
+        for variant in variants:
+            if ':' in variant:
+                return prefix + variant.split(':', 1)[1] + suffix
+    return text
