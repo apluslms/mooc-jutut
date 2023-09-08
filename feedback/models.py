@@ -14,7 +14,7 @@ from django_colortag.models import ColorTag
 from django_colortag.utils import use_white_font
 from r_django_essentials.fields import Enum
 
-from lib.helpers import str_in_selected_language
+from lib.helpers import pick_localized
 
 from aplus_client.django.models import ( # pylint: disable=unused-import
     ApiNamespace as Site, # mooc-jutut refers api namespaces as sites
@@ -171,7 +171,7 @@ class Exercise(NestedApiObject):
         return Feedback.objects.get_notresponded(exercise_id=self.id)
 
     def __str__(self):
-        return str_in_selected_language(self.display_name)
+        return pick_localized(self.display_name, get_language())
 
     def get_module_and_chapter_numbers_or_keys(self):
         m = self.IS_HIERARCHICAL_NAME.match(self.display_name)
@@ -191,7 +191,7 @@ class Exercise(NestedApiObject):
     @property
     def context_name(self):
         s = self.parent_name if self.parent_name else self.display_name
-        return str_in_selected_language(s)
+        return pick_localized(s, get_language())
 
 
 class FeedbackQuerySet(models.QuerySet):
