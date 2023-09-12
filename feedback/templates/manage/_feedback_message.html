@@ -59,9 +59,7 @@
 		role="button" aria-expanded="false" tabindex=0
 		title="{% trans 'Show all feedback fields' %}"
 	>
-		<span class="timestamp">
-			{{ feedback.timestamp|date:"d/m" }} {{ feedback.timestamp|time:"H:i" }}
-		</span>
+		<span class="timestamp">{{ feedback.timestamp|naturaltime }}</span>
 	<!-- change collapse-functionality so that only the classes within the clicked message are toggled -->
 		<div class="feedback-msg-bottom only-expanded collapse">
 			<div class="btn-group btn-group-xs" role="group">
@@ -77,7 +75,7 @@
 					A+
 				</a>
 			</div>
-			<span>{{ feedback.timestamp|naturaltime }}</span>
+			<span>{{ feedback.timestamp|date:"d.m." }} {{ feedback.timestamp|time:"H:i" }}</span>
 		</div>
 	</div> <!--.panel-footer-->
 </div>

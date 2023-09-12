@@ -134,7 +134,7 @@
 			data-trigger="hover click"
 			data-placement="bottom"
 			title="{{ form.instance.response_by.email }}"
-			> {% with time=form.instance.response_time %}{{ time|date:"d/m" }} {{ time|time:"H:i" }}{% endwith %}
+			> {{ form.instance.response_time|naturaltime }}
 		</span>
 	{% endif %}
 	<div class="response-msg-bottom">
