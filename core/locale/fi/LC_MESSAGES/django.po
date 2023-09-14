@@ -49,8 +49,8 @@ msgid ""
 "[course_tag]/[exercise_name]</code> and Jutut will do the rest.\n"
 msgstr ""
 "\n"
-"Osoita lomakekuvauksen sisältävät A+ tehtävät osoitteeseen <code>"
-"%(site)sfeedback/[course_tag]/[exercise_name]</code> ja Jutut hoitaa "
+"Osoita lomakekuvauksen sisältävät A+ tehtävät osoitteeseen "
+"<code>%(site)sfeedback/[course_tag]/[exercise_name]</code> ja Jutut hoitaa "
 "puolestasi loput.\n"
 
 #: core/templates_j2/core/frontpage.html
