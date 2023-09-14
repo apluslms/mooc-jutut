@@ -316,7 +316,8 @@ body {
 	flex-wrap: wrap;
 }
 .feedback-response-panel > .panel-body > .conversation-panel {
-	flex: 400px;
+	flex: 35%;
+	max-width: 75%;
 	padding: 0.5em;
 }
 .feedback-response-panel > .panel-body > .conversation-tag-panel {
@@ -376,9 +377,10 @@ body {
 	background-color: #f7f7f7;
 	min-height: 1.5em;
 	position: relative; /* for positioning timestamp */
+	padding-bottom: 0.4em;
 }
 .response-message-container {
-	width: 100%;
+	width: auto;
 	display: flex;
 	justify-content: space-between;
 	align-items: flex-start;
@@ -473,7 +475,10 @@ body.ios .feedback-message tr .glyphicon {
 	padding: 5px 5px 0;
 }
 .response-message textarea {
-	resize: vertical;
+	max-width: 100%;
+	min-width: 100%;
+	min-height: 50px;
+	resize: both;
 }
 .response-message .respond-btn-container {
 	float: right;
