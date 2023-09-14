@@ -3,11 +3,16 @@
 
 
 {% blocktranslate trimmed count count=paginator.count asvar total_messages %}
-	{{ count }} message found.
+	{{ count }} student message found
 {% plural %}
-	{{ count }} messages found.
+	{{ count }} student messages found
 {% endblocktranslate %}
 
+{% blocktranslate trimmed count count=conversations|length asvar total_conversations %}
+	in {{ count }} conversation.
+{% plural %}
+	in {{ count }} conversations.
+{% endblocktranslate %}
 
 {% if is_paginated %}
 	<nav aria-label="page navigation">
@@ -50,6 +55,7 @@
 			<li>
 				<span style="border-top-style: none; border-right-style: none; border-bottom-style: none; color: unset;">
 					{{ total_messages }}
+					{{ total_conversations }}
 				</span>
 			</li>
 			<li>
@@ -69,5 +75,8 @@
 		</ul>
 	</nav>
 {% else %}
-	<p>{{ total_messages }}</p>
+	<p>
+		{{ total_messages }}
+		{{ total_conversations }}
+	</p>
 {% endif %}
