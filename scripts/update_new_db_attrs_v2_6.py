@@ -9,20 +9,24 @@ import sys
 import time
 from os.path import abspath, dirname
 
+from django.db.models import Q
+
 
 def update_exercise_attrs(api_token):
-    from aplus_client.client import AplusTokenClient
-    from feedback.models import Exercise
+    from aplus_client.client import AplusTokenClient # pylint: disable=import-outside-toplevel
+    from feedback.models import Exercise # pylint: disable=import-outside-toplevel
 
     client = AplusTokenClient(api_token, version=2)
 
-    all_exercises = Exercise.objects.filter(parent_name='')
+    all_exercises = Exercise.objects.filter(Q(parent_name='') | Q(consecutive_order=0))
     for exercise in all_exercises:
         try:
             exercise_json = client.load_data(f"{exercise.url}?format=json")
-            if exercise_json.parent_name:
+            if exercise_json.parent_name and exercise.parent_name == '':
                 exercise.parent_name = exercise_json.parent_name
-                exercise.save()
+            if exercise_json.consecutive_order and exercise.consecutive_order == 0:
+                exercise.consecutive_order = exercise_json.consecutive_order
+            exercise.save()
         except Exception as exc:
             print(f"ERROR in downloading exercise data: api_id={exercise.api_id} | {exercise.url}")
             print(exc)
