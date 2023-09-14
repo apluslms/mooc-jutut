@@ -1,9 +1,10 @@
 import logging
+import re
 from typing import Dict, List, Tuple
 from collections import Counter
 from functools import partial
-from re import fullmatch
 from urllib.parse import urlsplit, urljoin, urlencode
+
 from django.forms import Form
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, Http404
 from django.utils.text import slugify
@@ -20,7 +21,6 @@ from lib.mixins import CSRFExemptMixin, ConditionalMixin
 from lib.views import ListCreateView
 from lib.helpers import is_ajax
 from aplus_client.django.views import AplusGraderMixin
-
 
 from .models import (
     Site,
@@ -419,8 +419,8 @@ def get_feedback_dict(feedback, get_form, response_form_class, # pylint: disable
         data['status_url'] = get_status_url(feedback)
     return data
 
-# pylint: disable-next=too-many-arguments, too-many-locals
-def update_context_for_feedbacks(request, context, course=None, feedbacks=None, get_form=None, post_url=True):
+
+def update_context_for_feedbacks(request, context, course=None, feedbacks=None, get_form=None, post_url=True): # noqa
     # defaults for parameters
     if not course:
         course = context['course']
@@ -506,20 +506,23 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
         # check whether feedback should have context tags, and if so, render them
         context_tags = []
         last_fb_dict = conv_feedback[-1]
-        for key, field in last_fb_dict['feedback_form'].fields.items():
+        for key, field in last_fb_dict['feedback_form'].fields.items(): # pylint: disable=too-many-nested-blocks
             if key in context_tag_groups:
                 r_value = str(last_fb_dict['feedback'].form_data[key])
                 for r_k in context_tag_groups[key].keys():
-                    if fullmatch(r_k, r_value):
-                        c_tag = context_tag_groups[key][r_k]
-                        tooltip_text = field.help_text
-                        if hasattr(field, 'choices'):
-                            map_ = dict(field.choices)
-                            display_value = map_[r_value]
-                        else:
-                            display_value = r_value
-                        tooltip_text += " -- " + display_value
-                        context_tags.append(c_tag.render_tag(tooltip_text, r_value))
+                    try:
+                        if re.fullmatch(r_k, r_value):
+                            c_tag = context_tag_groups[key][r_k]
+                            tooltip_text = field.help_text
+                            if hasattr(field, 'choices'):
+                                map_ = dict(field.choices)
+                                display_value = map_[r_value]
+                            else:
+                                display_value = r_value
+                            tooltip_text += " -- " + display_value
+                            context_tags.append(c_tag.render_tag(tooltip_text, r_value))
+                    except re.error:
+                        pass
 
         conv_dict = {
             'student': conv.student,
