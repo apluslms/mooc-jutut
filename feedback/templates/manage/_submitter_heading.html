@@ -24,7 +24,7 @@
 			data-trigger="hover"
 			data-placement="top"
 			title="{% trans 'Show all feedback for this student' %}"
-			href="{{ conv.all_feedback_for_student_url }}">
+			href="{{ conv.all_feedback_for_student_url }}&contains_text=on">
 			<span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
 		</a>
 		{% for tag in user|studenttags_for_course:course %}

@@ -211,7 +211,7 @@ class FeedbackFilter(django_filters.FilterSet):
             ('exercise', _('Exercise order')),
             ('-exercise', _('Reverse exercise order')),
     )
-    ORDER_BY_DEFAULT = 'timestamp'
+    ORDER_BY_DEFAULT = '-timestamp'
 
     response_grade = MultipleChoiceFilter(choices=Feedback.GRADE_CHOICES,
                                           extra_filter=lambda q: q.exclude(response_time=None),

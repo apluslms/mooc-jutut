@@ -345,7 +345,7 @@ class FeedbackQuerySet(models.QuerySet):
                 qs = qs.filter(path_key__startswith=path_filter)
         else:
             raise ValueError("exercise_id or course_id is required")
-        return qs.order_by('timestamp')
+        return qs.order_by('-timestamp')
 
 
 ResponseUploaded = namedtuple('ResponseUploaded',
