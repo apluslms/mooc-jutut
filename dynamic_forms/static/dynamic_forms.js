@@ -6,13 +6,14 @@ function dynamic_forms_textarea() {
   var span = base, spanbox = base, textbox = base;
   var editable = base.is('textarea');
   var openurl = base.data('openurl') || false;
+  const blankResponse = "-"; // if blank response, display "-"
   if (editable) {
     if (base.data('texttarget')) {
       textbox = $(base.data('texttarget')).first();
     }
     textbox.hide();
     span = $('<span class="textarea"></span>');
-    span.text(base.val() || "-"); // if blank response, display "-"
+    span.text(base.val() || blankResponse);
     if (base.data('spantarget')) {
       spanbox = $(base.data('spantarget')).first();
       spanbox.show();
@@ -72,28 +73,30 @@ function dynamic_forms_textarea() {
   }
 
   // copy
-  addButton('copy', 'Copy', function() {
-    var temp = $("<textarea></textarea>");
-    $("body").append(temp);
-    temp.val(span.text()).select();
-    var ok;
-    try { ok = document.execCommand("copy"); }
-    catch(e) { ok = false; }
-    temp.remove();
+  if (span.text() !== blankResponse) {
+    addButton('copy', 'Copy', function() {
+      var temp = $("<textarea></textarea>");
+      $("body").append(temp);
+      temp.val(span.text()).select();
+      var ok;
+      try { ok = document.execCommand("copy"); }
+      catch(e) { ok = false; }
+      temp.remove();
 
-    if (ok) {
-      console.log("animate!");
-      span.stop(true, true);
-      var bg = span.css('backgroundColor');
-      span.css('backgroundColor', '#1b9c19')
-        .animate({'backgroundColor': bg}, 900, function() {
-          span.css('backgroundColor', '');
-          console.log('ok');
-        });
-    } else {
-      $(this).removeClass('btn-primary').addClass('btn-danger').prop('disabled', true);
-    }
-  });
+      if (ok) {
+        console.log("animate!");
+        span.stop(true, true);
+        var bg = span.css('backgroundColor');
+        span.css('backgroundColor', '#1b9c19')
+          .animate({'backgroundColor': bg}, 900, function() {
+            span.css('backgroundColor', '');
+            console.log('ok');
+          });
+      } else {
+        $(this).removeClass('btn-primary').addClass('btn-danger').prop('disabled', true);
+      }
+    });
+  }
 
   // mono
   addButton('font', 'Mono', function() {
