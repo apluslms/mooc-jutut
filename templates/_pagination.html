@@ -1,18 +1,19 @@
 {% load i18n %}
 {% load urltools %}
 
+{% if paginator %}
+	{% blocktranslate trimmed count count=paginator.count asvar total_messages %}
+		{{ count }} student message found
+	{% plural %}
+		{{ count }} student messages found
+	{% endblocktranslate %}
 
-{% blocktranslate trimmed count count=paginator.count asvar total_messages %}
-	{{ count }} student message found
-{% plural %}
-	{{ count }} student messages found
-{% endblocktranslate %}
-
-{% blocktranslate trimmed count count=conversations|length asvar total_conversations %}
-	in {{ count }} conversation.
-{% plural %}
-	in {{ count }} conversations.
-{% endblocktranslate %}
+	{% blocktranslate trimmed count count=conversations|length asvar total_conversations %}
+		in {{ count }} conversation.
+	{% plural %}
+		in {{ count }} conversations.
+	{% endblocktranslate %}
+{% endif %}
 
 {% if is_paginated %}
 	<nav aria-label="page navigation">
