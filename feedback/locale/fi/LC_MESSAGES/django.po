@@ -614,10 +614,6 @@ msgid "This feedback has unsaved changes!"
 msgstr "Palautteessa on tallentamattomia muutoksia!"
 
 #: feedback/templates_j2/feedback/_form.html
-msgid "Submit an update"
-msgstr "Lähetä uudestaan"
-
-#: feedback/templates_j2/feedback/_form.html
 msgid "Submit"
 msgstr "Lähetä"
 
