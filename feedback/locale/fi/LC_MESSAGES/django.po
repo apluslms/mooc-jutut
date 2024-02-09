@@ -417,6 +417,18 @@ msgid "Unable to fetch student's response."
 msgstr "Opiskelijan vastauksen hakeminen ei onnistunut."
 
 #: feedback/templates/manage/_conversations_as_list.html
+msgid ""
+"Turns inactive feedback tags invisible. The feedback tag buttons reappear "
+"when hovering over the tag panel."
+msgstr ""
+"Muuttaa epäaktiiviset palautetägit näkymättömiksi. Palautetägipainikkeet "
+"näkyvät, kun hiiri on tägikentän päällä."
+
+#: feedback/templates/manage/_conversations_as_list.html
+msgid "Zen mode"
+msgstr "Zen-tila"
+
+#: feedback/templates/manage/_conversations_as_list.html
 msgid "No feedback shown as there are errors in the filter form"
 msgstr "Palautteita ei näytetä, sillä lomakkeessa on virhe"
 
