@@ -338,6 +338,11 @@ body {
 		justify-content: flex-start;
 	}
 }
+.feedback-response-panel > .panel-body > .conversation-tag-panel > .colortag:not(:hover):not(.colortag-active) {
+	background-color: white !important;
+	color: white;
+	border: gray 1px solid;
+}
 
 /* Feedback exercise/chapter heading */
 .conversation-panel > .panel-heading {
