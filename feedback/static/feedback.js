@@ -545,6 +545,15 @@ function toggleShowAll(event) {
 
 
 window.addEventListener("load", (event) => {
+
+  /* Set up zen mode checkbox (persist state on reload) */
+  if (localStorage.getItem('zenMode') == "true") {
+    document.getElementById("zen-mode-cb").checked = true;
+  }
+  document.getElementById("zen-mode-cb").addEventListener('change', (e) => {
+    localStorage.setItem('zenMode', e.target.checked);
+  });
+
   /* Set up showall buttons */
   const showallDivs = document.getElementsByClassName("toggle-showall");
   for (let i = 0; i < showallDivs.length; i++) {

@@ -7,6 +7,16 @@ body {
 	margin-right: 0.4em;
 }
 
+#pagination-and-zen {
+	display: flex;
+	justify-content: space-between;
+	align-items: flex-end;
+}
+#zen-mode {
+	display: none;
+	flex-shrink: 0;
+	margin-bottom: 10px;
+}
 
 /* Filter panel */
 
@@ -341,6 +351,17 @@ input[type="checkbox"].combosearch + label {
 	}
 	.feedback-response-panel > .panel-body > .conversation-tag-panel {
 		justify-content: flex-start;
+	}
+}
+
+@media (hover: hover) {
+	#zen-mode {
+		display: block;
+	}
+	body:has( #zen-mode-cb:checked) .conversation-tag-panel:not(:hover):not(:has( *:focus-visible)) > .colortag:not(.colortag-active) {
+		background-color: white;
+		color: white;
+		border: var(--colortag-inactive-color) 1px solid;
 	}
 }
 

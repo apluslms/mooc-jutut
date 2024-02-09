@@ -8,7 +8,19 @@
 {% endcomment %}
 
 {% include "_errors_box.html" %}
-{% include "_pagination.html" %}
+<div id="pagination-and-zen">
+	{% include "_pagination.html" %}
+
+	<div id="zen-mode"
+		data-toggle="tooltip"
+		title="{% translate 'Turns inactive feedback tags invisible. The feedback tag buttons reappear when hovering over the tag panel.' %}"
+	>
+		<input type="checkbox" id="zen-mode-cb" name="zen-mode-cb">
+		<label for="zen-mode-cb">
+			{% translate 'Zen mode' %}
+		</label>
+	</div>
+</div>
 
 {% for conv in conversations %}
 	<div class="panel panel-default feedback-response-panel">
