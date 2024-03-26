@@ -6,6 +6,8 @@ from django import forms
 from django.utils.translation import gettext_lazy as _
 
 from django_colortag.filters import ColortagIEAndOrFilter
+from django_colortag.widgets import ColortagIEMultiWidget, ColortagIEAndOrWidget, AndOrWidget
+from django_colortag.fields import ColortagIEAndOrField
 
 from .models import (
     Student,
@@ -204,6 +206,31 @@ class FeedbackFilterForm(forms.Form):
         return sum(1 for k, v in self.cleaned_data.items() if k != 'order_by' and not is_empty_value(v))
 
 
+class UniqueColortagIEMultiWidget(ColortagIEMultiWidget):
+    """Construct unique widget names using tag slugs as suffixes"""
+    def set_subwidgets(self, choices):
+        super().set_subwidgets(choices)
+        self.widgets_names = ['_%s' % choices[i].slug for i in range(len(self.widgets))]
+
+
+class UniqueColortagIEAndOrWidget(ColortagIEAndOrWidget):
+    def __init__(self, attrs=None, choices=None):
+        super().__init__(attrs, choices)
+        widgets = (
+            AndOrWidget(label="Feedbacks must have all selected tags"),
+            UniqueColortagIEMultiWidget(attrs, choices)
+        )
+        forms.MultiWidget.__init__(self, widgets, attrs)
+
+
+class UniqueColortagIEAndOrField(ColortagIEAndOrField):
+    widget = UniqueColortagIEAndOrWidget
+
+
+class UniqueColortagIEAndOrFilter(ColortagIEAndOrFilter):
+    field_class = UniqueColortagIEAndOrField
+
+
 class FeedbackFilter(django_filters.FilterSet):
     ORDER_BY_CHOICE = (
             ('timestamp', _('Oldest first')),
@@ -217,12 +244,12 @@ class FeedbackFilter(django_filters.FilterSet):
                                           extra_filter=lambda q: q.exclude(response_time=None),
                                           widget=forms.CheckboxSelectMultiple())
     flags = FlagFilter(label=_("Flags"))
-    tags = ColortagIEAndOrFilter(
+    tags = UniqueColortagIEAndOrFilter(
         queryset=FeedbackTag.objects.none(),
         field_name='conversation__tags',
         label=_("Feedback tags"),
     )
-    student_tags = ColortagIEAndOrFilter(
+    student_tags = UniqueColortagIEAndOrFilter(
         queryset=StudentTag.objects.none(),
         field_name='student__tags', label=_("Student tags"),
     )
