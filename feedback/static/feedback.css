@@ -333,6 +333,8 @@ body {
 	.feedback-response-panel > .panel-body > .conversation-panel,
 	.feedback-response-panel > .panel-body > .conversation-tag-panel {
 		width: 100%;
+		max-width: 100%;
+		flex: none;
 	}
 	.feedback-response-panel > .panel-body > .conversation-tag-panel {
 		justify-content: flex-start;
