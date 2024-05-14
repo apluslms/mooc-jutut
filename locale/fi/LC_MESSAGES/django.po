@@ -23,17 +23,17 @@ msgstr "Tämä kenttä on pakollinen."
 
 #: templates/_pagination.html
 #, python-format
-msgid "%(count)s student message found"
-msgid_plural "%(count)s student messages found"
-msgstr[0] "%(count)s opiskelijan palaute löytyi"
-msgstr[1] "%(count)s opiskelijoiden palautetta löytyi"
+msgid "%(count)s conversation found with"
+msgid_plural "%(count)s conversations found with"
+msgstr[0] "%(count)s keskustelu löytyi, jossa on"
+msgstr[1] "%(count)s keskustelua löytyi, joissa on"
 
 #: templates/_pagination.html
 #, python-format
-msgid "in %(count)s conversation."
-msgid_plural "in %(count)s conversations."
-msgstr[0] "%(count)s keskustelusta."
-msgstr[1] "%(count)s keskustelusta."
+msgid "%(count)s matching student message."
+msgid_plural "%(count)s matching student messages."
+msgstr[0] "%(count)s hakuehdot täyttävä opiskelijan viesti."
+msgstr[1] "%(count)s hakuehdot täyttävää opiskelijan viestiä."
 
 #: templates/_pagination.html
 msgid "Previous"

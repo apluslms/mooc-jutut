@@ -2,16 +2,16 @@
 {% load urltools %}
 
 {% if paginator %}
-	{% blocktranslate trimmed count count=paginator.count asvar total_messages %}
-		{{ count }} student message found
+	{% blocktranslate trimmed count count=total_conversation_count asvar total_conversations %}
+		{{ count }} conversation found with
 	{% plural %}
-		{{ count }} student messages found
+		{{ count }} conversations found with
 	{% endblocktranslate %}
 
-	{% blocktranslate trimmed count count=conversations|length asvar total_conversations %}
-		in {{ count }} conversation.
+	{% blocktranslate trimmed count count=paginator.count asvar total_messages %}
+		{{ count }} matching student message.
 	{% plural %}
-		in {{ count }} conversations.
+		{{ count }} matching student messages.
 	{% endblocktranslate %}
 {% endif %}
 
@@ -55,8 +55,8 @@
 			</li>
 			<li>
 				<span style="border-top-style: none; border-right-style: none; border-bottom-style: none; color: unset;">
-					{{ total_messages }}
 					{{ total_conversations }}
+					{{ total_messages }}
 				</span>
 			</li>
 			<li>
@@ -77,7 +77,7 @@
 	</nav>
 {% else %}
 	<p>
-		{{ total_messages }}
 		{{ total_conversations }}
+		{{ total_messages }}
 	</p>
 {% endif %}
