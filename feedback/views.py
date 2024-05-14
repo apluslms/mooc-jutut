@@ -541,6 +541,7 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
         return conv_dict
 
     context['conversations'] = [get_conversation_dict(c, fbs) for c, fbs in convs.items()]
+    context['total_conversation_count'] = len(context['conversations'])
 
 
 class PaginatedMixin():
