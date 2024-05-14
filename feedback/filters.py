@@ -179,6 +179,15 @@ class OrderingFilter(django_filters.filters.ChoiceFilter):
         return qs.order_by(value)
 
 
+class PaginateByFilter(django_filters.filters.Filter):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs, widget=forms.HiddenInput)
+
+    def filter(self, queryset, value):
+        # This filter doesn't modify the queryset (no filtering)
+        return queryset
+
+
 class FeedbackFilterForm(forms.Form):
     """Add 00:00 times to timestamp inputs"""
     template_name = "manage/filter_form.html"
@@ -272,7 +281,7 @@ class FeedbackFilter(django_filters.FilterSet):
     order_by = OrderingFilter(label=_("Sort"),
                               choices=ORDER_BY_CHOICE,
                               initial=ORDER_BY_DEFAULT)
-
+    paginate_by = PaginateByFilter()
 
     class Meta:
         model = Feedback
@@ -319,6 +328,7 @@ class FeedbackFilter(django_filters.FilterSet):
         form.fields['tags'].set_queryset(feedbacktags)
         studenttags = StudentTag.objects.filter(course=course).all()
         form.fields['student_tags'].set_queryset(studenttags)
+        form.fields['paginate_by'].initial = self.data.get('paginate_by', None)
         return form
 
     @staticmethod

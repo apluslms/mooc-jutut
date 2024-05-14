@@ -46,6 +46,7 @@
 		<div id="order-filter-pane">
 			{% include "manage/_filter_field.html" with field=form.order_by %}
 		</div>
+		{% include "manage/_filter_field.html" with field=form.paginate_by hide_label=True %}
 		{% else %}
 		<div></div>
 		{% endif %}
