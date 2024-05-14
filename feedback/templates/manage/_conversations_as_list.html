@@ -27,7 +27,7 @@
 			</div><!-- /.conversation-panel -->
 			<div class="conversation-tag-panel">
 				{% for tag in conv.tags %}
-					{{ tag|colortag_button }}
+					{{ tag|colortag_button:"element=button" }}
 				{% endfor %}
 			</div> <!-- /.conversation-tag-panel -->
 		</div> <!-- /.panel-body -->

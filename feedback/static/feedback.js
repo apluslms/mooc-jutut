@@ -344,7 +344,7 @@ $(function() {
     dom.find('textarea.track-change').on('change keyup paste', on_textarea_change);
     dom.find('textarea.textarea').on('enter_edit', enter_edit_state);
     dom.find('.cancel-button').on('click', on_cancel_button);
-    dom.find('.colortag').on('click', ajax_set_tag_state);
+    dom.find('button.colortag').on('click', ajax_set_tag_state);
     dom.find('.stateful').on('state_change', on_state_change);
 
     // timeouts
