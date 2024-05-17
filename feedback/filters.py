@@ -183,9 +183,9 @@ class PaginateByFilter(django_filters.filters.Filter):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs, widget=forms.HiddenInput)
 
-    def filter(self, queryset, value):
+    def filter(self, qs, value):
         # This filter doesn't modify the queryset (no filtering)
-        return queryset
+        return qs
 
 
 class FeedbackFilterForm(forms.Form):
