@@ -225,6 +225,11 @@ msgstr "Arvosana"
 msgid "Response notify"
 msgstr "Ilmoitus vastauksesta"
 
+#: feedback/models.py
+#| msgid "Response time"
+msgid "Response seen"
+msgstr "Vastaus nähty"
+
 #: feedback/models.py feedback/templates/feedback_tags/contexttag_list.html
 msgid "Question key"
 msgstr "Kysymyksen avain"
@@ -405,6 +410,10 @@ msgstr "Päivitä"
 #: feedback/templates/manage/_response_message.html
 msgid "Respond"
 msgstr "Vastaa"
+
+#: feedback/templates/manage/_response_message.html
+msgid "The student has seen this response."
+msgstr "Opiskelija on nähnyt tämän vastauksen."
 
 #: feedback/templates/manage/_response_message.html
 msgid "Conflict"

@@ -89,3 +89,7 @@ class GraderInterface2:
     @none_on_error(KeyError)
     def html_url(self):
         return self.data.submission.get_item('html_url')
+
+    @property
+    def feedback_response_seen(self):
+        return self.data.feedback_response_seen

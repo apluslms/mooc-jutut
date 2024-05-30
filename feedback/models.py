@@ -461,6 +461,9 @@ class Feedback(models.Model):
     response_notify = models.PositiveSmallIntegerField(default=NOTIFY.NO,
                                                        choices=NOTIFY.choices,
                                                        verbose_name=_("Response notify"))
+    response_seen = models.BooleanField(default=False,
+                                        null=True,
+                                        verbose_name=_("Response seen"))
 
     # response upload
     _response_upl_code = models.PositiveSmallIntegerField(default=0,

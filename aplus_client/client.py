@@ -383,7 +383,7 @@ class AplusGraderClient(AplusClient):
 
     @property
     def grading_data(self):
-        data = self.load_data(self.grading_url)
+        data = self.load_data(self.grading_url, ignore_cache=True)
         data = GraderInterface2(data)
         self.__dict__['grading_data'] = data
         return data

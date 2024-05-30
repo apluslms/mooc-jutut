@@ -237,6 +237,7 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
             'submission_url': self.submission_url or '',
             'submission_html_url': gd.html_url,
             'timestamp': gd.submission_time,
+            'response_seen': gd.feedback_response_seen
         }
 
         # find if there is submission we should update (aplus resend action for example)
