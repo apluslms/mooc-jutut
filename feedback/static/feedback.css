@@ -486,13 +486,14 @@ body.ios .feedback-message tr .glyphicon {
 	float: right;
 	margin: 0.2em;
 }
-.response-message .timestamp {
-	position: absolute;
-	bottom: 0;
-	right: 0;
-	margin-right: 0.5em;
+.response-message .ok-icon {
+	font-size: 0.8em;
 }
-
+.response-message .message-info {
+	display: flex;
+	justify-content: flex-end;
+	align-items: flex-end;
+}
 .response-msg-bottom {
 	padding: 0.3em;
 	display: flex;

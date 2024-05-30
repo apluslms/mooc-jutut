@@ -125,18 +125,31 @@
 	</form>
 
 	{% with state=form.has_expired|yesno:"error-conflict,default" %}
-	<div class="stateful" data-state="{{ state }}">
-	{% if form.had.responded and form.instance.response_by %}
-		<span class="timestamp"
-			{{ state|on_state:"default error-conflict" }}
-			rel="tooltip"
-			data-toggle="tooltip"
-			data-trigger="hover click"
-			data-placement="bottom"
-			title="{{ form.instance.response_by.email }}"
-			> {{ form.instance.response_time|naturaltime }}
-		</span>
-	{% endif %}
+	<div class="stateful message-info" data-state="{{ state }}">
+		{% if form.had.responded and form.instance.response_by %}
+			<span>
+				{% if feedback.response_seen %}
+					<span
+						class="glyphicon glyphicon-ok ok-icon"
+						rel="tooltip"
+						data-toggle="tooltip"
+						data-trigger="hover click"
+						data-placement="bottom"
+						title="{% trans 'The student has seen this response.' %}"
+					>
+					</span>
+				{% endif %}
+				<span class="timestamp"
+					{{ state|on_state:"default error-conflict" }}
+					rel="tooltip"
+					data-toggle="tooltip"
+					data-trigger="hover click"
+					data-placement="bottom"
+					title="{{ form.instance.response_by.email }}"
+					> {{ form.instance.response_time|naturaltime }}
+				</span>
+			</span>
+		{% endif %}
 	<div class="response-msg-bottom">
 		<div class="response-label-container">
 			<span

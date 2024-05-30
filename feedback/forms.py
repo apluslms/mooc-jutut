@@ -148,12 +148,13 @@ class ResponseForm(forms.ModelForm):
         instance.response_time = timezone_now()
         instance.response_by = user
         instance.response_notify = self.get_notify()
+        instance.response_seen = False
 
         # prepare for upload
         upload = async_response_upload(instance) if self.has_changed() else None
 
         # save to db and update form internal state
-        fields = self._meta.fields + ('response_time', 'response_by', 'response_notify')
+        fields = self._meta.fields + ('response_time', 'response_by', 'response_notify', 'response_seen')
         instance.save(update_fields=fields)
         self.original_fields(instance, update=True)
 
