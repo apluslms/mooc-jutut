@@ -14,6 +14,7 @@ from .models import (
     Feedback,
     FeedbackTag,
     ContextTag,
+    Course,
 )
 from .tasks import async_response_upload
 
@@ -181,3 +182,38 @@ class ContextTagForm(forms.ModelForm):
     class Meta:
         model = ContextTag
         fields = ['question_key', 'response_value', 'color', 'content']
+
+
+class ImportTagsForm(forms.Form):
+    source_course = forms.ModelChoiceField(queryset=None, label=_("Source course"))
+
+    def __init__(self, target_course: Course, course_options: list[Course], *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.target_course = target_course
+        self.fields['source_course'].queryset = course_options
+
+    def copy_tags(self) -> list[str]:
+        """Copies tags from source course to target course. Copied tags
+        are identical to the source tags except for the course field.
+        If a tag with the same slug already exists in the target course,
+        it is not copied.
+        """
+        source_course = self.cleaned_data["source_course"]
+        source_tags = source_course.tags.all()
+        target_tags = self.target_course.tags.all()
+        existing_tags = source_tags.filter(slug__in=target_tags.values_list('slug', flat=True))
+        importable_tags = source_tags.difference(existing_tags)
+        imported_tag_slugs = list(importable_tags.values_list('slug', flat=True))
+        if len(importable_tags) > 0:
+            FeedbackTag.objects.bulk_create([
+                FeedbackTag(
+                    course=self.target_course,
+                    name=tag.name,
+                    slug=tag.slug,
+                    description=tag.description,
+                    color=tag.color,
+                )
+                for tag in importable_tags
+            ])
+            self.target_course.save()
+        return imported_tag_slugs

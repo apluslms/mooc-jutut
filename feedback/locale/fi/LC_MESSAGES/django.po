@@ -125,6 +125,10 @@ msgstr ""
 "Joku muu on päivittänyt lomaketta. Katso {older_versions_link} mikä on "
 "muuttunut."
 
+#: feedback/forms.py
+msgid "Source course"
+msgstr "Valitse kurssi"
+
 #: feedback/models.py
 msgid "Read"
 msgstr "Luettu"
@@ -324,6 +328,51 @@ msgstr "muokkaa"
 msgid "remove"
 msgstr "poista"
 
+#: feedback/templates/feedback_tags/import_tags.html
+msgid "Import feedback tags from another course"
+msgstr "Tuo palautetägit toiselta kurssilta"
+
+#: feedback/templates/feedback_tags/import_tags.html
+msgid "Import"
+msgstr "Tuo"
+
+#: feedback/templates/feedback_tags/import_tags.html
+#| msgid "Can be imported"
+msgid "Tags to be imported"
+msgstr "Tuotavat tägit"
+
+#: feedback/templates/feedback_tags/import_tags.html
+#: feedback/templates/feedback_tags/tag_list.html
+msgid "Feedback tag"
+msgstr "Palautetägi"
+
+#: feedback/templates/feedback_tags/import_tags.html
+#: feedback/templates/feedback_tags/tag_list.html
+msgid "Slug"
+msgstr "Tunniste"
+
+#: feedback/templates/feedback_tags/import_tags.html
+#: feedback/templates/feedback_tags/tag_list.html
+msgid "Description"
+msgstr "Kuvaus"
+
+#: feedback/templates/feedback_tags/import_tags.html
+msgid "Can be imported"
+msgstr "Tuonti mahdollista"
+
+#: feedback/templates/feedback_tags/import_tags.html
+msgid "yes"
+msgstr "kyllä"
+
+#: feedback/templates/feedback_tags/import_tags.html
+msgid "no (tag with this slug already exists)"
+msgstr "ei (tunnisteella on jo tägi)"
+
+#: feedback/templates/feedback_tags/import_tags.html
+#| msgid "No feedback tags found for course %(courseName)s."
+msgid "No feedback tags found for this course."
+msgstr "Kurssille ei löytynyt palautetägejä."
+
 #: feedback/templates/feedback_tags/tag_confirm_delete.html
 #, python-format
 msgid ""
@@ -336,18 +385,6 @@ msgstr ""
 #: feedback/templates/feedback_tags/tag_list.html
 msgid "List of feedback tags"
 msgstr "Luettelo palautetägeistä"
-
-#: feedback/templates/feedback_tags/tag_list.html
-msgid "Feedback tag"
-msgstr "Palautetägi"
-
-#: feedback/templates/feedback_tags/tag_list.html
-msgid "Slug"
-msgstr "Tunniste"
-
-#: feedback/templates/feedback_tags/tag_list.html
-msgid "Description"
-msgstr "Kuvaus"
 
 #: feedback/templates/manage/_conversations_as_list.html
 msgid "No feedback shown as there are errors in the filter form"
@@ -500,6 +537,10 @@ msgid "Manage feedback tags"
 msgstr "Hallitse palautetägejä"
 
 #: feedback/templates/manage/base.html
+msgid "Import feedback tags"
+msgstr "Tuo palautetägejä"
+
+#: feedback/templates/manage/base.html
 msgid "Manage context tags"
 msgstr "Hallitse kontekstitägejä"
 
@@ -637,6 +678,15 @@ msgstr "Muokkaa palautetägiä"
 #: feedback/views.py
 msgid "Add new feedback tag"
 msgstr "Lisää uusi palautetägi"
+
+#: feedback/views.py
+#, python-brace-format
+msgid "Imported successfully tags: {imported_tags}."
+msgstr "Tuotiin onnistuneesti tägit: {imported_tags}."
+
+#: feedback/views.py
+msgid "No tags were imported."
+msgstr "Tuotiin 0 tägiä."
 
 #: feedback/views.py
 msgid "Edit context tag"
