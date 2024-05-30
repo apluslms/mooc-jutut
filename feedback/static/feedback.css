@@ -500,6 +500,13 @@ body.ios .feedback-message tr .glyphicon {
 	align-items: flex-end;
 }
 
+.import-form {
+	margin-bottom: 0.5em;
+}
+
+#tag-import-preview-container .not-importable {
+	opacity: 0.4;
+}
 
 /* spin animation, src: http://bootsnipp.com/snippets/featured/glyphicon-animate-rotation-and-flip */
 .gly-spin {

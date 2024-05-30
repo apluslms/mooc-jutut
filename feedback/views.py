@@ -15,6 +15,8 @@ from django.views.generic import FormView, ListView, DetailView, UpdateView, Del
 from django.urls import reverse
 from django.core.exceptions import SuspiciousOperation
 from django.utils.functional import cached_property
+from django.utils.text import format_lazy
+from django.contrib import messages
 
 from lib.postgres import PgAvg
 from lib.mixins import CSRFExemptMixin, ConditionalMixin
@@ -45,6 +47,7 @@ from .forms import (
     ResponseForm,
     FeedbackTagForm,
     ContextTagForm,
+    ImportTagsForm,
 )
 from .filters import FeedbackFilter
 from .permissions import (
@@ -779,6 +782,60 @@ class FeedbackTagListView(FeedbackTagMixin, ListCreateView):
     def get_form_kwargs(self):
         self.object = self.model(course=self.course)
         return super().get_form_kwargs()
+
+
+class ImportTagsView(ManageCourseMixin, FormView):
+    template_name = "feedback_tags/import_tags.html"
+    form_class = ImportTagsForm
+
+    def get_course_options(self):
+        """Get all courses that are visible to the current user and are
+        not the current course. Used as options where to import tags from.
+        """
+        return Course.objects.filter(id__in=self.visible_courses).exclude(id=self.course.id)
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        kwargs['target_course'] = self.course
+        kwargs['course_options'] = self.get_course_options()
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        course_options = self.get_course_options()
+        existing_tags = set(FeedbackTag.objects.filter(
+            course=self.course).values_list('slug', flat=True))
+        course_option_ids = course_options.values_list('id', flat=True)
+        tags = FeedbackTag.objects.filter(course__id__in=course_option_ids)
+        tags_dict = {
+            id: [] for id in course_option_ids
+        }
+        for tag in tags:
+            tag.canImport = tag.slug not in existing_tags
+            tags_dict[tag.course.id].append(tag)
+        for course_id in tags_dict:
+            tags_dict[course_id].sort(key=lambda tag: -int(tag.canImport))
+        kwargs['course_tags'] = tags_dict.items()
+        return super().get_context_data(**kwargs)
+
+    def form_valid(self, form):
+        imported_tags = form.copy_tags()
+        if len(imported_tags) > 0:
+            messages.success(
+                self.request,
+                format_lazy(
+                    _('Imported successfully tags: {imported_tags}.'),
+                    imported_tags=', '.join(imported_tags)
+                )
+            )
+        else:
+            messages.warning(
+                self.request,
+                _('No tags were imported.')
+            )
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('feedback:tags-import', kwargs={'course_id': self.course.id})
 
 
 class FeedbackTagView(CheckManagementPermissionsMixin, View):

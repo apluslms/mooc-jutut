@@ -1,0 +1,59 @@
+{% extends "manage/base.html" %}
+{% load i18n %}
+{% load colortag %}
+{% block content %}
+
+<h1>{% translate "Import feedback tags from another course" %}</h1>
+<form method="post" action="" class="import-form">
+	{% csrf_token %} {{ form.as_p }}
+	<div id="selected-tags"></div>
+	<button type="submit" class="btn btn-success">{% translate 'Import' %}</button>
+</form>
+<div id="tag-import-preview-container">
+	{% for course_id, tags in course_tags %}
+		<div id="tag-import-preview-{{ course_id }}" class="hidden">
+			{% if tags|length > 0 %}
+				<h3>
+					{% translate 'Tags to be imported' %}
+				</h3>
+				<table class="table table-condensed table-striped">
+					<thead>
+						<tr>
+							<th>{% translate "Feedback tag" %}</th>
+							<th>{% translate "Slug" %}</th>
+							<th>{% translate "Description" %}</th>
+							<th>{% translate "Can be imported" %}</th>
+						</tr>
+					</thead>
+					<tbody>
+						{% for tag in tags %}
+							<tr>
+								<td>
+									{% if tag.canImport %}
+										{{ tag|colortag:'no_tooltip' }}
+									{% else %}
+										{{ tag|colortag:'no_tooltip,class=not-importable' }}
+									{% endif %}
+								</td>
+								<td>{{ tag.slug }}</td>
+								<td>{{ tag.description }}</td>
+								<td>
+									{% if tag.canImport %}
+										{% translate "yes" %}
+									{% else %}
+										{% translate "no (tag with this slug already exists)" %}
+									{% endif %}
+								</td>
+								</tr>
+						{% endfor %}
+					</tbody>
+				</table>
+			{% else %}
+				<p>{% translate 'No feedback tags found for this course.' %}</p>
+			{% endif %}
+		</div>
+	{% endfor %}
+</div>
+{% include "_messages.html" %}
+
+{% endblock %}

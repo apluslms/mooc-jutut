@@ -366,6 +366,15 @@ $(function() {
       }
     }
   });
+
+  $('#id_source_course').on('change', function() {
+    $(".site-messages").remove();
+    const courseId = $(this).val();
+    $('#tag-import-preview-container').children().each(function() {
+      $(this).addClass('hidden');
+    })
+    $(`#tag-import-preview-${courseId}`).removeClass('hidden');
+  });
 });
 
 
