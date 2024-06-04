@@ -1,8 +1,11 @@
 import datetime
+import re
+from typing import Optional, Union
 
 from django.db import models
 import django_filters
 from django import forms
+from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 
 from django_colortag.filters import ColortagIEAndOrFilter
@@ -30,6 +33,17 @@ def is_empty_value(value):
         not isinstance(value, PRIMITIVE_TYPES) and not value or # complex type is False
         value in EMPTY_VALUES # simple type is False
     )
+
+
+def validate_regex(value: str):
+    """Check if the value is a valid regex pattern."""
+    try:
+        re.compile(value)
+    except re.error as exc:
+        raise ValidationError(
+            _("Not a valid regex pattern"),
+            code="invalid"
+        ) from exc
 
 
 class SplitDateTimeRangeWidget(forms.MultiWidget):
@@ -156,6 +170,76 @@ class FlagFilter(django_filters.MultipleChoiceFilter):
         return qs.filter_flags(*value)
 
 
+class ComboTextSearchWidget(forms.MultiWidget):
+    """Widget for displaying a text search field with a checkbox
+    that allows using another search method.
+    The checkbox label and helptext need to be defined through widget
+    attributes 'bool_label' and 'bool_helptext'.
+    """
+    template_name = "feedback/widgets/combo_textsearch_widget.html"
+
+    def __init__(self, attrs=None) -> None:
+        widgets = {
+            'text': forms.TextInput(attrs=attrs),
+            'regex': forms.CheckboxInput(attrs=attrs),
+        }
+        super().__init__(widgets, attrs)
+
+    def decompress(self, value: Optional[tuple[str, bool]]) -> Union[tuple[str, bool], tuple[None, None]]:
+        if value:
+            return value
+        return (None, None)
+
+
+class ComboTextSearchField(forms.MultiValueField):
+    widget = ComboTextSearchWidget
+
+    def __init__(self, *args, **kwargs) -> None:
+        fields = (
+            forms.CharField(required=False),
+            forms.BooleanField(required=False),
+        )
+        kwargs.setdefault('require_all_fields', False)
+        super().__init__(fields, *args, **kwargs)
+
+    def compress(self, data_list: tuple[str, bool]) -> tuple[str, bool]:
+        return data_list
+
+    def validate(self, value: tuple[str, bool]) -> None:
+        """Validate field value, especially when regex search is used.
+        If an another search method is used as alternative instead of
+        regex or iregex, this method should be overwritten.
+        """
+        super().validate(value)
+        # if regex search is selected, check that string is valid regex
+        if value[1]:
+            validate_regex(value[0])
+
+
+class ComboTextSearchFilter(django_filters.CharFilter):
+    """Text search filter that supports two different search methods.
+    By default, the filter uses the filter_text method of the queryset.
+    However, if the checkbox is selected, uses alternative method for
+    searching (which is by default case-insensitive regex search).
+    """
+    field_class = ComboTextSearchField
+
+    def __init__(self, *args, lookup_expr=None, **kwargs) -> None:
+        if lookup_expr is None:
+            lookup_expr = 'iregex'
+        super().__init__(*args, lookup_expr=lookup_expr, **kwargs)
+
+    def filter(self, qs: FeedbackQuerySet, value: tuple[str, bool]) -> FeedbackQuerySet:
+        text_val, cb_val = value
+        if text_val:
+            if cb_val: # checkbox selected, use alternative search method
+                lookup = "%s__%s" % (self.field_name, self.lookup_expr)
+                return qs.filter(**{lookup: text_val})
+            # use our default method
+            return qs.filter_text(self.field_name, text_val)
+        return qs
+
+
 class ContainsTextFilter(django_filters.BooleanFilter):
     field_class = forms.BooleanField
 
@@ -241,15 +325,15 @@ class FeedbackFilter(django_filters.FilterSet):
     path_key = django_filters.CharFilter(
         lookup_expr='iregex',
         label=_("Exercise identifier"),
+        validators=[validate_regex],
         help_text=_(
             "Filter based on the exercise path key (typically of the "
             "format 'modulekey_chapterkey_exercisekey'). "
             "The filter uses case-insensitive regular expression match."
         )
     )
-    student_text = django_filters.CharFilter(
+    student_text = ComboTextSearchFilter(
         field_name='form_data',
-        method='filter_text',
         label=_("Student content"),
         help_text=_(
             "Filter conversations based on content of the student "
@@ -259,9 +343,13 @@ class FeedbackFilter(django_filters.FilterSet):
             "Otherwise the search is case-insensitive."
         ),
     )
-    teacher_text = django_filters.CharFilter(
+    student_text.field.widget.attrs.update({
+        'bool_label': _('Use regex search'),
+        'bool_helptext': _('Override default search method and use case-insensitive regex search instead.'),
+        'class': 'combosearch',
+    })
+    teacher_text = ComboTextSearchFilter(
         field_name='response_msg',
-        method='filter_text',
         label=_("Teacher content"),
         help_text=_(
             "Filter conversations based on text in the teacher responses. "
@@ -269,6 +357,11 @@ class FeedbackFilter(django_filters.FilterSet):
             "Otherwise the search is case-insensitive."
         ),
     )
+    teacher_text.field.widget.attrs.update({
+        'bool_label': _('Use regex search'),
+        'bool_helptext': _('Override default search method and use case-insensitive regex search instead.'),
+        'class': 'combosearch',
+    })
     contains_text = ContainsTextFilter(
         label=_("Display only feedback with text content"),
         help_text=_(
@@ -330,7 +423,3 @@ class FeedbackFilter(django_filters.FilterSet):
         form.fields['student_tags'].set_queryset(studenttags)
         form.fields['paginate_by'].initial = self.data.get('paginate_by', None)
         return form
-
-    @staticmethod
-    def filter_text(queryset, name, value):
-        return queryset.filter_text(name, value)
