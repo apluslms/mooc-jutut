@@ -1,0 +1,18 @@
+{% spaceless %}
+{% for widget in widget.subwidgets %}
+	{% if not forloop.last %}
+		{% include widget.template_name %}
+	{% else %}
+		<div>
+			{% include widget.template_name %}
+			<label{% if widget.attrs.id %} for="{{ widget.attrs.id }}"{% endif %}
+				{% if widget.attrs.bool_helptext %}
+					data-toggle="tooltip" data-placement="right"
+					data-original-title="{{ widget.attrs.bool_helptext }}"
+				{% endif %}
+			>
+				{{ widget.attrs.bool_label }}
+			</label>
+		</div>
+	{% endif %}
+{% endfor %}{% endspaceless %}

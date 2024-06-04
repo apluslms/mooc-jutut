@@ -14,6 +14,7 @@ body {
 	margin-top: 0.7em;
 	margin-bottom: 0.7em;
 	align-items: center;
+	display: flex;
 }
 .feedback-filter > label {
 	margin-bottom: 0;
@@ -27,9 +28,12 @@ body {
 .fb-filter-field {
 	display: inline;
 }
+.fb-filter-field.input-flex {
+	width: max(min(65%, 350px), 200px) !important;
+}
 .input-flex > div,
 .input-flex > input {
-	width: max(min(65%, 350px), 200px) !important;
+	width: max(100%, 200px) !important;
 }
 #filter-panel-bottom {
 	display: flex;
@@ -43,6 +47,19 @@ body {
 	float: right;
 }
 
+/* combo textsearch filter */
+label:has(~ .fb-filter-field > .combosearch) {
+	align-self: start;
+	margin-top: 0.5em;
+}
+input[type="checkbox"].combosearch {
+	margin-right: 0.3em;
+	margin-left: 0.3em;
+}
+input[type="checkbox"].combosearch + label {
+	margin-bottom: 0;
+}
+
 /* timestamp filter */
 #extra-filter-pane > div:first-child {
 	display: flex;
@@ -52,6 +69,30 @@ body {
 	flex-wrap: wrap;
 	width: calc(100% - min(30%, 150px) - 0.5em)
 }
+
+/* tag filters */
+.tag-filter-pane > .feedback-filter {
+	display: inline;
+}
+
+/* flag filters */
+.fb-filter-field:has(> #id_feedbackfilter_flags) {
+	width: 100%;
+}
+
+/* Displaying errors */
+.feedback-filter:has(> .errorlist) {
+	flex-wrap: wrap;
+	border: 1px #ebccd1;
+	background-color: #f2dede;
+	border-radius: 4px;
+}
+.feedback-filter > .errorlist {
+	width: 100%;
+	margin-bottom: 0;
+}
+
+/* responsive for different widths */
 
 @media (min-width: 750px) {
 	#filter-container {
@@ -133,9 +174,19 @@ body {
 }
 
 @media (max-width: 450px) {
+	.feedback-filter:has(> label.right-align),
+	.feedback-filter:has( #id_feedbackfilter_response_grade) {
+		flex-direction: column;
+	}
 	.feedback-filter label.right-align {
 		width: 100%;
 		text-align: left;
+	}
+	.feedback-filter:has( #id_feedbackfilter_response_grade) {
+		align-items: start;
+	}
+	.fb-filter-field.input-flex {
+		width: 100% !important;
 	}
 	.input-flex > div,
 	.input-flex > input {

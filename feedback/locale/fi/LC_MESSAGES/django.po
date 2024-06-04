@@ -18,6 +18,10 @@ msgstr ""
 "X-Generator: Lokalize 2.0\n"
 
 #: feedback/filters.py
+msgid "Not a valid regex pattern"
+msgstr "Ei säännöllinen lauseke"
+
+#: feedback/filters.py
 msgid "Oldest first"
 msgstr "Vanhemmat ensin"
 
@@ -80,6 +84,17 @@ msgstr ""
 "vastaukset kirjallisten vastausten lisäksi. Haku tukee operaattoreiden "
 "'AND', 'OR' ja 'NOT' käyttöä. (Operaattorit ovat aakkoskoosta riippuvia, "
 "mutta muutoin haku on aakkoskoosta riippumaton.)"
+
+#: feedback/filters.py
+msgid "Use regex search"
+msgstr "Käytä regex-hakua"
+
+#: feedback/filters.py
+msgid ""
+"Override default search method and use case-insensitive regex search instead."
+msgstr
+"Etsi tavallisen hakumenetelmän sijaan säännöllisellä lausekkeella "
+"(case-insensitive regex)."
 
 #: feedback/filters.py
 msgid "Teacher content"
