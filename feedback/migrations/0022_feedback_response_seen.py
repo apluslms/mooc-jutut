@@ -13,6 +13,6 @@ class Migration(migrations.Migration):
         migrations.AddField(
             model_name="feedback",
             name="response_seen",
-            field=models.BooleanField(default=False, null=True),
+            field=models.BooleanField(default=False, null=True, verbose_name="Response seen"),
         ),
     ]
