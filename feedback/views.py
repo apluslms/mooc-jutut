@@ -1,6 +1,6 @@
 import logging
 import re
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Any
 from collections import Counter
 from functools import partial
 from urllib.parse import urlsplit, urljoin, urlencode
@@ -381,6 +381,14 @@ class ManageCourseListView(ManageSiteMixin, ListView):
 class ManageUpdateStudenttagsView(ManageCourseMixin, TemplateView):
     template_name = "manage/update_studenttags.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        course = self.course
+        last_updated = course.student_tags_updated
+        if last_updated:
+            context['prev_update_time'] = last_updated
+        return context
+
     def get(self, request, *args, **kwargs):
         kwargs['has_token'] = request.user.has_api_token(self.course.namespace)
         return super().get(request, *args, **kwargs)
@@ -594,7 +602,7 @@ class ManageFeedbacksListView(ManageCourseMixin, PaginatedMixin, ListView):
         self.feedback_filter = filter = FeedbackFilter(self.request.GET, queryset, course=course)
         return filter.qs
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict[str, Any]:
         context = super().get_context_data(course=self.course, **kwargs)
         context['feedback_filter'] = self.feedback_filter
         update_context_for_feedbacks(self.request, context)

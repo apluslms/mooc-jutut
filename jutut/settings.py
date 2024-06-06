@@ -14,6 +14,7 @@ https://github.com/django/django/blob/master/django/conf/global_settings.py
 from os.path import abspath, dirname, join
 from django.utils.translation import gettext_lazy as _
 from os import environ
+from celery.schedules import crontab
 from r_django_essentials.conf import (
     update_secret_from_file,
     update_settings_fixes,
@@ -367,6 +368,12 @@ CELERY_BEAT_SCHEDULE = {
         # check database for failed uploads that don't appear to be in queue
         'task': 'feedback.schedule_failed',
         'schedule': 30 * 60, # every 30 minutes
+        'args': (),
+    },
+    'feedback.update_student_tags': {
+        # update student tags for courses that haven't ended yet
+        'task': 'feedback.update_student_tags',
+        'schedule': crontab(minute=0, hour=1), # execute daily at 1 AM
         'args': (),
     },
 }

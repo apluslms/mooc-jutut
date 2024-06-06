@@ -642,6 +642,15 @@ msgid "Update student tags"
 msgstr "Päivitä opiskelijatägit"
 
 #: feedback/templates/manage/update_studenttags.html
+#, python-format
+msgid ""
+"The most recent update of students tags for this course was on <b>%(time)s</"
+"b> (%(naturaltime)s)."
+msgstr ""
+"Tämän kurssin opiskelijatägit on päivitetty viimeksi <b>%(time)s</b> "
+"(%(naturaltime)s)."
+
+#: feedback/templates/manage/update_studenttags.html
 msgid "Update tags now"
 msgstr "Päivitä tägit nyt"
 
