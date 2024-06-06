@@ -1,9 +1,14 @@
 from functools import partial
+from datetime import datetime, timezone
 from celery import shared_task
 from celery.exceptions import Ignore
 from celery.utils.log import get_task_logger
 
-from .models import Feedback
+from .models import (
+    Feedback,
+    Course,
+    StudentTag,
+)
 from .utils import update_response_to_aplus
 
 
@@ -60,3 +65,28 @@ def schedule_failed(self): # pylint: disable=unused-argument
     for feedback in feedbacks[:100]:
         t = upload_response.delay(feedback.id)
         logger.debug("Scheduling upload for feedback %d: %s", feedback.id, t.task_id)
+
+
+@task
+def update_student_tags(self): # pylint: disable=unused-argument
+    # Update the student tags for all courses that have not ended yet
+    courses = Course.objects.all()
+    # Possible improvement: If Jutut could know which courses are still running
+    # (without accessing A+ api), do the next steps only for them
+    for course in courses:
+        staff = course.staff.all()
+        if not staff:
+            continue
+        # select a random staff member from course to get API token and client
+        user = staff[0]
+        client = user.get_api_client(course.namespace)
+        if not client:
+            logger.debug("No client found for %s for the course %s.", user, course)
+            continue
+        # check if course is still in progress
+        course_api = client.load_data(course.url)
+        course_end = datetime.fromisoformat(course_api.get("ending_time"))
+        if datetime.now(timezone.utc) < course_end:
+            # update tags
+            StudentTag.update_from_api(client, course)
+    # TODO: somehow store and indicate when tags for course have been last updated
