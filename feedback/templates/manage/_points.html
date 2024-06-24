@@ -1,0 +1,50 @@
+{% load i18n %}
+
+<div class="points-display">
+    {% include "_errors_box.html" %}
+    <div class="points-level-group">
+        <div class="points-name total">
+            {% translate "Total" %}: {{ points.total.points }}/{{ points.total.max_points }}
+        </div>
+        <table class="category-points-table compact">
+        {% for category, cpd in points.by_category.items %}
+            <tr>
+                <th class="category-label">{{ category }}</th>
+                <td>
+                    {% blocktranslate with category_name=category trimmed asvar points_text%}
+                        Points in category '{{ category_name }}'
+                    {% endblocktranslate %}
+                {% include "manage/_progress_bar.html" with pd=cpd tooltip_points_text=points_text %}</td>
+            </tr>
+        {% endfor %}
+        </table>
+    </div>
+
+    {% with pd=points.module %}
+    <div class="points-level-group"
+        data-toggle="tooltip"
+        data-html="true"
+        data-placement="auto bottom"
+        title="{% translate 'Points from module' %}: &lt;span class='text-nowrap'&gt;{{ pd.points }} / {{ pd.max_points }}&lt;/span&gt;{% if pd.points_to_pass %}&lt;br&gt;{% translate 'Points to pass' %}: &lt;span class='text-nowrap'&gt;{{ pd.points_to_pass }}&lt;/span&gt;{% endif %}{% if not pd.passed %}&lt;br&gt;{% translate 'The student has not passed the module.' %}{% endif %}"
+    >
+        <div class="points-name">
+            {{ pd.name }}
+        </div>
+        {% include "manage/_progress_bar.html" with pd=pd no_tooltip=True %}
+    </div>
+    {% endwith %}
+
+    {% with pd=points.chapter %}
+    <div class="points-level-group"
+        data-toggle="tooltip"
+        data-html="true"
+        data-placement="auto bottom"
+        title="{% translate 'Points from chapter' %}: &lt;span class='text-nowrap'&gt;{{ pd.points }} / {{ pd.max_points }}&lt;/span&gt;{% if pd.points_to_pass %}&lt;br&gt;{% translate 'Points to pass' %}: &lt;span class='text-nowrap'&gt;{{ pd.points_to_pass }}&lt;/span&gt;{% endif %}{% if not pd.passed %}&lt;br&gt;{% translate 'The student has not passed all of the exercises in the chapter.' %}{% endif %}"
+    >
+        <div class="points-name">
+            {{ pd.name }}
+        </div>
+        {% include "manage/_progress_bar.html" with pd=pd no_tooltip=True %}
+    </div>
+    {% endwith %}
+</div>
