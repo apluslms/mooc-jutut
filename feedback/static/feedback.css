@@ -333,6 +333,15 @@ input[type="checkbox"].combosearch + label {
 }
 
 
+/* Btn-group styling fix so tooltips and popovers don't break styling. */
+.btn-group > .btn ~ .btn {
+	margin-left: -1px;
+}
+.feedback-response-panel .btn-group > .btn.btn-xs:not(:has( ~ .btn)) {
+	border-top-right-radius: 3px;
+	border-bottom-right-radius: 3px;
+}
+
 /* feedback/response panel */
 .feedback-response-panel {
 	border-width: 1px;
@@ -342,6 +351,8 @@ input[type="checkbox"].combosearch + label {
 }
 
 .feedback-response-panel > .panel-heading {
+	display: flex;
+	justify-content: space-between;
 	padding: 0.4em 0.6em;
 	background-image: linear-gradient(to bottom,#3c3c3c 0,#222 100%);
 	background-color: #222;
@@ -360,6 +371,11 @@ input[type="checkbox"].combosearch + label {
 }
 .feedback-response-panel > .panel-heading .label {
 	font-size: 70%;
+}
+.feedback-response-panel > .panel-heading > .fb-context-btn-group {
+	display: flex;
+	align-items: start;
+	justify-content: flex-end;
 }
 
 .feedback-response-panel > .panel-body {
@@ -651,6 +667,65 @@ body.ios .feedback-message tr .glyphicon {
 .popover .conversation-panel .message-info {
 	height: 0.5em;
 	line-height: 1;
+}
+
+/* points display popovers */
+.popover:has( .points-display) {
+	max-width: 400px;
+}
+
+.points-level-group:has( ~ .points-level-group) {
+	margin-bottom: 0.75em;
+}
+
+.points-display table.category-points-table {
+	width: 100%
+}
+.points-display th.category-label {
+	width: 1.5em;
+	padding-right: 0.4em;
+	font-weight: 500;
+	text-align: end;
+	text-wrap: nowrap;
+}
+
+
+/* Progress bar for points */
+.progress {
+	position: relative;
+	height: 1.3em;
+	margin-bottom: 0;
+	overflow: hidden;
+	background-color: #f5f5f5;
+	border-radius: 4px;
+	-webkit-box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
+	box-shadow: inset 0 1px 2px rgba(0,0,0,.1);
+}
+.progress-bar {
+	float: left;
+	width: 0%;
+	height: 100%;
+	font-size: 14px;
+	line-height: 22px;
+	color: #fff;
+	text-align: center;
+	-webkit-box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
+	box-shadow: inset 0 -1px 0 rgba(0,0,0,.15);
+}
+.progress-striped .progress-bar, .progress-bar-striped {
+	background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+	background-image: -o-linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+	background-image: linear-gradient(45deg, rgba(255, 255, 255, 0.15) 25%, transparent 25%, transparent 50%, rgba(255, 255, 255, 0.15) 50%, rgba(255, 255, 255, 0.15) 75%, transparent 75%, transparent);
+	background-size: 40px 40px;
+}
+.progress .points-text {
+	position: absolute;
+	left: 6px;
+}
+.progress .required-points {
+	position: absolute;
+	height: 20px;
+	border-left: 1px solid #000;
 }
 
 

@@ -9,7 +9,7 @@ from django.forms import Form
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, Http404
 from django.utils.text import slugify
 from django.utils.timezone import now as timezone_now
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import get_language, gettext_lazy as _
 from django.shortcuts import get_object_or_404
 from django.views.generic import FormView, ListView, DetailView, UpdateView, DeleteView, TemplateView, View
 from django.urls import reverse
@@ -21,7 +21,8 @@ from django.contrib import messages
 from lib.postgres import PgAvg
 from lib.mixins import CSRFExemptMixin, ConditionalMixin
 from lib.views import ListCreateView
-from lib.helpers import is_ajax
+from lib.helpers import is_ajax, pick_localized
+from aplus_client.client import AplusTokenClient
 from aplus_client.django.views import AplusGraderMixin
 
 from .models import (
@@ -537,6 +538,7 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
                         pass
 
         conv_dict = {
+            'id': conv.id,
             'student': conv.student,
             'exercise': conv.exercise,
             'all_feedback_for_student_url': get_all_feedbacks_url(conv),
@@ -652,6 +654,114 @@ class UserFeedbackListView(ManageCourseMixin, ListView):
             return f
         context['feedbacks'] = (get_feedback(feedback) for feedback in feedbacks)
         context['student'] = self.student
+        return context
+
+
+def get_exercises_per_feedback_dict(course: Course, client: AplusTokenClient):
+    tree_api = client.load_data(f"{course.url}/tree")
+    # get feedback exercises from Jutut DB to identify which exercises in API are feedback
+    fb_exercises = list(course.exercises.values_list('api_id', flat=True))
+    exercise_dict = {}
+    for mod in tree_api.get("modules"):
+        for chap in mod.get("children"):
+            ex_ids = [e.get("id") for e in chap.get("children")]
+            for e_id in ex_ids:
+                # create entry for each Jutut feedback to relatives
+                if e_id in fb_exercises:
+                    exercise_dict[e_id] = {
+                        'exercise_ids': ex_ids,
+                        'chapter_name': chap.get("name"),
+                        'module_name': mod.get("name"),
+                        'module_id': mod.get("id"),
+                    }
+    return exercise_dict
+
+
+class FeedbackPointsView(CheckManagementPermissionsMixin,
+                         DetailView):
+    model = Conversation
+    context_object_name = 'conversation'
+    pk_url_kwarg = 'conversation_id'
+    permission_classes = [AdminOrFeedbackStaffPermission]
+    template_name = "manage/_points.html"
+
+    @cached_property
+    def object(self): # pylint: disable=method-hidden
+        return self.get_object()
+
+    def get_context_data(self, **kwargs): # pylint: disable=too-many-locals
+        context = super().get_context_data(**kwargs)
+        conv = self.object
+        exercise = conv.exercise
+        course = exercise.course
+        client = self.request.user.get_api_client(course.namespace)
+        if not client:
+            context['errors'] = _(
+                "Unable to fetch content due to missing A+ API token. " +
+                "Log in via A+ and access this site through the course menu."
+            )
+            return context
+        lang = get_language()
+        # fetch mapping of feedback exercise to all exercises in same chapter,
+        fb_exercise_dict = MiscCache.get('fb_exercise_dict', course) # pylint: disable=no-value-for-parameter
+        # if hasn't been calculated yet or Jutut didn't know of feedback
+        # exercise during previous calculation, (re)calculate and cache
+        if (fb_exercise_dict is None) or (exercise.api_id not in fb_exercise_dict):
+            fb_exercise_dict = get_exercises_per_feedback_dict(course, client)
+            MiscCache.set('fb_exercise_dict', course, fb_exercise_dict, None)
+        fb_relatives = fb_exercise_dict.get(exercise.api_id)
+
+        # fetch points for user and calculate points for course, module and chapter
+        points_api = client.load_data(f"{course.url}/points/{conv.student.api_id}")
+        total_dict = {
+            'points': points_api.get('points'),
+            'max_points': points_api.get('max_points'),
+            'passed': True,
+        }
+        # points per category for the whole course
+        points_by_cat = points_api.get('points_by_difficulty')
+        max_points_by_cat = points_api.get('max_points_by_difficulty')
+        category_dict = {}
+        for k in max_points_by_cat.keys():
+            category_dict[k] = {
+                'points': points_by_cat.get(k, 0),
+                'max_points': max_points_by_cat.get(k),
+                'passed': True,
+            }
+        # module
+        module = next(m for m in points_api.get("modules")
+                      if m.get("id") == fb_relatives['module_id'])
+        module_dict = {
+            k: module.get(k)
+            for k in ['points', 'max_points', 'passed']
+        }
+        module_dict['name'] = pick_localized(fb_relatives['module_name'], lang)
+        # calculate points for exercises in the same chapter
+        chapter_dict = {
+            'name': pick_localized(fb_relatives['chapter_name'], lang),
+            'points': 0,
+            'max_points': 0,
+            'passed': True,
+        }
+        chapter_exs = [e for e in module.get('exercises')
+                       if e.get("id") in fb_relatives['exercise_ids']]
+        for e in chapter_exs:
+            for key in ['points', 'max_points']:
+                chapter_dict[key] += e[key]
+            if not e.get('passed'):
+                chapter_dict['passed'] = False
+
+        # calculate info for progress bars
+        for d in [module_dict, chapter_dict, *category_dict.values()]:
+            d['percentage'] = d['points'] / d['max_points'] * 100
+            d['full_score'] = (d['points'] == d['max_points'])
+
+        context['points'] = {
+            'total': total_dict,
+            'by_category': category_dict,
+            'module': module_dict,
+            'chapter': chapter_dict,
+        }
         return context
 
 

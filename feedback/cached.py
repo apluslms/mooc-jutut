@@ -139,3 +139,25 @@ class CachedForm(Cached):
 
 
 CachedForm = CachedForm(timeout=60*60)
+
+
+class MiscCache:
+    """Cache for storing miscellaneous content related to a course."""
+    def __init__(self, prefix=None, timeout=None) -> None:
+        self.prefix = prefix or self.__class__.__name__
+        self.timeout = timeout or 60 * 60
+
+    def get_suffix(self, *args) -> str:
+        return '-'.join(str(x) for x in args)
+
+    def get(self, key: str, course: Course) -> object:
+        full_key = '/'.join((self.prefix, self.get_suffix(key, course.id)))
+        return cache.get(full_key)
+
+    def set(self, key: str, course: Course, value, timeout=-1) -> None:
+        full_key = '/'.join((self.prefix, self.get_suffix(key, course.id)))
+        timeout = timeout if (timeout != -1) else self.timeout
+        cache.set(full_key, value, timeout)
+
+
+MiscCache = MiscCache()

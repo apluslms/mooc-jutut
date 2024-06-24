@@ -634,6 +634,27 @@ async function studentDiscussionPreview(btn) {
 }
 
 
+/* Fetch content from button's data-url page and return the first div
+ * (should be the page's primary content) */
+async function fetchBtnUrlContent(btn, errorClass) {
+  const url = btn.dataset['url'];
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error("Unable to open URL");
+    }
+    const bodyText = await response.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(bodyText, "text/html");
+    const contentDiv = doc.querySelector('div');
+    return contentDiv;
+  } catch (error) {
+    console.error("Error:", error);
+    return '<div class="' + errorClass + '">' + btn.dataset['error'] + '</div>';
+  }
+}
+
+
 $(function() {
   $('[data-toggle="popover"]').popover();
 
@@ -674,6 +695,22 @@ $(function() {
           },
         }).popover('show');
         hideOnFocusOutside(btn);
+      });
+  });
+
+  /* Replace default popover with points summary */
+  $('.display-points-btn').one('show.bs.popover', function(e) {
+    const btn = e.target;
+    $(btn).popover('destroy');
+    fetchBtnUrlContent(btn, 'points-display')
+      .then(function(newContent) {
+        $(btn).popover({
+          ...opts,
+          content: newContent,
+          viewport: {selector: '.feedback-response-panel', padding: 6 },
+        }).popover('show');
+        hideOnFocusOutside(btn);
+        $('.points-display [data-toggle="tooltip"]').tooltip();
       });
   });
 });
