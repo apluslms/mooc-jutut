@@ -322,7 +322,7 @@ input[type="checkbox"].combosearch + label {
 
 .hover-btn {
 	background: none;
-	border-color: rgba(150, 150, 150, 0.2);
+	border-color: rgba(150, 150, 150, 0.3);
 }
 .hover-btn > .glyphicon,
 .styling-btn-container .btn > .glyphicon {
@@ -606,6 +606,55 @@ body.ios .feedback-message tr .glyphicon {
 .popover.style-buttons .btn-group.styling-buttons {
 	display: flex;
 }
+
+/* Popovers */
+.popover {
+	width: 45vw;
+	max-width: 600px;
+}
+@media (max-width: 700px) {
+	.popover {
+		width: 90vw;
+	}
+}
+
+.popover > .popover-content {
+	overflow-y: scroll;
+	max-height: 85vh;
+}
+
+/* conversation preview popovers */
+.popover .conversation-panel:not(:last-child) {
+	padding-bottom: 1rem;
+	border-bottom: 1px solid lightgray;
+	margin-bottom: 1rem;
+}
+
+.popover .conversation-panel .panel-heading {
+	margin-bottom: -3px;
+}
+.popover.feedback-message {
+	padding-bottom: 0;
+}
+.popover .feedback-message td {
+	padding: 3px;
+}
+.popover .feedback-message > .panel-footer {
+	cursor: auto;
+}
+.popover .feedback-message > .panel-footer .timestamp:after {
+	display: none;
+}
+.popover .conversation-panel .display-response {
+	color: #000;
+}
+.popover .conversation-panel .message-info {
+	height: 0.5em;
+	line-height: 1;
+}
+
+
+/* Import context tags */
 
 .import-form {
 	margin-bottom: 0.5em;

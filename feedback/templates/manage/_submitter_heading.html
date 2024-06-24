@@ -19,14 +19,30 @@
 			target="_blank">
 			{{ user.full_name }}
 		</a>
-		<a class="btn btn-xs hover-btn"
-			data-toggle="tooltip"
-			data-trigger="hover"
-			data-placement="top"
-			title="{% trans 'Show all feedback for this student' %}"
-			href="{{ conv.all_feedback_for_student_url }}&contains_text=on">
-			<span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
-		</a>
+		<div class="btn-group" role="group">
+			<a class="btn btn-xs hover-btn"
+				data-toggle="tooltip"
+				data-trigger="hover"
+				data-placement="top"
+				title="{% trans 'Show all feedback for this student' %}"
+				href="{{ conv.all_feedback_for_student_url }}&contains_text=on">
+				<span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
+			</a>
+			<a class="btn btn-xs hover-btn student-conv-prev-btn"
+				tabindex="0"
+				role="button"
+				data-toggle="popover"
+				data-trigger="focus hover"
+				data-title="{% blocktranslate trimmed with name=user.full_name %}
+					Conversations with {{ name }}
+				{% endblocktranslate %}"
+				data-url="{{ conv.all_feedback_for_student_url }}&contains_text=on&paginate_by=200"
+				data-error="{% translate 'Unable to preview conversations.' %}"
+				aria-label="{% trans 'Show conversations with student in a popover.' %}"
+			>
+				<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
+			</a>
+		</div>
 		{% for tag in user|studenttags_for_course:course %}
 			{{ tag|colortag }}
 		{% endfor %}

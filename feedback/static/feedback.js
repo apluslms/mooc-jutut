@@ -583,3 +583,97 @@ async function copyToClipboard(text, elem) {
     }
   }
 }
+
+/* Fetch conversations from url and return them (read-only) within a div. */
+async function studentDiscussionPreview(btn) {
+  const url = btn.dataset['url'];
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error("Unable to open URL");
+    }
+    const bodyText = await response.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(bodyText, "text/html");
+    const convs = doc.querySelectorAll('.conversation-panel');
+    /* insert convs into contentDiv */
+    const contentDiv = document.createElement('div');
+    contentDiv.className = 'student-conv-popover-content';
+    for (const elem of convs) {
+      contentDiv.appendChild(elem.cloneNode(true));
+    }
+    /* Remove extra content from feedback message */
+    const buttons = contentDiv.querySelectorAll('.btn');
+    for (const elem of buttons) {
+      elem.remove();
+    }
+    const fbMsgTgle = contentDiv.querySelectorAll('.feedback-message .toggle-showall');
+    for (const elem of fbMsgTgle) {
+      elem.removeAttribute('title');
+      elem.removeAttribute('role');
+      elem.removeAttribute('tabindex');
+    }
+    /* clean up response message, inject text into div rather than embedding form */
+    const response_msgs = contentDiv.querySelectorAll('.response-message');
+    for (const rsp_msg of response_msgs) {
+      const text_content = rsp_msg.querySelector('textarea').innerText;
+      if (text_content) {
+        const textDiv = document.createElement('div');
+        textDiv.className = 'display-response';
+        textDiv.innerText = text_content;
+        rsp_msg.firstElementChild.replaceWith(textDiv); // replace form with text div
+      } else { // no text content, so don't display anything
+        rsp_msg.remove();
+      }
+    }
+    return contentDiv;
+  } catch (error) {
+    console.error("Error:", error);
+    return btn.dataset['error'];
+  }
+}
+
+
+$(function() {
+  $('[data-toggle="popover"]').popover();
+
+  const opts = {
+    html: true,
+    placement: 'bottom',
+    trigger: 'focus hover',
+    viewport: { selector: 'body', padding: 20 },
+    // to reduce issue with scrolling at bottom of page on mobile
+    container: 'body',
+  };
+
+  /* Popovers stay open the first time they are triggered due to manual "show".
+   * Function to manually close popover when clicking or focusing elsewhere. */
+  const hideOnFocusOutside = (btn) => {
+    ['focusin', 'click'].forEach((evtType) => {
+      document.addEventListener(evtType, e => {
+        if (!btn.contains(e.target)) {
+          $(btn).popover('hide');
+        };
+      },
+      {once: true});
+    })
+  };
+
+  /* Replace default popover with fetched discussions preview */
+  $('.student-conv-prev-btn').one('show.bs.popover', function(e) {
+    const btn = e.target;
+    $(btn).popover('destroy');
+    studentDiscussionPreview(btn)
+      .then(function(newContent) {
+        $(btn).popover({
+          ...opts,
+          content: newContent,
+          placement: (popover, btn) => {
+            if ($('.student-conv-prev-btn').last().is(btn)) return 'bottom auto';
+            else return 'bottom';
+          },
+        }).popover('show');
+        hideOnFocusOutside(btn);
+      });
+  });
+});

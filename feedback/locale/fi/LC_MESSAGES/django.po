@@ -529,6 +529,19 @@ msgid "Show all feedback for this student"
 msgstr "Näytä kaikki palautteet tältä opiskelijalta"
 
 #: feedback/templates/manage/_submitter_heading.html
+#, python-format
+msgid "Conversations with %(name)s"
+msgstr "Keskustelut opiskelijan %(name)s kanssa"
+
+#: feedback/templates/manage/_submitter_heading.html
+msgid "Unable to preview conversations."
+msgstr "Keskustelujen esikatselu ei onnistu."
+
+#: feedback/templates/manage/_submitter_heading.html
+msgid "Show conversations with student in a popover."
+msgstr "Näytä keskustelut opiskelijan kanssa popover-ikkunassa."
+
+#: feedback/templates/manage/_submitter_heading.html
 msgid "Show the student's response to the background questionnaire"
 msgstr "Näytä opiskelijan vastaus taustatietokyselyyn"
 
