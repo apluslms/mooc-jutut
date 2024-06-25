@@ -381,6 +381,14 @@ class ManageCourseListView(ManageSiteMixin, ListView):
 class ManageUpdateStudenttagsView(ManageCourseMixin, TemplateView):
     template_name = "manage/update_studenttags.html"
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        course = self.course
+        last_updated = course.student_tags_updated
+        if last_updated:
+            context['prev_update_time'] = last_updated
+        return context
+
     def get(self, request, *args, **kwargs):
         kwargs['has_token'] = request.user.has_api_token(self.course.namespace)
         return super().get(request, *args, **kwargs)

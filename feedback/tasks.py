@@ -89,4 +89,3 @@ def update_student_tags(self): # pylint: disable=unused-argument
         if datetime.now(timezone.utc) < course_end:
             # update tags
             StudentTag.update_from_api(client, course)
-    # TODO: somehow store and indicate when tags for course have been last updated

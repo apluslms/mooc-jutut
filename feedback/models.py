@@ -106,6 +106,10 @@ class StudentTag(NamespacedApiObject, ColorTag):
         for old_tag in deleted:
             old_tag.delete()
 
+        # save update time to course
+        course.student_tags_updated = timezone.now()
+        course.save(update_fields=['student_tags_updated'])
+
         updated_tags = [tag for tag in tags.values() if tag not in new_tags]
         updated_tags.sort(key=lambda t: t.slug)
         return {
@@ -127,6 +131,7 @@ class Course(NamespacedApiObject):
 
     staff = models.ManyToManyField(settings.AUTH_USER_MODEL,
                                    related_name="courses")
+    student_tags_updated = models.DateTimeField(blank=True, null=True)
 
     def __str__(self):
         return "{} - {}".format(self.code, self.name)
