@@ -92,9 +92,9 @@ msgstr "Käytä regex-hakua"
 #: feedback/filters.py
 msgid ""
 "Override default search method and use case-insensitive regex search instead."
-msgstr
-"Etsi tavallisen hakumenetelmän sijaan säännöllisellä lausekkeella "
-"(case-insensitive regex)."
+msgstr ""
+"Etsi tavallisen hakumenetelmän sijaan säännöllisellä lausekkeella (case-"
+"insensitive regex)."
 
 #: feedback/filters.py
 msgid "Teacher content"
@@ -245,7 +245,6 @@ msgid "Response notify"
 msgstr "Ilmoitus vastauksesta"
 
 #: feedback/models.py
-#| msgid "Response time"
 msgid "Response seen"
 msgstr "Vastaus nähty"
 
@@ -357,7 +356,6 @@ msgid "Import"
 msgstr "Tuo"
 
 #: feedback/templates/feedback_tags/import_tags.html
-#| msgid "Can be imported"
 msgid "Tags to be imported"
 msgstr "Tuotavat tägit"
 
@@ -389,7 +387,6 @@ msgid "no (tag with this slug already exists)"
 msgstr "ei (tunnisteella on jo tägi)"
 
 #: feedback/templates/feedback_tags/import_tags.html
-#| msgid "No feedback tags found for course %(courseName)s."
 msgid "No feedback tags found for this course."
 msgstr "Kurssille ei löytynyt palautetägejä."
 
@@ -427,7 +424,7 @@ msgid "Show exercise in A+"
 msgstr "Näytä tehtävä A+:ssa"
 
 #: feedback/templates/manage/_exercise_heading.html
-msgid "Show all feedback for this execise"
+msgid "Show all feedback for this exercise"
 msgstr "Näytä kaikki palautteet tähän tehtävään"
 
 #: feedback/templates/manage/_exercise_heading.html
