@@ -6,6 +6,7 @@
 {% endcomment %}
 {% if errors %}
 	<div class="alert alert-danger {{classes}}">
+		{% if errors_title %}<b>{{errors_title}}</b><br>{% endif %}
 		{{ errors }}
 	</div>
 {% endif %}

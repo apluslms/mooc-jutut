@@ -1,14 +1,23 @@
+from typing import Optional
+
 from django.core.cache import cache
 from django.core.exceptions import ValidationError
 from django.db.models.signals import post_save, post_delete, m2m_changed
 from django.dispatch import receiver
 
+from aplus_client.client import AplusTokenClient
+
 from .models import (
     Site,
     Course,
+    Student,
     Feedback,
     FeedbackForm,
     FeedbackTag,
+)
+from .background_helpers import (
+    get_bg_questionnaires,
+    get_student_bg_responses,
 )
 
 
@@ -159,5 +168,58 @@ class MiscCache:
         timeout = timeout if (timeout != -1) else self.timeout
         cache.set(full_key, value, timeout)
 
+
+class BackgroundCache(MiscCache):
+    """Cache for storing information about background questionnaires.
+    Stores both background questionnaire (enrollment exercise) api ids with
+    with relevant information (such as question types, display texts, etc.)
+    as well as student responses to questionnaires.
+    """
+    def get_bg_questionnaires(self, course: Course)-> Optional[dict[int, dict]]:
+        return self.get('questionnaires', course)
+
+    def get_or_set_bg_questionnaires(self,
+            course: Course,
+            client: AplusTokenClient
+            ) -> dict[int, dict]:
+        bgq_dict = self.get_bg_questionnaires(course)
+        if bgq_dict is None: # not saved in cache yet
+            bgq_dict = get_bg_questionnaires(course, client)
+            # set in cache
+            self.set('questionnaires', course, bgq_dict)
+        return bgq_dict
+
+    def get_response(self, student: Student, course: Course) -> Optional[tuple[int, dict]]:
+        full_key = '/'.join((
+            self.prefix,
+            self.get_suffix(student.id, course.id, 'response'),
+        ))
+        return cache.get(full_key)
+
+    def get_or_set_response(self,
+            student: Student,
+            course: Course,
+            client: AplusTokenClient
+            ) -> tuple[int, dict]:
+        response = self.get_response(student, course)
+        if response is None: # not saved in cache yet
+            bg_questionnaires = self.get_or_set_bg_questionnaires(course, client)
+            if len(bg_questionnaires) == 0:
+                # no background questionnaires on course
+                response = (None, None)
+            else:
+                response = get_student_bg_responses(
+                    student, client, bg_questionnaires
+                )
+            # set value in cache
+            full_key = '/'.join((
+                self.prefix,
+                self.get_suffix(student.id, course.id, 'response'),
+            ))
+            cache.set(full_key, response)
+        return response
+
+
+BackgroundCache = BackgroundCache(timeout=60*60*24*120) #120 days
 
 MiscCache = MiscCache()

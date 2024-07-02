@@ -403,6 +403,11 @@ msgstr ""
 msgid "List of feedback tags"
 msgstr "Luettelo palautetägeistä"
 
+#: feedback/templates/manage/_background.html
+#: feedback/templates/manage/_submitter_heading.html
+msgid "Unable to fetch student's response."
+msgstr "Opiskelijan vastauksen hakeminen ei onnistunut."
+
 #: feedback/templates/manage/_conversations_as_list.html
 msgid "No feedback shown as there are errors in the filter form"
 msgstr "Palautteita ei näytetä, sillä lomakkeessa on virhe"
@@ -577,8 +582,14 @@ msgid "Show conversations with student in a popover."
 msgstr "Näytä keskustelut opiskelijan kanssa popover-ikkunassa."
 
 #: feedback/templates/manage/_submitter_heading.html
-msgid "Show the student's response to the background questionnaire"
-msgstr "Näytä opiskelijan vastaus taustatietokyselyyn"
+#, python-format
+msgid "Background questionnaire for %(name)s"
+msgstr "Opiskelijan %(name)s vastaus taustatietokyselyyn"
+
+#: feedback/templates/manage/_submitter_heading.html
+msgid ""
+"Show the student's response to the background questionnaire in a popover."
+msgstr "Näytä opiskelijan vastaus taustatietokyselyyn popover-ikkunassa."
 
 #: feedback/templates/manage/_submitter_heading.html
 msgid "Background"
@@ -821,6 +832,18 @@ msgstr "Anna täydet pisteet ja lähetä vastaus"
 #: feedback/templatetags/feedback.py
 msgid "Grade and send response"
 msgstr "Arvioi ja lähetä vastaus"
+
+#: feedback/views.py
+msgid "Missing A+ API token!"
+msgstr "A+ API-avain puuttuu!"
+
+#: feedback/views.py
+msgid ""
+"Some features will not fully work due to the missing A+ API token. Log in "
+"via A+ and access this site through the course menu."
+msgstr ""
+"Jotkin sivun toiminnot eivät toimi täysin puuttuvan A+ API-avaimen takia. "
+"Kirjaudu sisään A+-palvelussa ja tule tälle sivustolle kurssivalikon kautta."
 
 #: feedback/views.py
 msgid ""
