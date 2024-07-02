@@ -48,14 +48,23 @@
 		{% endfor %}
 	</span>
 	<div class="btn-group fb-context-btn-group">
-		<a class="btn btn-default btn-xs hidden"
-			data-toggle="tooltip"
-			data-trigger="hover"
-			data-placement="top"
-			title="{% trans "Show the student's response to the background questionnaire" %}"
-			href="{{ conv.background_url }}">
-			{% trans 'Background' %}
-		</a>
+		{% if conv.show_background %}
+			<a class="btn btn-xs hover-btn background-btn"
+				tabindex="0"
+				role="button"
+				data-toggle="popover"
+				data-trigger="focus hover"
+				data-placement="bottom"
+				title="{% blocktranslate trimmed with name=user.full_name %}
+					Background questionnaire for {{ name }}
+				{% endblocktranslate %}"
+				data-url="{% url 'feedback:background' course_id=course.id student_id=conv.student.id%}"
+				data-error="{% translate "Unable to fetch student's response." %}"
+				aria-label="{% translate "Show the student's response to the background questionnaire in a popover." %}"
+			>
+				{% trans 'Background' %}
+			</a>
+		{% endif %}
 		<a class="btn btn-xs hover-btn display-points-btn"
 			tabindex="0"
 			role="button"

@@ -713,4 +713,22 @@ $(function() {
         $('.points-display [data-toggle="tooltip"]').tooltip();
       });
   });
+
+  /* Replace default popover with response to background questionnaire */
+  $('.background-btn').one('show.bs.popover', function(e) {
+    const btn = e.target;
+    $(btn).popover('destroy');
+    fetchBtnUrlContent(btn, 'background-display')
+      .then(function(newContent) {
+        $(btn).popover({
+          ...opts,
+          content: newContent,
+          placement: (popover, btn) => {
+            if ($('.background-btn').last().is(btn)) return 'bottom auto';
+            else return 'bottom';
+          },
+        }).popover('show');
+        hideOnFocusOutside(btn);
+      });
+  });
 });

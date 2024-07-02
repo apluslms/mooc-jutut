@@ -669,6 +669,27 @@ body.ios .feedback-message tr .glyphicon {
 	line-height: 1;
 }
 
+/* background questionnaire popovers */
+.background-display h3 {
+	margin-top: 4px;
+	font-size: 20px;
+}
+.popover .background-display .control-label,
+.popover .background-display .question-description p {
+	margin-bottom: 2px;
+}
+.popover .background-display .form-group {
+	margin-bottom: 0.75em;
+}
+.popover .background-display .form-group:last-child {
+	margin-bottom: 0
+}
+.popover .background-display label > input[type="radio"]:checked + span,
+.popover .background-display label > input[type="checkbox"]:checked + span {
+	background-color: #bce8f1;
+	box-shadow: 0 0 0 3px #bce8f1;
+}
+
 /* points display popovers */
 .popover:has( .points-display) {
 	max-width: 400px;

@@ -1,12 +1,23 @@
 import logging
 import re
-from typing import Dict, List, Tuple, Any
+from typing import (
+    Any,
+    Callable,
+    Optional,
+    Tuple,
+)
 from collections import Counter
 from functools import partial
 from urllib.parse import urlsplit, urljoin, urlencode
 
 from django.forms import Form
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest, Http404
+from django.http import (
+    HttpResponse,
+    HttpResponseRedirect,
+    HttpResponseBadRequest,
+    Http404,
+    HttpRequest,
+)
 from django.utils.text import slugify
 from django.utils.timezone import now as timezone_now
 from django.utils.translation import get_language, gettext_lazy as _
@@ -43,6 +54,8 @@ from .cached import (
     CachedCourses,
     CachedTags,
     CachedNotrespondedCount,
+    MiscCache,
+    BackgroundCache,
 )
 from .forms import (
     ResponseForm,
@@ -50,6 +63,7 @@ from .forms import (
     ContextTagForm,
     ImportTagsForm,
 )
+from .forms_dynamic import DynamicFeedbacForm
 from .filters import FeedbackFilter
 from .permissions import (
     CheckManagementPermissionsMixin,
@@ -433,7 +447,14 @@ def get_feedback_dict(feedback, get_form, response_form_class, # pylint: disable
     return data
 
 
-def update_context_for_feedbacks(request, context, course=None, feedbacks=None, get_form=None, post_url=True): # noqa
+def update_context_for_feedbacks( # noqa
+        request: HttpRequest,
+        context: dict[str, Any],
+        course: Optional[Course] = None,
+        feedbacks: Optional[list[Feedback]] = None,
+        get_form: Optional[Callable[[Feedback], DynamicFeedbacForm]] = None,
+        post_url: bool = True,
+        ) -> None:
     # defaults for parameters
     if not course:
         course = context['course']
@@ -492,20 +513,41 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
                                            lambda c, t: (c.id, t.id))
 
     course_context_tags = ContextTag.objects.filter(course=course_id)
-    context_tag_groups: Dict[str, Dict[str, ContextTag]] = {} # {question_key: {response_value: ContextTag}}
+    context_tag_groups: dict[str, dict[str, ContextTag]] = {} # {question_key: {response_value: ContextTag}}
     for tag in course_context_tags:
         tag_group = context_tag_groups.setdefault(tag.question_key, {})
         tag_group[tag.response_value] = tag
 
+    # get background questionnaire urls
+    client = request.user.get_api_client(course.namespace)
+    if client:
+        course_has_bg_questionnaire = (
+            # pylint: disable-next=no-value-for-parameter
+            len(BackgroundCache.get_or_set_bg_questionnaires(course, client)) > 0
+        )
+    else:
+        bg_q_dict = BackgroundCache.get_bg_questionnaires(course) # pylint: disable=no-value-for-parameter
+        course_has_bg_questionnaire = bool(bg_q_dict) and len(bg_q_dict) > 0
+        context['errors_title'] = _("Missing A+ API token!")
+        context['errors'] = _(
+            "Some features will not fully work due to the missing A+ API token. " +
+            "Log in via A+ and access this site through the course menu."
+        )
+
+    def student_may_have_bg_questionnaire(student: Student) -> bool:
+        # check if student has bg response or it hasn't been fetched yet
+        resp = BackgroundCache.get_response(student, course) # pylint: disable=no-value-for-parameter
+        return (resp is None) or (resp[0] is not None)
+
     # group feedbacks by conversation
-    convs: Dict[Conversation, List[Feedback]] = {}
+    convs: dict[Conversation, list[Feedback]] = {}
     for f in feedbacks:
         if f.conversation in convs:
             convs[f.conversation].append(f)
         else:
             convs[f.conversation] = [f]
 
-    def get_conversation_dict(conv: Conversation, fbs: List[Feedback]) -> Dict:
+    def get_conversation_dict(conv: Conversation, fbs: list[Feedback]) -> dict:
         conv_feedback = [
             get_feedback_dict(
                 f,
@@ -543,11 +585,11 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
             'exercise': conv.exercise,
             'all_feedback_for_student_url': get_all_feedbacks_url(conv),
             'student_aplus_url': course.html_url + f'teachers/participants/{conv.student.api_id}',
-            'background_url': '', #TODO
             'all_feedback_for_exercise_url' : get_all_feedbacks_for_exercise_url(conv),
             'student_feedback_for_exercise_url': (
                 request.build_absolute_uri(get_all_student_feedbacks_for_exercise_url(conv))
             ),
+            'show_background': course_has_bg_questionnaire and student_may_have_bg_questionnaire(conv.student),
             'context_tags': context_tags,
             'conversation_tags': set(conv.tags.all()),
             'feedback_list': conv_feedback,
@@ -654,6 +696,68 @@ class UserFeedbackListView(ManageCourseMixin, ListView):
             return f
         context['feedbacks'] = (get_feedback(feedback) for feedback in feedbacks)
         context['student'] = self.student
+        return context
+
+
+class StudentBackgroundView(CheckManagementPermissionsMixin, TemplateView):
+    permission_classes = [AdminOrCourseStaffPermission]
+    template_name = "manage/_background.html"
+
+    @cached_property
+    def background_objects(self) -> tuple[Course, Student]:
+        kwargs = self.kwargs
+        course_id = kwargs.get('course_id')
+        student_id = kwargs.get('student_id')
+        course = get_object_or_404(Course, id=course_id)
+        student = get_object_or_404(Student, id=student_id)
+        return (course, student)
+
+    def get_context_data(self, **kwargs) -> dict:
+        context = super().get_context_data(**kwargs)
+        course, student = self.background_objects
+        client = self.request.user.get_api_client(course.namespace)
+
+        if client:
+            bgq_id, response = BackgroundCache.get_or_set_response( # pylint: disable=no-value-for-parameter
+                student, course, client
+            )
+        else:
+            res = BackgroundCache.get_response( # pylint: disable=no-value-for-parameter
+                student, course,
+            )
+            if res:
+                bgq_id, response = res
+            else:
+                context['errors'] = _(
+                    "Unable to fetch content due to missing A+ API token. " +
+                    "Log in via A+ and access this site through the course menu."
+                )
+                return context
+        if not bgq_id: # student hasn't responded to background questionnaire
+            return context
+        # pylint: disable-next=no-value-for-parameter
+        bg_questionnaire = BackgroundCache.get_bg_questionnaires(course)[bgq_id]
+        lang = get_language()
+
+        # calculate question info and response values in correct language
+        res = []
+        for key, value in response.items():
+            # general question info in correct language
+            r_dict = {
+                k: v[lang] if isinstance(v, dict) else v
+                for k, v in bg_questionnaire['questions'][key].items() if k != 'answer_opts'
+            }
+            q_dict = bg_questionnaire['questions'][key]
+            if q_dict['type'] in 'textarea': # text or textarea
+                r_dict['response'] = value
+            elif q_dict['type'] in ['radio', 'dropdown']:
+                r_dict['response'] = q_dict['answer_opts'][value][lang]
+            elif q_dict['type'] == 'checkbox': # value is list of responses
+                r_dict['response'] = [q_dict['answer_opts'][v][lang] for v in value]
+            # add response info to results
+            res.append(r_dict)
+        context['questions'] = res
+        context['title'] = pick_localized(bg_questionnaire['display_name'], lang)
         return context
 
 

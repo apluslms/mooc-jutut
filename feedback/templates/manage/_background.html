@@ -1,0 +1,53 @@
+{% load i18n %}
+{% comment %}
+	expects from context:
+		title
+		questions
+{% endcomment %}
+
+<div class="background-display">
+	{% include "_errors_box.html" %}
+	<h3>{{ title }}</h3>
+	{% for q in questions %}
+		<div class="question-area form-group">
+			{% if q.title %}
+				{% if q.required %}<span class="required">*</span>{% endif %}
+				<label class="control-label">{{ q.title }}</label>
+			{% endif %}
+			{% if q.title %}
+				<div class="question-description">
+					{% autoescape off %}
+						{{ q.description }}
+					{% endautoescape %}
+				</div>
+			{% endif %}
+
+			{% if q.type == 'radio' %}
+				<label>
+					<input type="{{ q.type }}" checked/>
+					<span>{{ q.response }}</span>
+				</label>
+			{% elif q.type == 'textarea' or q.type == 'text' %}
+				<input type="text"
+					class="form-control"
+					value="{{ q.response }}"
+				/>
+			{% elif q.type == 'dropdown' %}
+				<select class="form-control">
+					<option selected="" value="">
+						{{ q.response }}
+					</option>
+				</select>
+			{% elif q.type == 'checkbox' %}
+				{% for r in q.response %}
+					<label>
+						<input type="{{ q.type }}" checked/>
+						<span>{{ r }}</span>
+					</label>
+				{% endfor %}
+			{% endif %}
+		</div>
+	{% empty %}
+		{% translate "Unable to fetch student's response." %}
+	{% endfor %}
+</div>
