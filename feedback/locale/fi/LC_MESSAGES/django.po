@@ -684,6 +684,18 @@ msgid "No feedback by any student yet."
 msgstr "Ei palautetta keneltäkään."
 
 #: feedback/templates_j2/feedback/_form.html
+msgid "teacher"
+msgstr "opettaja"
+
+#: feedback/templates_j2/feedback/_form.html
+msgid "Previous responses and teacher replies"
+msgstr "Aiemmat omat vastaukset ja opettajan vastaukset"
+
+#: feedback/templates_j2/feedback/_form.html
+msgid "Previous responses"
+msgstr "Aiemmat omat vastaukset"
+
+#: feedback/templates_j2/feedback/_form.html
 msgid "show more"
 msgstr "näytä lisää"
 

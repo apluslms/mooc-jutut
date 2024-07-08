@@ -2,8 +2,14 @@
 {#
   Template for bootstrap glyph
 -#}
-{% macro glyph(name) -%}
-	<span class="glyphicon glyphicon-{{name}}" aria-hidden="true"></span>
+{% macro glyph(name, arialabel=none) -%}
+	<span class="glyphicon glyphicon-{{name}}"
+		{%- if arialabel-%}
+			aria-label="{{ arialabel }}"
+		{%- else -%}
+			aria-hidden="true"
+		{%- endif -%}
+	></span>
 {% endmacro -%}
 {#
   Staff reponse template
@@ -11,7 +17,7 @@
 {% macro staff_response(message, index=0) -%}
 	{% if message %}
 		<li class="list-group-item list-group-item-info staff" style="{% if index > 2 %}display: none;{% endif %}">
-			{{ glyph("education") }}
+			{{ glyph("education", _("teacher")) }}
 			<span class="text">{{ message }}</span>
 		</li>
 	{% endif %}
@@ -19,56 +25,98 @@
 {#
   Student message template
 -#}
-{% macro student_message(messages, index=0) -%}
+{% macro student_message(messages, f_key, index=0) -%}
 	<li class="list-group-item student" style="{% if index > 2 %}display: none;{% endif %}">
-		{% if messages|length > 1 %}
-			{% for key, text in messages %}
-				{% if not loop.first %}<br>{% endif %}
-				<b>{{ key }}</b><br>
+		{%- for key, text in messages -%}
+			{% if key == f_key -%}
 				<span class="text">{{ text }}</span>
-			{% endfor %}
-		{% else %}
-			{% for key, text in messages %}
-				<span class="text">{{ text }}</span>
-			{% endfor %}
-		{% endif %}
+			{%- endif %}
+		{%- endfor -%}
 	</li>
 {% endmacro -%}
+{% macro well(older_count, show_teacher=true, f_key=none) -%}
+	{%- if show_teacher -%}
+		{% set sr_text = _("Previous responses and teacher replies") %}
+	{%- else -%}
+		{% set sr_text = _("Previous responses") %}
+	{%- endif -%}
+	<div class="well" style="margin-bottom: 6px;">
+		<span class="sr-only">{{ sr_text }}</span>
+		<ul class="list-group nav" style="margin-bottom: 0;">
+			{% if older_count > 2 -%}
+				<li class="show-more">
+					{{ glyph("menu-up") }} {{ _("show more") }} {{ glyph("menu-up") }}
+				</li>
+			{%- endif %}
+
+			{%- for oldfb in feedback.older_versions|reverse -%}
+				{%- if f_key -%}
+					{{ student_message(oldfb.text_feedback, f_key, loop.revindex) }}
+				{%- endif -%}
+				{%- if show_teacher -%}
+					{{ staff_response(oldfb.response_msg, loop.revindex) }}
+				{%- endif -%}
+			{%- endfor -%}
+
+			{%- if f_key-%}
+				{{ student_message(feedback.text_feedback, f_key) }}
+			{%- endif -%}
+			{%- if feedback.response_msg and show_teacher -%}
+				{{ staff_response(feedback.response_msg) }}
+			{%- endif -%}
+		</ul>
+	</div>
+{%- endmacro -%}
 {#
   Main block
 -#}
 <div class="jutut-exercise jutut-v2" lang="{{ get_current_language() }}">
-
-	{# Response #}
-	{% if feedback %}
-		{% set older_count = feedback.older_versions.count() %}
-		{% if feedback.response_msg or older_count > 0 %}
-			<div class="well">
-				<ul class="list-group nav" style="margin-bottom: 0;">
-					{% if older_count > 2 %}
-						<li class="show-more">
-							{{ glyph("menu-up") }} {{ _("show more") }} {{ glyph("menu-up") }}
-						</li>
-					{% endif %}
-
-					{% for oldfb in feedback.older_versions|reverse %}
-						{{ student_message(oldfb.text_feedback, loop.revindex) }}
-						{{ staff_response(oldfb.response_msg, loop.revindex) }}
-					{% endfor %}
-
-					{{ student_message(feedback.text_feedback) }}
-					{% if feedback.response_msg %}
-						{{ staff_response(feedback.response_msg) }}
-					{% endif %}
-				</ul>
-			</div>
-		{% endif %}
-	{% endif %}
-
-	{# Form #}
+	{#- Form -#}
 	<form id="{{ form_id }}" action="{{ post_url }}" method="post" class="form">
+		{%- if feedback -%}
+			{% set older_count = feedback.older_versions.count() %}
+			{%- if form is has_textfields -%}
 
-		{{ form|bootstrap }}
+				{%- if form.non_field_errors() -%}
+					<div class="alert alert-danger">
+						<a class="close" data-dismiss="alert">&times;</a>
+						{%- for non_field_error in form.non_field_errors() -%}
+							{{ non_field_error }}
+						{%- endfor -%}
+					</div>
+				{%- endif -%}
+
+				{%- for field in form -%}
+					{%- if field.is_text -%}
+						<div class="form-group">
+							<div class="{{ field.css_classes() }}">
+								{%- if field.auto_id and field.label -%}
+									<label class="control-label {% if field.field.required %}{{ form.required_css_class or 'required' }}{% endif %}" for="{{ field.auto_id }}">{{ field.label }}</label>
+								{%- endif -%}
+								{%- if field.help_text -%}
+									<div class="help-block">
+										{{ field.help_text|safe }}
+									</div>
+								{%- endif -%}
+								{#- Old versions and teacher responses (if main text feedback) -#}
+								{{ well(older_count, field is primary_textfeedback, field.name) }}
+								{{- field|bootstrap_classes -}}
+								{%- for error in field.errors -%}
+									<span class="help-block {{ form.error_css_class or 'error-msg' }}">{{ error }}</span>
+								{%- endfor -%}
+							</div>
+						</div>
+					{%- else -%}
+						{{ field|bootstrap }}
+					{%- endif -%}
+				{%- endfor -%}
+			{%- else -%} {# render possible teacher responses even though there isn't text feedback -#}
+				{{ well(older_count) }}
+				{{ form|bootstrap }}
+			{%- endif -%}
+		{%- else -%}
+			{{ form|bootstrap }}
+		{%- endif -%}
 
 		<div class="only-when-edited alert alert-warning" style="display: none;">
 			{{ _("This feedback has unsaved changes!") }}
@@ -91,24 +139,27 @@
 	{# UI interaction #}
 	<script>
 		(function($) {
+			const f = $('#{{ form_id }}');
+			{# implement show more #}
+			const c = f.find('.well'), m = c.find('.show-more');
+			m.click(function() { c.find('li').show(); m.hide(); });
+			{# empty textfields #}
+			c.next('textarea, input[type="text"]').val("");
 			{# implement edited notification #}
-			var f = $('#{{ form_id }}'),
-				o = f.find('.only-when-edited'),
-				i = f.serialize(), s = false;
+			const o = f.find('.only-when-edited'), i = f.serialize();
+			let s = false;
 			f.removeAttr('id');
 			f.find(':input').on('change input', function() {
-				var n = f.serialize() !== i;
+				const n = f.serialize() !== i;
 				if (s !== n) o.toggle(s = n);
 			});
 			f.find("input[type='reset']").on('click', function(e) {
 				e.preventDefault();
 				f.each(function(){this.reset();});
+				c.next('textarea, input[type="text"]').val("");
 				o.hide(); s = false;
 			});
 			o.hide();
-			{# implement show more #}
-			var c = f.prev(), m = c.find('.show-more');
-			m.click(function() { c.find('li').show(); m.hide(); });
 			{# inject styles #}
 			if ($('#jutut-v2').length==0)
 				$('<style id="jutut-v2"></style>').appendTo(document.head).text(
@@ -118,7 +169,8 @@
 					".jutut-exercise.jutut-v2 li .text { white-space: pre-wrap; } " +
 					".jutut-exercise.jutut-v2 li.staff { margin-left: 15%; padding-left: 32px; } " +
 					".jutut-exercise.jutut-v2 li.staff .glyphicon { position: absolute; top: 12px; left: 12px; color: #5d5d5d; } " +
-					".jutut-exercise.jutut-v2 li.student { margin-right: 15%;} "
+					".jutut-exercise.jutut-v2 li.student { margin-right: 15%;} " +
+					".modal-content .jutut-exercise.jutut-v2 li.student:not(:has(~ .student)) { border: solid 2px #66afe9; } "
 				);
 		})(jQuery);
 	</script>
