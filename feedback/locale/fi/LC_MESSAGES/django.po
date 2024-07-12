@@ -468,8 +468,44 @@ msgid "Respond"
 msgstr "Vastaa"
 
 #: feedback/templates/manage/_response_message.html
-msgid "The student has seen this response."
-msgstr "Opiskelija on nähnyt tämän vastauksen."
+msgid "Toggle text preview"
+msgstr "Tekstin esikatselun vaihtaminen"
+
+#: feedback/templates/manage/_response_message.html
+msgid "Preview"
+msgstr "Esikatsele"
+
+#: feedback/templates/manage/_response_message.html
+msgid "Hide preview"
+msgstr "Piilota esikatselu"
+
+#: feedback/templates/manage/_response_message.html
+msgid "Hide preview and return to editing"
+msgstr "Piilota esikatselu ja palaa muokkausnäkymään"
+
+#: feedback/templates/manage/_response_message.html
+msgid "Show styling buttons"
+msgstr "Näytä muotoilupainikkeet"
+
+#: feedback/templates/manage/_response_message.html
+msgid "Styling buttons"
+msgstr "Muotoilupainikkeet"
+
+#: feedback/templates/manage/_response_message.html
+msgid "Insert link"
+msgstr "Lisää linkki"
+
+#: feedback/templates/manage/_response_message.html
+msgid "Bold"
+msgstr "Lihavointi"
+
+#: feedback/templates/manage/_response_message.html
+msgid "Italic"
+msgstr "Kursivointi"
+
+#: feedback/templates/manage/_response_message.html
+msgid "Monospace/code"
+msgstr "Tasalevyinen/koodi"
 
 #: feedback/templates/manage/_response_message.html
 msgid "Conflict"

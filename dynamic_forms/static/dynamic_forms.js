@@ -13,7 +13,7 @@ function dynamic_forms_textarea() {
     }
     textbox.hide();
     span = $('<span class="textarea"></span>');
-    span.text(base.val() || blankResponse);
+    span.html(base.val() || blankResponse);
     if (base.data('spantarget')) {
       spanbox = $(base.data('spantarget')).first();
       spanbox.show();
@@ -47,18 +47,18 @@ function dynamic_forms_textarea() {
 
   // edit
   if (editable) {
-    var turn_edit_on = function() {
+    const turn_edit_on = function() {
       spanbox.hide();
       textbox.show();
       base.trigger('enter_edit');
       // move focus to end
       textbox.find('textarea').focus().each(function() {
-        var len = this.value.length;
+        const len = this.value.length;
         this.selectionStart = len;
         this.selectionEnd = len;
       });
     };
-    var turn_edit_off = function() {
+    const turn_edit_off = function() {
       textbox.hide();
       spanbox.show();
     };

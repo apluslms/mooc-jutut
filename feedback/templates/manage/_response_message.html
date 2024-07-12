@@ -125,10 +125,106 @@
 		</div> <!-- #edit-box .edit-response-->
 	</form>
 
-	{% with state=form.has_expired|yesno:"error-conflict,default" %}
+	{% with def_state=feedback.waiting_for_response_msg|yesno:"pre-edit,default" %}
+	{% with state=form.has_expired|yesno:"error-conflict,"|add:def_state %}
 	<div class="stateful message-info" data-state="{{ state }}">
-		{% if form.had.responded and form.instance.response_by %}
-			<span>
+		<div class="styling-btn-container">
+			<div class="btn-toolbar"
+				{{ state|on_state:"pre-edit edit" }}
+				data-textarea-id="{{ form.auto_id|fill_format_string:"response_msg" }}"
+			>
+				<div class="btn-group" role="group"
+					aria-label="{% translate 'Toggle text preview' %}"
+				>
+					<button type="button" class="preview-button btn btn-default btn-xs"
+						data-toggle="tooltip" data-trigger="hover" data-placement="bottom"
+						title="{% translate 'Preview' %}"
+					>
+						<span class="glyphicon glyphicon-eye-open" aria-label="{% translate 'Preview' %}"></span>
+					</button>
+					<button type="button" class="unpreview-button btn btn-default btn-xs"
+						style="display: none;"
+						data-toggle="tooltip" data-trigger="hover" data-placement="bottom"
+						title="{% translate 'Hide preview' %}"
+					>
+						<span class="glyphicon glyphicon-edit" aria-label="{% translate 'Hide preview and return to editing' %}"></span>
+					</button>
+				</div>
+				<div class="btn-group visible-xs-response">
+					<button type="button" class="toggle-styling-buttons btn btn-default btn-xs"
+					data-toggle="tooltip" data-trigger="hover" data-placement="bottom" data-html="true"
+					title="{% translate 'Show styling buttons' %}"
+				>
+					<span class="glyphicon glyphicon-option-vertical" aria-label="{% translate 'Show styling buttons' %}"></span>
+					</button>
+				</div>
+				<div class="btn-group styling-buttons hidden-xs-response" role="group" aria-label="{% translate 'Styling buttons' %}">
+					<button type="button" class="btn btn-default btn-xs"
+						data-tag="a"
+						data-toggle="tooltip" data-trigger="hover" data-placement="bottom" data-html="true"
+						title="{% translate 'Insert link' %}<br>(CTRL/⌘ + K)"
+					>
+						<span class="glyphicon glyphicon-link" aria-label="{% translate 'Insert link' %}"></span>
+					</button>
+					<button type="button" class="btn btn-default btn-xs"
+						data-tag="b"
+						data-toggle="tooltip" data-trigger="hover" data-placement="bottom" data-html="true"
+						title="{% translate 'Bold' %}<br>(CTRL/⌘ + B)"
+					>
+						<span class="glyphicon glyphicon-bold" aria-label="{% translate 'Bold' %}"></span>
+					</button>
+					<button type="button" class="btn btn-default btn-xs"
+						data-tag="i"
+						data-toggle="tooltip" data-trigger="hover" data-placement="bottom" data-html="true"
+						title="{% translate 'Italic' %}<br>(CTRL/⌘ + I)"
+					>
+						<span class="glyphicon glyphicon-italic" aria-label="{% translate 'Italic' %}"></span>
+					</button>
+					<button type="button" class="btn btn-default btn-xs"
+						data-tag="code"
+						data-toggle="tooltip" data-trigger="hover" data-placement="bottom"
+						title="{% translate 'Monospace/code' %}"
+					>
+						<span class="glyphicon glyphicon-font" aria-label="{% translate 'Monospace/code' %}"></span>
+					</button>
+				</div>
+			</div>
+		</div> <!-- .styling-button-container -->
+		<div class="response-msg-bottom-right">
+			<div class="response-label-container">
+				<span
+					class="label label-default"
+					{{ state|on_state:"error-conflict" }}
+					>{% trans "Conflict" %}</span>
+				<span
+					class="label label-default"
+					{{ state|on_state:"edit" }}
+					>{% trans "not saved" %}</span>
+				<button
+					class="btn btn-danger btn-xs cancel-button"
+					data-textarea-id="{{ form.auto_id|fill_format_string:"response_msg" }}"
+					{{ state|on_state:"edit" }}
+					>{% trans "Cancel" %}</button>
+				{% if form.had.responded and not form.instance.response_by %}
+					<span
+						class="label label-info"
+						{{ state|on_state:"default" }}
+						rel="tooltip"
+						data-toggle="tooltip"
+						data-trigger="hover click"
+						data-placement="top"
+						title="{% trans "This feedback was automatically accepted" %}"
+						>
+						{% trans "auto" %}
+					</span>
+				{% endif %}
+			</div>
+			<div class="status-tag-container"
+				{{ state|on_state:"default error-conflict" }}
+			></div>
+			{% include "manage/_upload_status.html" %}
+			{% if form.had.responded and form.instance.response_by %}
+			<span {{ state|on_state:"default error-conflict" }}>
 				{% if feedback.response_seen %}
 					<span
 						class="glyphicon glyphicon-ok ok-icon"
@@ -141,7 +237,6 @@
 					</span>
 				{% endif %}
 				<span class="timestamp"
-					{{ state|on_state:"default error-conflict" }}
 					rel="tooltip"
 					data-toggle="tooltip"
 					data-trigger="hover click"
@@ -150,42 +245,10 @@
 					> {{ form.instance.response_time|naturaltime }}
 				</span>
 			</span>
-		{% endif %}
-	<div class="response-msg-bottom">
-		<div class="response-label-container">
-			<span
-				class="label label-default"
-				{{ state|on_state:"error-conflict" }}
-				>{% trans "Conflict" %}</span>
-			<span
-				class="label label-default"
-				{{ state|on_state:"edit" }}
-				>{% trans "not saved" %}</span>
-			<button
-				class="btn btn-danger btn-xs cancel-button"
-				data-textarea-id="{{ form.auto_id|fill_format_string:"response_msg" }}"
-				{{ state|on_state:"edit" }}
-				>{% trans "Cancel" %}</button>
-			{% if form.had.responded and not form.instance.response_by %}
-				<span
-					class="label label-info"
-					{{ state|on_state:"default" }}
-					rel="tooltip"
-					data-toggle="tooltip"
-					data-trigger="hover click"
-					data-placement="top"
-					title="{% trans "This feedback was automatically accepted" %}"
-					>
-					{% trans "auto" %}
-				</span>
 			{% endif %}
-		</div>
-		<div class="status-tag-container"
-			{{ state|on_state:"default error-conflict" }}
-		></div>
-		{% include "manage/_upload_status.html" %}
-	</div> <!-- .response-msg-bottom -->
+		</div> <!-- .response-msg-bottom-right -->
 	</div>
+	{% endwith %}
 	{% endwith %}
 </div>
 </div> <!--.response-message-container-->
