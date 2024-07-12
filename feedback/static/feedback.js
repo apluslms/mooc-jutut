@@ -88,27 +88,40 @@ $(function() {
     button.closest('form').submit();
   }
   function replace_with_buttons() {
-    var src = $(this);
+    const src = $(this);
     // create new form-group and select it
-    var dst = src.after('<div class="form-group buttons-for-radio"><div class="col-xs-12"><div class="btn-group btn-group-justified" role="group"></div></div></div>').next();
-    var cont = dst.find('.btn-group');
+    const dst = src.after('<div class="buttons-for-radio respond-btn-container">' +
+      '<div class="btn-group segmented" role="group">' +
+      '<button type="button" class="btn btn-sm btn-success dropdown-toggle"' +
+      ' data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+      '<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>' +
+      '</button>' +
+      '<ul class="dropdown-menu"></ul>' +
+      '</div></div>').next();
+    const cont = dst.find('.btn-group.segmented');
+    const dropdown = dst.find('.dropdown-menu');
     // for every input radio, create new button
     src.find('input[type="radio"]').each(function() {
-      var radio_pure = this;
-      var radio = $(this);
-      var text = radio.parent().text();
-      var color = radio.data('color');
-      if (radio.prop('disabled')) {
-        cont.append('<div class="btn-group" role="group"></div>')
-      } else {
-        cont.append('<div class="btn-group" rule="group"><button class="btn btn-' +
-          color + '">' + text + '</button></div>');
-        var button = cont.find('button').last();
+      const radio_pure = this;
+      const radio = $(this);
+      const text = radio.parent().text();
+      const color = radio.data('color');
+      const tooltip = radio.data('tooltip-text');
+      if (!radio.prop('disabled')) {
+        const button = $('<button class="btn btn-sm btn-' + color + '" ' +
+         'data-toggle="tooltip" data-trigger="hover" title="' + tooltip + '">' +
+          text + '</button>');
+        if (color == 'success') {
+          cont.prepend(button);
+        } else {
+          dropdown.prepend($('<li></li>').append(button));
+        }
         button.data('radio', radio_pure).on('click', on_submit_button);
         if (radio.is(':checked'))
           button.addClass('active');
       }
     });
+    dst.find('[data-toggle="tooltip"]').tooltip();
     // hide original form-group
     src.hide();
   }

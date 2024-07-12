@@ -1,5 +1,8 @@
+from typing import Optional
+
 from django import template
 from django.forms.utils import flatatt
+from django.utils.translation import gettext_lazy as _
 
 
 register = template.Library()
@@ -23,6 +26,16 @@ def select_from_list(index, list_):
 def grade_color(grade):
     colors = ['danger', 'warning', 'success']
     return select_from_list(grade, colors) or 'default'
+
+
+@register.filter
+def grade_submit_tooltip(grade: Optional[int]) -> str:
+    tooltip = [
+        _("Give 0 points and send response"),
+        _("Give half points and send response"),
+        _("Give full points and send response"),
+    ]
+    return select_from_list(grade, tooltip) or _("Grade and send response")
 
 
 @register.filter

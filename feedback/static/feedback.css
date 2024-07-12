@@ -537,6 +537,22 @@ body.ios .feedback-message tr .glyphicon {
 	float: right;
 	margin: 0.2em;
 }
+/* Btn-group styling fix so tooltips don't break styling. */
+.response-message .btn-group .btn ~ .btn {
+	margin-left: -1px;
+}
+.response-message .btn-group > .btn ~ .dropdown-toggle {
+	padding-right: 8px;
+	padding-left: 8px;
+}
+.response-message .respond-btn-container .dropdown-menu {
+	min-width: auto;
+	padding: 0;
+	margin-top: 0;
+}
+.response-message .respond-btn-container .dropdown-menu .btn {
+	width: 100%;
+}
 .response-message .ok-icon {
 	font-size: 0.8em;
 }

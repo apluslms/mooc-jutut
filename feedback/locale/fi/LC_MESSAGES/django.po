@@ -720,6 +720,22 @@ msgstr "Palaute"
 msgid "Feedback <i>%(jutut)s</i> for <i>%(aplus)s</i>"
 msgstr "Palaute <i>%(jutut)s</i> palvelulle <i>%(aplus)s</i>"
 
+#: feedback/templatetags/feedback.py
+msgid "Give 0 points and send response"
+msgstr "Anna 0 pistettä ja lähetä vastaus"
+
+#: feedback/templatetags/feedback.py
+msgid "Give half points and send response"
+msgstr "Anna puolet pisteistä ja lähetä vastaus"
+
+#: feedback/templatetags/feedback.py
+msgid "Give full points and send response"
+msgstr "Anna täydet pisteet ja lähetä vastaus"
+
+#: feedback/templatetags/feedback.py
+msgid "Grade and send response"
+msgstr "Arvioi ja lähetä vastaus"
+
 #: feedback/views.py
 msgid "Edit feedback tag"
 msgstr "Muokkaa palautetägiä"
