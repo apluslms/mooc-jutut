@@ -87,6 +87,7 @@
 										{% if form.disabled %} disabled {% endif %}
 										autocomplete="off"
 										data-color="{{ choice.data.value|grade_color }}"
+										data-tooltip-text="{{ choice.data.value|grade_submit_tooltip }}"
 										{% if choice.is_checked and form.instance.responded %} checked {% endif %}
 										/>
 									{{ choice.choice_label }}
