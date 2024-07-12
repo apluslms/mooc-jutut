@@ -11,7 +11,7 @@
 {% with upl=feedback.response_uploaded %}
 	{% if feedback.responded and not upl.ok %}
 		<span rel="tooltip"
-			class="label label-{{ upl.code|yesno:"danger,default" }} pull-right  upload_status"
+			class="label label-{{ upl.code|yesno:"danger,default" }} pull-right upload-status"
 			data-updateurl="{{ status_url|default:request.get_full_path }}"
 			data-code="{{ upl.code }}"
 			{% if upl.code %}

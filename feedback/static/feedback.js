@@ -54,7 +54,7 @@ $(function() {
       changed = this.value != this.defaultValue;
       return !changed;
     });
-    stateful.trigger('state_change', [(changed)?'edit':'default']);
+    stateful.trigger('state_change', [(changed)?'edit':'pre-edit']);
   }
   function on_textarea_change(e) {
     $(this).closest('form').each(form_changed);
@@ -63,18 +63,131 @@ $(function() {
 
   /* Functions to track form edit state and to cancel it */
   function enter_edit_state() {
-    var stateful = $(this).closest('.response-message').find('.stateful');
+    const stateful = $(this).closest('.response-message').find('.stateful');
     stateful.trigger('state_change', ['edit']);
   }
   function on_cancel_button(e) {
-    var me = $(this);
+    const me = $(this);
     $('#' + me.data('textarea-id')).each(function() {
-      var ta = $(this);
-      var stateful = ta.closest('.response-message').find('.stateful');
-      stateful.trigger('state_change', ['default']);
+      const ta = $(this);
+      const new_state = ta.hasClass('track-change') ? 'pre-edit' : 'default';
+      const stateful = ta.closest('.response-message').find('.stateful');
+      stateful.trigger('state_change', [new_state]);
+      stateful.find('.unpreview-button').click();
       ta.trigger('exit_edit');
       ta.closest('form').each(function() { this.reset(); });
     });
+  }
+
+  /* Buttons for toggling preview state */
+  let sStart, sEnd;
+  function on_preview_button(e) {
+    const me = $(this);
+    const toolbar = me.closest('.btn-toolbar');
+    $('#' + toolbar.data('textarea-id')).each(function() {
+      const ta = $(this);
+      sStart = this.selectionStart;
+      sEnd = this.selectionEnd;
+      ta.hide();
+      ta.after('<span class="textarea preview">' + ta.val() + '</span>');
+    });
+    me.hide();
+    me.siblings('.unpreview-button').show().focus();
+    toolbar.find('.styling-buttons').children().addClass('disabled');
+  }
+  function on_unpreview_button(e) {
+    const me = $(this);
+    const toolbar = me.closest('.btn-toolbar');
+    $('#' + toolbar.data('textarea-id')).each(function() {
+      const ta = $(this);
+      ta.next('span.preview').remove();
+      ta.show();
+      ta.focus().each(function() {
+        this.selectionStart = sStart;
+        this.selectionEnd = sEnd;
+      });
+    });
+    me.hide();
+    me.siblings('.preview-button').show();
+    toolbar.find('.styling-buttons').children().removeClass('disabled');
+  }
+
+  /* Styling buttons */
+  function addTag(input, tagType) {
+    const text = input.value.slice(input.selectionStart, input.selectionEnd);
+    const startTag = '<' + tagType + ((tagType == 'a') ? ' href=""' : '') + '>';
+    const endTag = '</' + tagType + '>';
+    input.setRangeText(startTag + text + endTag);
+    if (tagType == 'a') {
+      // set selection to where link would be inserted
+      const start = input.selectionStart + 9;
+      input.setSelectionRange(start, start);
+    } else {
+      // set selection to inside of tag
+      const start = input.selectionStart + startTag.length;
+      input.setSelectionRange(start, start + text.length);
+    }
+  }
+  function toggleTag(input, tagType) {
+    input.focus();
+    // Check if there the tags wrap the selection
+    const sStart = input.selectionStart;
+    const sEnd = input.selectionEnd;
+    const startTag = '<' + tagType + ((tagType == 'a') ? ' href=""' : '') + '>';
+    const endTag = '</' + tagType + '>';
+    const str = input.value;
+    const beforeStrI = str.lastIndexOf(startTag, sStart);
+    const afterStrI = str.indexOf(endTag, sEnd);
+    if (beforeStrI == -1 || afterStrI == -1) { // no tags
+      addTag(input, tagType);
+      return;
+    }
+    const beforeBetween = str.slice(beforeStrI + startTag.length, sStart);
+    const afterBetween = str.slice(sEnd, afterStrI);
+    if (
+      beforeBetween.replaceAll(/<.>|<code>/g, '').length > 0 ||
+      afterBetween.replaceAll(/<\/.>|<\/code>/g, '').length > 0
+    ) { // excess content between tag and selection
+      addTag(input, tagType);
+      return;
+    }
+    // remove tag
+    input.setRangeText('', afterStrI, afterStrI + endTag.length);
+    input.setRangeText('', beforeStrI, beforeStrI + startTag.length);
+    input.setSelectionRange(sStart - startTag.length, sEnd - startTag.length);
+  }
+  function on_style_button(e) {
+    const me = $(this);
+    const tagType = me.data('tag');
+    const toolbar = me.closest('.btn-toolbar');
+    $('#' + toolbar.data('textarea-id')).each(function() {
+      toggleTag(this, tagType);
+    });
+  }
+  function on_key_down(e) {
+    if (e.ctrlKey || e.metaKey) {
+      switch (e.key) {
+        case 'b':
+          // bold
+          toggleTag(e.target, 'b');
+          break;
+        case 'i':
+          // italicize
+          toggleTag(e.target, 'i');
+          break;
+        case 'u':
+          // underline:
+          toggleTag(e.target, 'u');
+          break;
+        case 'k':
+          // insert link
+          addTag(e.target, 'a');
+          break;
+        default:
+          return;
+      }
+      e.preventDefault();
+    }
   }
 
   /* Buttons that replace radio select */
@@ -121,7 +234,6 @@ $(function() {
           button.addClass('active');
       }
     });
-    dst.find('[data-toggle="tooltip"]').tooltip();
     // hide original form-group
     src.hide();
   }
@@ -345,8 +457,8 @@ $(function() {
 
     // Modify
     dom.each(dynamic_forms_textareas);
-    !nohover && dom.find('[data-toggle="tooltip"]').tooltip();
     dom.find('.replace-with-buttons').each(replace_with_buttons);
+    !nohover && dom.find('[data-toggle="tooltip"]').tooltip();
     dom.find('.feedback-status-label').each(update_feedback_status_colors);
     if (!global && dom.prev().is('.panel-heading')) {
       update_group_status(dom);
@@ -357,11 +469,32 @@ $(function() {
     dom.find('textarea.track-change').on('change keyup paste', on_textarea_change);
     dom.find('textarea.textarea').on('enter_edit', enter_edit_state);
     dom.find('.cancel-button').on('click', on_cancel_button);
+    dom.find('.preview-button').on('click', on_preview_button);
+    dom.find('.unpreview-button').on('click', on_unpreview_button);
+    dom.find('.styling-buttons').children().on('click', on_style_button);
+    dom.find('textarea.textarea, textarea.track-change').on('keydown', on_key_down);
     dom.find('button.colortag').on('click', ajax_set_tag_state);
     dom.find('.stateful').on('state_change', on_state_change);
 
+    // enable showing styling buttons on click when they don't fit
+    dom.find('.toggle-styling-buttons').each((i, elem) => {
+      const btn = $(elem);
+      btn.popover({
+        'trigger': 'click',
+        'content': () => {
+          return btn.closest('.btn-toolbar').find('.styling-buttons').clone(true);
+        },
+        'template': '<div class="popover style-buttons" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>',
+      })
+      btn.on('show.bs.popover', (e) => {
+        btn.tooltip('hide');
+        btn.tooltip('disable');
+      });
+      btn.on('hide.bs.popover', (e) => btn.tooltip('enable'));
+    })
+
     // timeouts
-    dom.find('.upload_status').each(function() {
+    dom.find('.upload-status').each(function() {
       var span = this;
       setTimeout(update_response_status, 2000, span, nohover);
     });

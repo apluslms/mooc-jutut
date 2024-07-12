@@ -324,8 +324,9 @@ input[type="checkbox"].combosearch + label {
 	background: none;
 	border-color: rgba(150, 150, 150, 0.2);
 }
-.hover-btn > .glyphicon {
-	top: 0.2em
+.hover-btn > .glyphicon,
+.styling-btn-container .btn > .glyphicon {
+	top: 03px
 }
 .hover-btn:hover {
 	background-color: rgba(150, 150, 150, 0.3);
@@ -367,7 +368,7 @@ input[type="checkbox"].combosearch + label {
 	flex-wrap: wrap;
 }
 .feedback-response-panel > .panel-body > .conversation-panel {
-	flex: 35%;
+	flex: 37%;
 	max-width: 75%;
 	padding: 0.5em;
 }
@@ -533,6 +534,9 @@ body.ios .feedback-message tr .glyphicon {
 	min-height: 50px;
 	resize: both;
 }
+.response-message span.textarea.preview {
+	margin: 5px;
+}
 .response-message .respond-btn-container {
 	float: right;
 	margin: 0.2em;
@@ -558,13 +562,49 @@ body.ios .feedback-message tr .glyphicon {
 }
 .response-message .message-info {
 	display: flex;
-	justify-content: flex-end;
+	justify-content: space-between;
 	align-items: flex-end;
+	padding: 0 0.3em;
 }
-.response-msg-bottom {
+.styling-btn-container .btn-toolbar {
 	padding: 0.3em;
+	padding-left: 0;
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+}
+.response-msg-bottom-right {
 	display: flex;
 	align-items: flex-end;
+	justify-content: flex-end;
+}
+.response-label-container > * {
+	margin: 0.3em 0;
+}
+.status-tag-container > *,
+.upload-status {
+	margin: 0 0.3em;
+}
+
+/* Popover for styling buttons when they don't fit normally */
+.visible-xs-response {
+	display: none;
+}
+@media (max-width: 499px),
+(min-width: 701px) and (max-width: 991px) {
+	.visible-xs-response {
+		display: block;
+	}
+	.hidden-xs-response {
+		display: none;
+	}
+}
+.popover.style-buttons .popover-content{
+	padding: 4px;
+	display: flex;
+}
+.popover.style-buttons .btn-group.styling-buttons {
+	display: flex;
 }
 
 .import-form {
