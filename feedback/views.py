@@ -553,7 +553,6 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
         return conv_dict
 
     context['conversations'] = [get_conversation_dict(c, fbs) for c, fbs in convs.items()]
-    context['total_conversation_count'] = len(context['conversations'])
 
 
 class PaginatedMixin():
@@ -566,11 +565,13 @@ class PaginatedMixin():
             self.paginate_by = int(value)
         return self.paginate_by
 
-    def get_context_data(self, **kwargs):
+    def get_context_data(self, **kwargs) -> dict:
         context = super().get_context_data(**kwargs)
         context['page_sizes'] = list(map(
             lambda size: (size, int(size) == self.paginate_by),
             self.PAGE_SIZE_CHOICES))
+        feedbacks = context['paginator'].object_list
+        context['total_conversation_count'] = len({f.conversation.id for f in feedbacks})
         return context
 
 
