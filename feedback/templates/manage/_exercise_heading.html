@@ -28,15 +28,17 @@
 			href="{{ conv.all_feedback_for_exercise_url }}">
 			<span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
 		</a>
-		<a
+		<button
 			class="btn btn-xs hover-btn"
 			data-toggle="tooltip"
 			data-trigger="hover"
 			data-placement="top"
-			title="{% trans 'Show feedback for this execise by the student' %}"
-			href="{{ conv.student_feedback_for_exercise_url }}">
+			title="{% trans 'Copy link to this conversation' %}"
+			data-copy-notification="{% trans 'The link was copied to the clipboard' %}"
+			onclick="copyToClipboard('{{ conv.student_feedback_for_exercise_url }}', this)"
+		>
 			<span class="glyphicon glyphicon-link" aria-hidden="true"></span>
-		</a>
+		</button>
 	</div>
 	<div class="feedback-context-container">
 		<div class="btn-toolbar pull-right feedback-context">

@@ -431,8 +431,12 @@ msgid "Show all feedback for this execise"
 msgstr "Näytä kaikki palautteet tähän tehtävään"
 
 #: feedback/templates/manage/_exercise_heading.html
-msgid "Show feedback for this execise by the student"
-msgstr "Näytä tämän opiskelijan palautteet tähän tehtävään"
+msgid "Copy link to this conversation"
+msgstr "Kopioi linkki tähän keskusteluun"
+
+#: feedback/templates/manage/_exercise_heading.html
+msgid "The link was copied to the clipboard"
+msgstr "Linkki kopioitiin leikepöydälle"
 
 #: feedback/templates/manage/_feedback_message.html
 msgid "This field was <b>not</b> required"
