@@ -407,3 +407,33 @@ window.addEventListener("load", (event) => {
     cur.onkeydown = toggleShowAll;
   }
 });
+
+async function copyToClipboard(text, elem) {
+  const popoverOpts = {
+    template: '<div class="popover" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>',
+    trigger: 'manual',
+  };
+  try {
+    await navigator.clipboard.writeText(text);
+    if (elem) {
+      btn = $(elem);
+      btn.tooltip('hide').popover({
+        ...popoverOpts,
+        content: elem.dataset.copyNotification || "'" + text + "' was copied to the clipboard",
+      }).popover('show');
+      setTimeout(() => { btn.popover('hide'); }, 2000);
+    }
+  } catch (error) {
+    console.error(error.message);
+    if (elem) {
+      btn = $(elem);
+      btn.tooltip('hide').popover({
+        ...popoverOpts,
+        content: "Unable to copy to clipboard: " + text,
+      }).popover('show');
+      setTimeout(() => { btn.popover('hide'); }, 5000);
+    } else {
+      console.log("Unable to copy to clipboard: " + text);
+    }
+  }
+}

@@ -543,7 +543,9 @@ def update_context_for_feedbacks(request, context, course=None, feedbacks=None, 
             'student_aplus_url': course.html_url + f'teachers/participants/{conv.student.api_id}',
             'background_url': '', #TODO
             'all_feedback_for_exercise_url' : get_all_feedbacks_for_exercise_url(conv),
-            'student_feedback_for_exercise_url': get_all_student_feedbacks_for_exercise_url(conv),
+            'student_feedback_for_exercise_url': (
+                request.build_absolute_uri(get_all_student_feedbacks_for_exercise_url(conv))
+            ),
             'context_tags': context_tags,
             'conversation_tags': set(conv.tags.all()),
             'feedback_list': conv_feedback,
