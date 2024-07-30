@@ -248,6 +248,14 @@ msgstr "Ilmoitus vastauksesta"
 msgid "Response seen"
 msgstr "Vastaus nähty"
 
+#: feedback/models.py
+msgid "Pin"
+msgstr "Kiinnitä"
+
+#: feedback/models.py
+msgid "Pin tag to the beginning of the list of tags."
+msgstr "Kiinnitä tägi luettelon alkuun."
+
 #: feedback/models.py feedback/templates/feedback_tags/contexttag_list.html
 msgid "Question key"
 msgstr "Kysymyksen avain"
