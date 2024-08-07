@@ -565,6 +565,16 @@ msgid "Open student page in A+"
 msgstr "Avaa opiskelijasivu A+:ssa"
 
 #: feedback/templates/manage/_submitter_heading.html
+msgid "Toolbar of buttons related to student"
+msgstr "Kokoelma opiskelijaan liittyviä painikkeita"
+
+#: feedback/templates/manage/_submitter_heading.html
+msgid "Group of buttons for viewing conversations with student"
+msgstr ""
+"Ryhmä painikkeita, joiden avulla voi tarkastella keskusteluita opiskelijan "
+"kanssa"
+
+#: feedback/templates/manage/_submitter_heading.html
 msgid "Show all feedback for this student"
 msgstr "Näytä kaikki palautteet tältä opiskelijalta"
 
@@ -580,6 +590,10 @@ msgstr "Keskustelujen esikatselu ei onnistu."
 #: feedback/templates/manage/_submitter_heading.html
 msgid "Show conversations with student in a popover."
 msgstr "Näytä keskustelut opiskelijan kanssa popover-ikkunassa."
+
+#: feedback/templates/manage/_submitter_heading.html
+msgid "Group of buttons providing background context"
+msgstr "Ryhmä painikkeita, jotka tarjoavat taustakontekstia"
 
 #: feedback/templates/manage/_submitter_heading.html
 #, python-format
