@@ -358,6 +358,15 @@ input[type="checkbox"].combosearch + label {
 	background-color: #222;
 	border-color: #080808;
 }
+.feedback-response-panel .student-info {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+}
+.feedback-response-panel .student-info > * {
+	flex-shrink: 0;
+	margin-right: 8px;
+}
 .feedback-response-panel > .panel-heading a.student-name {
 	font-weight: bold;
 	font-size: 14px;
@@ -366,16 +375,20 @@ input[type="checkbox"].combosearch + label {
 .feedback-response-panel > .panel-heading a.student-name:hover {
 	color: #ddf;
 }
+.feedback-response-panel .student-info > .student-tags > .label.colortag {
+	margin-right: 5px;
+}
 .feedback-response-panel > .panel-heading .hover-btn {
 	color: #fff;
 }
-.feedback-response-panel > .panel-heading .label {
-	font-size: 70%;
+.feedback-response-panel > .panel-heading .student-tags .label {
+	font-size: 75%;
 }
-.feedback-response-panel > .panel-heading > .fb-context-btn-group {
+.feedback-response-panel > .panel-heading > .btn-toolbar {
 	display: flex;
 	align-items: start;
 	justify-content: flex-end;
+	flex-shrink: 0;
 }
 
 .feedback-response-panel > .panel-body {

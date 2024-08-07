@@ -9,7 +9,7 @@
 		user
 {% endcomment %}
 <div class="panel-heading">
-	<span class="student-info">
+	<div class="student-info">
 		<a class="student-name"
 			data-toggle="tooltip"
 			data-trigger="hover"
@@ -19,7 +19,16 @@
 			target="_blank">
 			{{ user.full_name }}
 		</a>
-		<div class="btn-group" role="group">
+		<div class="student-tags">
+			{% spaceless %}
+			{% for tag in user|studenttags_for_course:course %}
+				{{ tag|colortag }}
+			{% endfor %}
+			{% endspaceless %}
+		</div>
+	</div>
+	<div class="btn-toolbar" role="toolbar" aria-label="{% translate 'Toolbar of buttons related to student' %}">
+		<div class="btn-group" role="group" aria-label="{% translate 'Group of buttons for viewing conversations with student' %}">
 			<a class="btn btn-xs hover-btn"
 				data-toggle="tooltip"
 				data-trigger="hover"
@@ -43,42 +52,37 @@
 				<span class="glyphicon glyphicon-eye-open" aria-hidden="true"></span>
 			</a>
 		</div>
-		{% for tag in user|studenttags_for_course:course %}
-			{{ tag|colortag }}
-		{% endfor %}
-	</span>
-	<div class="btn-group fb-context-btn-group">
-		{% if conv.show_background %}
-			<a class="btn btn-xs hover-btn background-btn"
+		<div class="btn-group fb-context-btn-group" role="group" aria-label="{% translate 'Group of buttons providing background context' %}">
+			{% if conv.show_background %}
+				<a class="btn btn-xs hover-btn background-btn"
+					tabindex="0"
+					role="button"
+					data-toggle="popover"
+					data-trigger="focus hover"
+					title="{% blocktranslate trimmed with name=user.full_name %}
+						Background questionnaire for {{ name }}
+					{% endblocktranslate %}"
+					data-url="{% url 'feedback:background' course_id=course.id student_id=conv.student.id%}"
+					data-error="{% translate "Unable to fetch student's response." %}"
+					aria-label="{% translate "Show the student's response to the background questionnaire in a popover." %}"
+				>
+					{% trans 'Background' %}
+				</a>
+			{% endif %}
+			<a class="btn btn-xs hover-btn display-points-btn"
 				tabindex="0"
 				role="button"
 				data-toggle="popover"
 				data-trigger="focus hover"
-				data-placement="bottom"
 				title="{% blocktranslate trimmed with name=user.full_name %}
-					Background questionnaire for {{ name }}
+					Points for {{ name }}
 				{% endblocktranslate %}"
-				data-url="{% url 'feedback:background' course_id=course.id student_id=conv.student.id%}"
-				data-error="{% translate "Unable to fetch student's response." %}"
-				aria-label="{% translate "Show the student's response to the background questionnaire in a popover." %}"
+				data-url="{% url 'feedback:points' conversation_id=conv.id %}"
+				data-error="{% translate 'Unable to fetch points.' %}"
+				aria-label="{% translate "Show the student's points in a popover." %}"
 			>
-				{% trans 'Background' %}
+				{% trans 'Points' %}
 			</a>
-		{% endif %}
-		<a class="btn btn-xs hover-btn display-points-btn"
-			tabindex="0"
-			role="button"
-			data-toggle="popover"
-			data-trigger="focus hover"
-			data-placement="bottom"
-			title="{% blocktranslate trimmed with name=user.full_name %}
-				Points for {{ name }}
-			{% endblocktranslate %}"
-			data-url="{% url 'feedback:points' conversation_id=conv.id %}"
-			data-error="{% translate 'Unable to fetch points.' %}"
-			aria-label="{% translate "Show the student's points in a popover." %}"
-		>
-			{% trans 'Points' %}
-		</a>
-	</div>
-</diV>
+		</div>
+	</div> <!-- .btn-toolbar -->
+</div>
