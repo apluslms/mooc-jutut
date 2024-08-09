@@ -568,6 +568,10 @@ msgstr "Palaute on automaattisesti hyväksytty"
 msgid "auto"
 msgstr "auto"
 
+#: feedback/templates/manage/_response_message.html
+msgid "The student has seen this response."
+msgstr "Opiskelija on nähnyt tämän vastauksen."
+
 #: feedback/templates/manage/_submitter_heading.html
 msgid "Open student page in A+"
 msgstr "Avaa opiskelijasivu A+:ssa"
