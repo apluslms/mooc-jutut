@@ -15,22 +15,6 @@ $(function () {
   $('.collapse-on-load').collapse();
 
   $("#id_feedbackfilter_response_grade").replaceCheckboxesWithButtons();
-  $('.and-or-label').replaceInputsWithMultiStateButtons({
-    color_0: 'primary',
-    color_1: 'info',
-    icon_0: '', // 'fas fa-chevron-down' OR 'fas fa-grip-lines-vertical'
-    icon_1: '', // 'fas fa-chevron-up'
-    buttonClass: 'btn btn-xs',
-  })
-  $('.colortag-ie-group').replaceInputsWithMultiStateButtons({
-    groupClass: 'colortag-container',
-    buttonClass: '',
-    nocolor: true,
-    buttonSetup: function(input, button) {
-      button.css('backgroundColor', input.data('background'));
-    },
-  });
-  // $('.colortag-choice').each(django_colortag_choice);
   $('#filter-form select').chosen({disable_search_threshold: 10});
 });
 
