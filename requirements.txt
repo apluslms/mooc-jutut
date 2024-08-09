@@ -7,7 +7,7 @@ django-jinja-bootstrap-form ~= 4.3.4
 git+https://github.com/apluslms/django-essentials.git@1.6.0#egg=django-essentials~=1.6.0
 git+https://github.com/apluslms/js-jquery-toggle.git@1.1.2#egg=js-jquery-toggle-django~=1.1.2&subdirectory=django
 git+https://github.com/apluslms/django-dictiterators.git@1.1.1#egg=django-dictiterators~=1.1.1
-git+https://github.com/apluslms/django-colortag.git@2.4.3#egg=django-colortag~=2.4.3
+git+https://github.com/apluslms/django-colortag.git@2.5.0#egg=django-colortag~=2.5.0
 git+https://github.com/apluslms/django-lti-login.git@3.3.0#egg=django-lti-login~=3.3.0
 django-filter ~= 22.1
 django-settingsdict ~= 1.1.1
