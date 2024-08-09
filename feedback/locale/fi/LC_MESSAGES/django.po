@@ -248,6 +248,14 @@ msgstr "Ilmoitus vastauksesta"
 msgid "Response seen"
 msgstr "Vastaus nähty"
 
+#: feedback/models.py
+msgid "Pin"
+msgstr "Kiinnitä"
+
+#: feedback/models.py
+msgid "Pin tag to the beginning of the list of tags."
+msgstr "Kiinnitä tägi luettelon alkuun."
+
 #: feedback/models.py feedback/templates/feedback_tags/contexttag_list.html
 msgid "Question key"
 msgstr "Kysymyksen avain"
@@ -559,6 +567,10 @@ msgstr "Palaute on automaattisesti hyväksytty"
 #: feedback/templates/manage/_response_message.html
 msgid "auto"
 msgstr "auto"
+
+#: feedback/templates/manage/_response_message.html
+msgid "The student has seen this response."
+msgstr "Opiskelija on nähnyt tämän vastauksen."
 
 #: feedback/templates/manage/_submitter_heading.html
 msgid "Open student page in A+"

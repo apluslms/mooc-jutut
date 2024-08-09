@@ -172,6 +172,13 @@ class ResponseForm(forms.ModelForm):
 class FeedbackTagForm(ColorTagForm):
     class Meta(ColorTagForm.Meta):
         model = FeedbackTag
+        fields = (
+            'name',
+            'slug',
+            'description',
+            'color',
+            'pinned',
+        )
 
     def _get_validation_exclusions(self):
         exclude = super()._get_validation_exclusions()

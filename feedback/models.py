@@ -648,9 +648,19 @@ class FeedbackTag(ColorTag):
         Conversation,
         related_name="tags",
     )
+    pinned = models.BooleanField(
+        verbose_name=_("Pin"),
+        help_text=_("Pin tag to the beginning of the list of tags."),
+        default=False,
+    )
 
     class Meta(ColorTag.Meta):
         unique_together = ('course', 'slug')
+        ordering = ['-pinned', 'slug']
+
+    @cached_property
+    def is_pinned(self):
+        return self.pinned
 
     def is_valid_slug(self, slug):
         # FIXME: returns False if this tag is already added
