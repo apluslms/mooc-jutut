@@ -15,7 +15,7 @@ def get_exercise_questions(exercise_api: AplusApiDict) -> dict[str, dict]:
 
     def get_trans_dict(key: str) -> dict[str, str]:
         api_dict = trans_strings.get(key)
-        return {k: unescape(api_dict[k]) for k in api_dict.keys()}
+        return {k: unescape(str(api_dict[k])) for k in api_dict.keys()}
 
     for q in ex_info.get('form_spec'):
         if q.get('type') == 'static':
