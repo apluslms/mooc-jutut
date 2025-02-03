@@ -154,7 +154,7 @@ class Exercise(NestedApiObject):
                                related_name='exercises',
                                on_delete=models.PROTECT)
     consecutive_order = models.IntegerField(default=0)
-    parent_name = models.CharField(max_length=255, default='')
+    parent_name = models.CharField(max_length=255, null=True, blank=True, default='')
 
     IS_HIERARCHICAL_NAME = re.compile(r"^(?P<round>\d+)\.(?P<chapter>\d+)(\.\d+)* ")
 
