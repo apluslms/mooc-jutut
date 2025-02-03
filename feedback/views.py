@@ -857,7 +857,7 @@ class FeedbackPointsView(CheckManagementPermissionsMixin,
 
         # calculate info for progress bars
         for d in [module_dict, chapter_dict, *category_dict.values()]:
-            d['percentage'] = d['points'] / d['max_points'] * 100
+            d['percentage'] = d['points'] / d['max_points'] * 100 if d['max_points'] else 0
             d['full_score'] = (d['points'] == d['max_points'])
 
         context['points'] = {
