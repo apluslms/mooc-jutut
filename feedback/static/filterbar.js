@@ -23,26 +23,37 @@ to same state */
 function setExtraFiltersCollapsedStatus() {
   const state = localStorage.getItem('extra-filters-collapsed');
   if (state) {
-    let coll_elems = document.getElementsByClassName('filter-collapse');
+    if (!(window.bootstrap && window.bootstrap.Collapse)) return;
+    const coll_elems = document.getElementsByClassName('filter-collapse');
     for (let i = 0; i < coll_elems.length; i++) {
-      coll_elems[i].classList.add('in');
+      const el = coll_elems[i];
+      const inst = window.bootstrap.Collapse.getInstance(el) || new window.bootstrap.Collapse(el, { toggle: false });
+      inst.show();
     }
     document.getElementById('filter-container').classList.add('expanded');
     const btn = document.getElementById('extra-filters-btn');
-    btn.innerHTML = btn.dataset['expandedText'];
+    const label = btn.querySelector('.btn-label');
+    if (label) label.textContent = btn.dataset['expandedText'];
   }
 }
 
 window.addEventListener("load", setExtraFiltersCollapsedStatus);
 
 function toggleExtraOptions(btn) {
-  let expand = !document.getElementsByClassName('filter-collapse')[0].classList.contains('in');
+  const collEls = Array.from(document.getElementsByClassName('filter-collapse'));
+  if (collEls.length === 0) return;
+  if (!(window.bootstrap && window.bootstrap.Collapse)) return;
+
   const filterContainer = document.getElementById('filter-container');
-  filterContainer.classList.toggle('expanded', expand)
-  localStorage.setItem('extra-filters-collapsed', expand ? 'in' : '');
-  if (expand) {
-    btn.innerHTML = btn.dataset['expandedText'];
-  } else {
-    btn.innerHTML = btn.dataset['collapsedText'];
+  const willExpand = !filterContainer.classList.contains('expanded');
+
+  for (const el of collEls) {
+    const inst = window.bootstrap.Collapse.getInstance(el) || new window.bootstrap.Collapse(el, { toggle: false });
+    willExpand ? inst.show() : inst.hide();
   }
+
+  filterContainer.classList.toggle('expanded', willExpand);
+  localStorage.setItem('extra-filters-collapsed', willExpand ? 'show' : '');
+  const label = btn.querySelector('.btn-label');
+  if (label) label.textContent = btn.dataset[willExpand ? 'expandedText' : 'collapsedText'];
 }

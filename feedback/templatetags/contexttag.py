@@ -7,13 +7,13 @@ register = template.Library()
 
 def render_context_tag(tag, tooltip="", value="") -> str:
     attrs = {
-        'class': 'context-tag label ' + ('colortag-dark' if tag.font_white else 'colortag-light'),
+        'class': 'context-tag badge ' + ('colortag-dark' if tag.font_white else 'colortag-light'),
         'style': 'background-color: {};'.format(tag.color)
     }
     if tooltip:
-        attrs['data-toggle'] = 'tooltip'
-        attrs['data-trigger'] = 'hover'
-        attrs['data-placement'] = 'top'
+        attrs['data-bs-toggle'] = 'tooltip'
+        attrs['data-bs-trigger'] = 'hover'
+        attrs['data-bs-placement'] = 'top'
         attrs['title'] = sub('<[^<]+?>', '', tooltip)
     content = tag.content
     if value:

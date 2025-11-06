@@ -40,8 +40,8 @@
 				<tr {% if not status.ok %}class="danger"{% endif %}>
 					<th>
 						{{ service }}
-						{% set service_class = "glyphicon-ok text-success" if status.ok else "glyphicon-alert text-danger" %}
-						<span class="glyphicon {{ service_class }}" aria-hidden="true"></span>
+						{% set service_class = "bi-ok text-success" if status.ok else "bi-alert text-danger" %}
+						<span class="{{ service_class }}" aria-hidden="true"></span>
 					</th>
 					<td>
 						<code>{{ status.cmd }}</code><br>

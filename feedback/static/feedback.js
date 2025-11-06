@@ -3,18 +3,30 @@ $(function() {
   /* append error notification */
   function append_error_info(selection, msg, klass=null) {
     selection.each(function() {
-      var icon = $('<span class="' + (klass||'') + ' label label-danger"><span class="glyphicon glyphicon-alert"></span></span>');
-      icon.tooltip({ title: msg });
+      var icon = $('<span class="' + (klass||'') + ' badge text-bg-danger"><span class="bi bi-exclamation-triangle"></span></span>');
       $(this).append(icon);
+      let tt;
+      try { tt = bootstrap.Tooltip.getOrCreateInstance(icon[0], { title: msg }); } catch(_) {}
+      // Auto-remove error badge after a short delay and dispose tooltip to avoid leaks
+      setTimeout(function() {
+        if (tt) { try { tt.dispose(); } catch(_) {} }
+        icon.remove();
+      }, 5000);
     });
   }
 
   /* append done notification */
   function append_done_info(selection, msg, klass=null) {
     selection.each(function() {
-      var icon = $('<span class="' + (klass||'') + ' label label-success"><span class="glyphicon glyphicon-ok "></span></span>');
-      icon.tooltip({ title: msg });
+      var icon = $('<span class="' + (klass||'') + ' badge text-bg-success"><span class="bi bi-check-lg "></span></span>');
       $(this).append(icon);
+      let tt;
+      try { tt = bootstrap.Tooltip.getOrCreateInstance(icon[0], { title: msg }); } catch(_) {}
+      // Auto-remove success badge sooner and dispose tooltip
+      setTimeout(function() {
+        if (tt) { try { tt.dispose(); } catch(_) {} }
+        icon.remove();
+      }, 2000);
     });
   }
 
@@ -25,7 +37,7 @@ $(function() {
 
   /* add status tag to response form */
   function add_status_tag(panel, text, color) {
-    var html = '<span class="status-tag label label-' + color + ' pull-right">' + text + '</span>';
+    var html = '<span class="status-tag badge text-bg-' + color + ' float-end">' + text + '</span>';
     panel.find(".status-tag-container").append(html);
   }
 
@@ -196,8 +208,12 @@ $(function() {
     var button = $(this);
     var radio = $(button.data('radio'));
     radio.prop('checked', true);
-    button.closest('.buttons-for-radio').find('.btn.active').removeClass('active');
+    const container = button.closest('.buttons-for-radio');
+    container.find('.btn.active').removeClass('active').find('.active-icon').remove();
     button.addClass('active');
+    if (!button.find('.active-icon').length) {
+      button.prepend('<i class="bi bi-check-lg active-icon" aria-hidden="true"></i>');
+    }
     button.closest('form').submit();
   }
   function replace_with_buttons() {
@@ -206,8 +222,8 @@ $(function() {
     const dst = src.after('<div class="buttons-for-radio respond-btn-container">' +
       '<div class="btn-group segmented" role="group">' +
       '<button type="button" class="btn btn-sm btn-success dropdown-toggle"' +
-      ' data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
-      '<span class="caret"></span><span class="sr-only">Toggle Dropdown</span>' +
+      ' data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">'+
+      '<i class="bi bi-chevron-down" aria-hidden="true"></i><span class="visually-hidden">Toggle Dropdown</span>' +
       '</button>' +
       '<ul class="dropdown-menu"></ul>' +
       '</div></div>').next();
@@ -222,7 +238,7 @@ $(function() {
       const tooltip = radio.data('tooltip-text');
       if (!radio.prop('disabled')) {
         const button = $('<button class="btn btn-sm btn-' + color + '" ' +
-         'data-toggle="tooltip" data-trigger="hover" title="' + tooltip + '">' +
+         'data-bs-toggle="tooltip" data-bs-trigger="hover" title="' + tooltip + '">' +
           text + '</button>');
         if (color == 'success') {
           cont.prepend(button);
@@ -230,8 +246,9 @@ $(function() {
           dropdown.prepend($('<li></li>').append(button));
         }
         button.data('radio', radio_pure).on('click', on_submit_button);
-        if (radio.is(':checked'))
-          button.addClass('active');
+        if (radio.is(':checked')) {
+          button.addClass('active').prepend('<i class="bi bi-check-lg active-icon" aria-hidden="true"></i>');
+        }
       }
     });
     // hide original form-group
@@ -364,7 +381,7 @@ $(function() {
     var defer = container.data('rlock') || $.when();
     // connect to defer chain
     container.data('rlock', defer.then(function() {
-      var spinner = $('<span class="updating glyphicon glyphicon-refresh gly-spin"></span>');
+      var spinner = $('<span class="updating spinner-border spinner-border-sm"></span>');
       container.find('.uploadok, .'+errorname).remove(); // clear old done and error notifications
       container.append(spinner); // add spinner
       var promise = $.Deferred(); // this promise is fulfilled when ajax request is completed, thus we get serialized updates per response
@@ -416,7 +433,11 @@ $(function() {
           elem = $(data);
           self.replaceWith(elem);
           // new data, do reactions
-          !nohover && elem.filter('[data-toggle="tooltip"]').tooltip();
+          if (!nohover) {
+            elem.filter('[data-bs-toggle="tooltip"]').each(function() {
+              try { bootstrap.Tooltip.getOrCreateInstance(this); } catch(_) {}
+            });
+          }
           // remember updateurl
           if (!elem.data('updateurl'))
             elem.data('updateurl', url);
@@ -458,7 +479,13 @@ $(function() {
     // Modify
     dom.each(dynamic_forms_textareas);
     dom.find('.replace-with-buttons').each(replace_with_buttons);
-    !nohover && dom.find('[data-toggle="tooltip"]').tooltip();
+    if (!nohover) {
+      // Safe tooltip init: avoid creating multiple instances on same element
+      // Skip elements that also declare a popover and styling toggles we convert to Popover
+      dom.find('[data-bs-toggle="tooltip"]').not('[data-bs-toggle="popover"]').not('.toggle-styling-buttons').each(function() {
+        try { bootstrap.Tooltip.getOrCreateInstance(this); } catch(_) {}
+      });
+    }
     dom.find('.feedback-status-label').each(update_feedback_status_colors);
     if (!global && dom.prev().is('.panel-heading')) {
       update_group_status(dom);
@@ -478,19 +505,21 @@ $(function() {
 
     // enable showing styling buttons on click when they don't fit
     dom.find('.toggle-styling-buttons').each((i, elem) => {
-      const btn = $(elem);
-      btn.popover({
-        'trigger': 'click',
-        'content': () => {
-          return btn.closest('.btn-toolbar').find('.styling-buttons').clone(true);
-        },
-        'template': '<div class="popover style-buttons" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>',
-      })
-      btn.on('show.bs.popover', (e) => {
-        btn.tooltip('hide');
-        btn.tooltip('disable');
+      const $btn = $(elem);
+      const contentFn = () => $btn.closest('.btn-toolbar').find('.styling-buttons').clone(true)[0];
+      // Ensure no Tooltip remains on this element before creating a Popover
+      const tt = bootstrap.Tooltip.getInstance(elem);
+      if (tt) try { tt.dispose(); } catch(_) {}
+      const pop = bootstrap.Popover.getOrCreateInstance(elem, {
+        trigger: 'click',
+        content: contentFn,
+        template: '<div class="popover style-buttons" role="tooltip"><div class="popover-arrow"></div><div class="popover-body"></div></div>',
       });
-      btn.on('hide.bs.popover', (e) => btn.tooltip('enable'));
+      $btn.on('show.bs.popover', () => {
+        const inst = bootstrap.Tooltip.getInstance(elem);
+        if (inst) { try { inst.dispose(); } catch(_) {} }
+      });
+      // Do not re-enable tooltip after hide; these controls use popover only
     })
 
     // timeouts
@@ -539,7 +568,7 @@ function toggleShowAll(event) {
     );
   let elems = this.parentElement.getElementsByClassName('only-expanded');
   for (let i = 0; i < elems.length; i++) {
-    elems[i].classList.toggle('in');
+    elems[i].classList.toggle('show');
   }
 }
 
@@ -547,12 +576,15 @@ function toggleShowAll(event) {
 window.addEventListener("load", (event) => {
 
   /* Set up zen mode checkbox (persist state on reload) */
-  if (localStorage.getItem('zenMode') == "true") {
-    document.getElementById("zen-mode-cb").checked = true;
+  const zenModeCb = document.getElementById("zen-mode-cb");
+  if (zenModeCb) {
+    if (localStorage.getItem('zenMode') == "true") {
+      zenModeCb.checked = true;
+    }
+    zenModeCb.addEventListener('change', (e) => {
+      localStorage.setItem('zenMode', e.target.checked);
+    });
   }
-  document.getElementById("zen-mode-cb").addEventListener('change', (e) => {
-    localStorage.setItem('zenMode', e.target.checked);
-  });
 
   /* Set up showall buttons */
   const showallDivs = document.getElementsByClassName("toggle-showall");
@@ -564,32 +596,47 @@ window.addEventListener("load", (event) => {
 });
 
 async function copyToClipboard(text, elem) {
-  const popoverOpts = {
-    template: '<div class="popover" role="tooltip"><div class="arrow"></div><div class="popover-content"></div></div>',
-    trigger: 'manual',
+  const popoverOpts = { trigger: 'manual', container: 'body', placement: 'bottom' };
+  if (!elem) return;
+  // Ensure tooltip never shows during click/notification; fully dispose to avoid Popover-vs-Tooltip conflict
+  let tooltipInst = bootstrap.Tooltip.getInstance(elem);
+  if (tooltipInst) { try { tooltipInst.dispose(); } catch(_) {} }
+  const originalTitle = elem.getAttribute('title') || '';
+  // Prevent popover from using the title as a header
+  elem.setAttribute('title', '');
+  elem.removeAttribute('data-bs-original-title');
+
+  const okMsg = elem.dataset.copyNotification ? elem.dataset.copyNotification : 'Copied to clipboard';
+  const errMsg = 'Unable to copy to clipboard: ' + text;
+
+  const showPopover = (content) => {
+    let popInst = bootstrap.Popover.getInstance(elem);
+    if (popInst) { try { popInst.dispose(); } catch(_) {} }
+    popInst = new bootstrap.Popover(elem, {
+      ...popoverOpts,
+      content,
+      template: '<div class="popover" role="tooltip"><div class="popover-arrow"></div><div class="popover-body"></div></div>',
+    });
+    try { popInst.show(); } catch(_) {}
   };
+  const hidePopoverLater = (ms) => {
+    setTimeout(() => {
+      const inst = bootstrap.Popover.getInstance(elem);
+      if (inst) { try { inst.dispose(); } catch(_) {} }
+      // Restore original title and recreate tooltip for future hovers
+      if (originalTitle) elem.setAttribute('title', originalTitle);
+      try { bootstrap.Tooltip.getOrCreateInstance(elem); } catch(_) {}
+    }, ms);
+  };
+
   try {
     await navigator.clipboard.writeText(text);
-    if (elem) {
-      btn = $(elem);
-      btn.tooltip('hide').popover({
-        ...popoverOpts,
-        content: elem.dataset.copyNotification || "'" + text + "' was copied to the clipboard",
-      }).popover('show');
-      setTimeout(() => { btn.popover('hide'); }, 2000);
-    }
+    showPopover(okMsg);
+    hidePopoverLater(2000); // success: 2 seconds
   } catch (error) {
-    console.error(error.message);
-    if (elem) {
-      btn = $(elem);
-      btn.tooltip('hide').popover({
-        ...popoverOpts,
-        content: "Unable to copy to clipboard: " + text,
-      }).popover('show');
-      setTimeout(() => { btn.popover('hide'); }, 5000);
-    } else {
-      console.log("Unable to copy to clipboard: " + text);
-    }
+    console.error(error && error.message ? error.message : error);
+    showPopover(errMsg);
+    hidePopoverLater(5000); // error: keep visible longer
   }
 }
 
@@ -665,15 +712,27 @@ async function fetchBtnUrlContent(btn, errorClass) {
 
 
 $(function() {
-  $('[data-toggle="popover"]').popover();
+  // Initialize any static popovers declared via data attributes (Bootstrap 5 only)
+  document.querySelectorAll('[data-bs-toggle="popover"]').forEach(el => {
+    bootstrap.Popover.getOrCreateInstance(el);
+  });
 
   const opts = {
     html: true,
-    placement: 'bottom',
+    placement: 'bottom', // preferred placement
     trigger: 'focus hover',
     viewport: { selector: 'body', padding: 20 },
     // to reduce issue with scrolling at bottom of page on mobile
     container: 'body',
+    // Safer popper configuration: allow only top as a fallback (never left/right)
+    popperConfig: (defaultCfg) => ({
+      ...defaultCfg,
+      modifiers: defaultCfg.modifiers.map(m =>
+        m.name === 'flip'
+          ? { ...m, options: { ...m.options, fallbackPlacements: ['top'] } }
+          : m
+      ),
+    }),
   };
 
   /* Popovers stay open the first time they are triggered due to manual "show".
@@ -682,7 +741,8 @@ $(function() {
     ['focusin', 'click'].forEach((evtType) => {
       document.addEventListener(evtType, e => {
         if (!btn.contains(e.target)) {
-          $(btn).popover('hide');
+          const inst = bootstrap.Popover.getInstance(btn);
+          if (inst) inst.hide();
         };
       },
       {once: true});
@@ -692,17 +752,15 @@ $(function() {
   /* Replace default popover with fetched discussions preview */
   $('.student-conv-prev-btn').one('show.bs.popover', function(e) {
     const btn = e.target;
-    $(btn).popover('destroy');
+    const existingPopover = bootstrap.Popover.getInstance(btn);
+    if (existingPopover) existingPopover.dispose();
+    const tt = bootstrap.Tooltip.getInstance(btn); // dispose tooltip if present
+    if (tt) tt.dispose();
     studentDiscussionPreview(btn)
       .then(function(newContent) {
-        $(btn).popover({
-          ...opts,
-          content: newContent,
-          placement: (popover, btn) => {
-            if ($('.student-conv-prev-btn').last().is(btn)) return 'bottom auto';
-            else return 'bottom';
-          },
-        }).popover('show');
+        const popOpts = { ...opts, content: newContent };
+        const instance = new bootstrap.Popover(btn, popOpts);
+        instance.show();
         hideOnFocusOutside(btn);
       });
   });
@@ -710,33 +768,37 @@ $(function() {
   /* Replace default popover with points summary */
   $('.display-points-btn').one('show.bs.popover', function(e) {
     const btn = e.target;
-    $(btn).popover('destroy');
+    const existingPopover = bootstrap.Popover.getInstance(btn);
+    if (existingPopover) existingPopover.dispose();
+    const tt = bootstrap.Tooltip.getInstance(btn); if (tt) tt.dispose();
     fetchBtnUrlContent(btn, 'points-display')
       .then(function(newContent) {
-        $(btn).popover({
+        const popOpts = {
           ...opts,
           content: newContent,
           viewport: {selector: '.feedback-response-panel', padding: 6 },
-        }).popover('show');
+        };
+        const instance = new bootstrap.Popover(btn, popOpts);
+        instance.show();
         hideOnFocusOutside(btn);
-        $('.points-display [data-toggle="tooltip"]').tooltip();
+        // Initialize any tooltips that appeared within loaded content
+        $('.points-display [data-bs-toggle="tooltip"]').each(function() {
+          if (!bootstrap.Tooltip.getInstance(this)) new bootstrap.Tooltip(this);
+        });
       });
   });
 
   /* Replace default popover with response to background questionnaire */
   $('.background-btn').one('show.bs.popover', function(e) {
     const btn = e.target;
-    $(btn).popover('destroy');
+    const existingPopover = bootstrap.Popover.getInstance(btn);
+    if (existingPopover) existingPopover.dispose();
+    const tt = bootstrap.Tooltip.getInstance(btn); if (tt) tt.dispose();
     fetchBtnUrlContent(btn, 'background-display')
       .then(function(newContent) {
-        $(btn).popover({
-          ...opts,
-          content: newContent,
-          placement: (popover, btn) => {
-            if ($('.background-btn').last().is(btn)) return 'bottom auto';
-            else return 'bottom';
-          },
-        }).popover('show');
+        const popOpts = { ...opts, content: newContent };
+        const instance = new bootstrap.Popover(btn, popOpts);
+        instance.show();
         hideOnFocusOutside(btn);
       });
   });

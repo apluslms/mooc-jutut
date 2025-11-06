@@ -59,8 +59,7 @@ INSTALLED_APPS = [
     # 3rd party libs
     'django_jinja',
     'django_jinja.contrib._humanize',
-    'bootstrapform',
-    'bootstrapform_jinja',
+    'django_bootstrap5',
     'django_filters',
     # js/css/html resources
     'js_jquery_toggle',

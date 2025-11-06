@@ -3,9 +3,9 @@
 
 <div class="progress"
 	{% if not no_tooltip %}
-		data-toggle="tooltip"
-		data-html="true"
-		data-placement="auto bottom"
+		data-bs-toggle="tooltip"
+		data-bs-html="true"
+		data-bs-placement="auto bottom"
 		title="{% if tooltip_points_text %}{{ tooltip_points_text }}{% else %}{% translate 'Points' %}{% endif %}: &lt;span class='text-nowrap'&gt;{{ pd.points }} / {{ pd.max_points }}&lt;/span&gt;{% if pd.points_to_pass %}&lt;br&gt;{% translate 'Points to pass' %}: &lt;span class='text-nowrap'&gt;{{ pd.points_to_pass }}&lt;/span&gt;{% endif %}"
 	{% endif %}
 >

@@ -2,12 +2,14 @@
 Django ~= 4.2.1
 Jinja2 ~= 3.1.1
 django-jinja ~= 2.10.0
-django-bootstrap-form ~= 3.4
-django-jinja-bootstrap-form ~= 4.3.4
+django-jinja-bootstrap-form ~= 4.5.0
+django-bootstrap5 >= 24.2
 git+https://github.com/apluslms/django-essentials.git@1.6.0#egg=django-essentials~=1.6.0
-git+https://github.com/apluslms/js-jquery-toggle.git@1.1.2#egg=js-jquery-toggle-django~=1.1.2&subdirectory=django
+#git+https://github.com/apluslms/js-jquery-toggle.git@1.1.2#egg=js-jquery-toggle-django~=1.1.2&subdirectory=django
+git+https://github.com/sayravai/js-jquery-toggle.git@bs5#egg=js-jquery-toggle-django~=2.0.2&subdirectory=django
 git+https://github.com/apluslms/django-dictiterators.git@1.1.1#egg=django-dictiterators~=1.1.1
-git+https://github.com/apluslms/django-colortag.git@2.5.0#egg=django-colortag~=2.5.0
+#git+https://github.com/apluslms/django-colortag.git@2.5.0#egg=django-colortag~=2.5.0
+git+https://github.com/sayravai/django-colortag.git@bs5#egg=django-colortag~=3.0.0
 git+https://github.com/apluslms/django-lti-login.git@3.3.0#egg=django-lti-login~=3.3.0
 django-filter ~= 22.1
 django-settingsdict ~= 1.1.1

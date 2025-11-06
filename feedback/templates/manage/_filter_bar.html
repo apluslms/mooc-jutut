@@ -1,13 +1,13 @@
 {% load i18n %}
 
-<div class="panel panel-{{ feedback_filter.form.contains_data|yesno:'success,default,danger' }}">
-	<div class="panel-heading" data-toggle="collapse" data-target="#filter-panel" role="button" style="cursor: pointer;">
-		<h3 class="panel-title">
+<div class="card mb-3">
+	<div class="card-header text-bg-{{ feedback_filter.form.contains_data|yesno:'success,default,danger' }}" data-bs-toggle="collapse" data-bs-target="#filter-panel" role="button" style="cursor: pointer;">
+		<p class="card-title">
 			{% blocktrans with number=feedback_filter.form.number_of_filters %}Filter options ({{number}} active){% endblocktrans %}
-			<span class="glyphicon glyphicon-menu-down pull-right visible-xs"></span>
-		</h3>
+			<span class="bi bi-menu-down float-end visible-xs"></span>
+		</p>
 	</div>
-	<div id="filter-panel" class="panel-body collapse in">
+	<div id="filter-panel" class="card-body collapse show">
 		<form id="filter-form" role="form" action="{% url url_pattern course_id=course.id %}" method="GET" class="form-horizontal" autocomplete="off">
 			{% include "manage/filter_form.html" with form=feedback_filter.form %}
 		</form>

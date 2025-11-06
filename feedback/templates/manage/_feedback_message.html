@@ -11,7 +11,7 @@
 
 {% with feedback=fb.feedback %}
 <div class="feedback-message {% if active %}active{% endif %}">
-	<table class="table table-condensed">
+	<table class="table table-sm">
 		<col class="field-names"/>
 		<col/>
 		{% for field in fb.feedback_form %}
@@ -21,25 +21,25 @@
 					<th class="only-expanded collapse">
 						{{ field.label|default:field.name }}
 						{% if field.help_text %}
-							<span rel="tooltip"
-								data-toggle="tooltip"
-								data-trigger="hover click"
-								data-placement="bottom"
-								data-html="true"
+							<span
+								data-bs-toggle="tooltip"
+								data-bs-trigger="hover click"
+								data-bs-placement="bottom"
+								data-bs-html="true"
 								title="{{ field.help_text }}"
 								>
-								<span class="glyphicon glyphicon-info-sign"></span>
+								<span class="bi bi-info-circle"></span>
 							</span>
 						{% endif %}
 						{% if not field.field.required %}
-							<span rel="tooltip"
-								data-toggle="tooltip"
-								data-trigger="hover click"
-								data-placement="bottom"
-								data-html="true"
+							<span
+								data-bs-toggle="tooltip"
+								data-bs-trigger="hover click"
+								data-bs-placement="bottom"
+								data-bs-html="true"
 								title="{% trans 'This field was <b>not</b> required' %}"
 								>
-								<span class="label label-info">{% trans "optional" %}</span>
+								<span class="badge text-bg-info">{% trans "optional" %}</span>
 							</span>
 						{% endif %}
 					</th>
@@ -55,23 +55,28 @@
 			{% endif %}
 		{% endfor %}
 	</table>
-	<div class="toggle-showall panel-footer collapsed"
+	<div class="toggle-showall card-footer panel-footer collapsed"
 		role="button" aria-expanded="false" tabindex=0
 		title="{% trans 'Show all feedback fields' %}"
 	>
-		<span class="timestamp">{{ feedback.timestamp|naturaltime }}</span>
+		<span class="timestamp">
+			{{ feedback.timestamp|naturaltime }}
+			<i class="bi bi-chevron-down" aria-hidden="true"></i>
+			<i class="bi bi-chevron-up" aria-hidden="true"></i>
+			<span class="visually-hidden">{% trans "Toggle feedback details" %}</span>
+		</span>
 	<!-- change collapse-functionality so that only the classes within the clicked message are toggled -->
 		<div class="feedback-msg-bottom only-expanded collapse">
-			<div class="btn-group btn-group-xs" role="group">
+			<div class="btn-group btn-group-sm" role="group">
 				<a
 					class="btn btn-primary"
-					data-toggle="tooltip"
-					data-trigger="hover"
-					data-placement="bottom"
+					data-bs-toggle="tooltip"
+					data-bs-trigger="hover"
+					data-bs-placement="bottom"
 					title="{% trans 'Show submission in A+' %}"
 					href="{{ feedback.submission_html_url }}"
 					>
-					<span class="glyphicon glyphicon-file" aria-hidden="true"></span>
+					<span class="bi bi-file-earmark-fill" aria-hidden="true"></span>
 					A+
 				</a>
 			</div>

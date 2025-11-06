@@ -1,5 +1,5 @@
 {% load i18n %}
-{% load bootstrap %}
+{% load django_bootstrap5 %}
 
 <div class="panel panel-default">
 	<div class="panel-heading">
@@ -15,13 +15,13 @@
 		<div class="col-xs-12">
 			<form action="" method="post" class="form-horizontal">
 				{% csrf_token %}
-				{{ form|bootstrap }}
+				{% bootstrap_form form %}
 				<div class="form-group">
 					{% if action == 'add' %}
 						<input class="btn btn-success" type="submit" value="{% trans 'Add' %}" />
 					{% else %}
 						<input class="btn btn-success" type="submit" value="{% trans 'Save' %}" />
-						<a class="btn btn-default" href="{% url urlpattern course_id=course.id %}">{% trans "Cancel" %}</a>
+						<a class="btn btn-secondary" href="{% url urlpattern course_id=course.id %}">{% trans "Cancel" %}</a>
 					{% endif %}
 				</div>
 			</form>

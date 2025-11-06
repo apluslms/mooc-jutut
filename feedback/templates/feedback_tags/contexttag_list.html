@@ -22,16 +22,16 @@
 							<td>{{ tag.question_key }}</td>
 							<td>{{ tag.response_value }}</td>
 							<td>
-								<a class="btn btn-default btn-xs"
+								<a class="btn btn-secondary btn-sm"
 									href="{% url 'feedback:contexttags-edit' course_id=course.id tag_id=tag.id %}"
 									>
-									<span class="glyphicon glyphicon-edit"></span>
+									<span class="bi bi-edit"></span>
 									{% trans "edit" %}
 								</a>
-								<a class="btn btn-danger btn-xs"
+								<a class="btn btn-danger btn-sm"
 									href="{% url 'feedback:contexttags-remove' course_id=course.id tag_id=tag.id %}"
 									>
-									<span class="glyphicon glyphicon-remove"></span>
+									<span class="bi bi-remove"></span>
 									{% trans "remove" %}
 								</a>
 							</td>

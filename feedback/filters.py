@@ -119,7 +119,7 @@ class SegmentedSelect(forms.RadioSelect):
     option_template_name = "feedback/widgets/segmented_option.html"
 
     def __init__(self, attrs=None, choices=()):
-        add_classes = "segmented-select sm"
+        add_classes = "btn-group btn-group-sm w-100"
         if not attrs:
             attrs = {
                 "class": add_classes,
@@ -179,11 +179,58 @@ class ComboTextSearchWidget(forms.MultiWidget):
     template_name = "feedback/widgets/combo_textsearch_widget.html"
 
     def __init__(self, attrs=None) -> None:
-        widgets = {
-            'text': forms.TextInput(attrs=attrs),
-            'regex': forms.CheckboxInput(attrs=attrs),
-        }
-        super().__init__(widgets, attrs)
+        # Base attrs may include classes and custom keys 'bool_label'/'bool_helptext'
+        base_attrs = dict(attrs or {})
+
+        # Helper: merge CSS classes
+        def merged_classes(existing: str, extra: str) -> str:
+            parts = [c for c in (existing or '').split() if c]
+            for c in extra.split():
+                if c and c not in parts:
+                    parts.append(c)
+            return ' '.join(parts)
+
+        # Text input gets Bootstrap form-control
+        text_attrs = dict(base_attrs)
+        text_attrs['class'] = merged_classes(text_attrs.get('class', ''), 'form-control')
+        # It doesn't need the bool_* attributes; remove if present
+        text_attrs.pop('bool_label', None)
+        text_attrs.pop('bool_helptext', None)
+
+        # Checkbox gets any provided attrs; add form-check-input for BS5
+        regex_attrs = dict(base_attrs)
+        regex_attrs['class'] = merged_classes(regex_attrs.get('class', ''), 'form-check-input')
+
+        widgets = (
+            forms.TextInput(attrs=text_attrs),
+            forms.CheckboxInput(attrs=regex_attrs),
+        )
+        super().__init__(widgets, base_attrs)
+
+    def get_context(self, name, value, attrs):
+        """Ensure required Bootstrap classes persist even if parent attrs define class.
+        Merges parent-provided classes (e.g., 'combosearch') with per-subwidget classes
+        and guarantees 'form-control' on the text input and 'form-check-input' on the checkbox.
+        """
+        context = super().get_context(name, value, attrs)
+        subwidgets = context.get('widget', {}).get('subwidgets', [])
+
+        def merge_classes(existing: str, required: str) -> str:
+            parts = [c for c in (existing or '').split() if c]
+            for c in (required or '').split():
+                if c and c not in parts:
+                    parts.append(c)
+            return ' '.join(parts)
+
+        if len(subwidgets) >= 1:
+            # Text input at index 0
+            cls = subwidgets[0]['attrs'].get('class', '')
+            subwidgets[0]['attrs']['class'] = merge_classes(cls, 'form-control')
+        if len(subwidgets) >= 2:
+            # Checkbox at index 1
+            cls = subwidgets[1]['attrs'].get('class', '')
+            subwidgets[1]['attrs']['class'] = merge_classes(cls, 'form-check-input')
+        return context
 
     def decompress(self, value: Optional[tuple[str, bool]]) -> Union[tuple[str, bool], tuple[None, None]]:
         if value:

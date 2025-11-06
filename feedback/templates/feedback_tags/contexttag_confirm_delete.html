@@ -15,7 +15,7 @@
 					{% endblocktrans %}
 				</p>
 				<input class="btn btn-danger" type="submit" value="{% trans 'Confirm' %}" />
-				<a class="btn btn-default" href="{% url 'feedback:contexttags' course_id=course.id %}">{% trans "Cancel" %}</a>
+				<a class="btn btn-secondary" href="{% url 'feedback:contexttags' course_id=course.id %}">{% trans "Cancel" %}</a>
 			</form>
 		</div>
 	</div>

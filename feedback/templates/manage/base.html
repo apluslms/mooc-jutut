@@ -10,8 +10,9 @@
 	{% include 'jquery_toggle.head.html' %}
 	{% include 'django_colortag.head.html' %}
 
-	<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css" integrity="sha256-piqEf7Ap7CMps8krDQsSOTZgF+MU/0MPyPW2enj5I40=" crossorigin="anonymous" />
-
+	<!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css" integrity="sha256-piqEf7Ap7CMps8krDQsSOTZgF+MU/0MPyPW2enj5I40=" crossorigin="anonymous" />-->
+	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
+	
 	{# dynamic_forms #}
 	<link rel="stylesheet" href="{% static "dynamic_forms.css" %}">
 	{# project additions #}
@@ -33,38 +34,27 @@
 {% block body %}
 	{# Top navigation #}
 	{# cache 60 topnav request.user.username #}
-	<nav class="navbar navbar-inverse navbar-fixed-top">
+	<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top" aria-label="Navigation">
 		<div class="container">
-			<div class="navbar-header">
-				<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-					<span class="sr-only">Toggle navigation</span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-				<a class="navbar-brand" href="{% url "feedback:site-list" %}">MOOC-Jutut</a>
-			</div>
-			<div id="navbar" class="navbar-collapse collapse">
-				<ul class="nav navbar-nav">
+			<a class="navbar-brand" href="{% url "feedback:site-list" %}">MOOC-Jutut</a>
+			<button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar" aria-controls="navbar" aria-expanded="false" aria-label="{% trans "TOGGLE_NAVIGATION" %}">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div id="navbar" class="collapse navbar-collapse">
+				<ul class="navbar-nav me-auto mb-2 mb-md-0">
 					{% if sitelist and sitelist|length > 1 %}
-						<li class="dropdown">
-							<a href="#" class="dropdown-toggle"
-								data-toggle="dropdown" role="button"
-								aria-haspopup="true" aria-expanded="false"
-								>
+						<li class="nav-item dropdown">
+							<a href="#" class="nav-link dropdown-toggle" id="siteDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 								{% if sitename %}
 									{% blocktrans with name=sitename %}Site: {{name}}{% endblocktrans %}
 								{% else %}
 									{% trans "Select site" %}
 								{% endif %}
-								<span class="caret"></span>
 							</a>
-							<ul class="dropdown-menu">
+							<ul class="dropdown-menu" aria-labelledby="siteDropdown">
 								{% for site_obj in sitelist %}
-									<li {% if site_obj.id == site.id %}class="active"{% endif %}>
-										<a
-											href="{% url "feedback:course-list" site_id=site_obj.id %}"
-											>{{site_obj.domain}}</a>
+									<li>
+										<a class="dropdown-item{% if site_obj.id == site.id %} active{% endif %}" href="{% url "feedback:course-list" site_id=site_obj.id %}">{{site_obj.domain}}</a>
 									</li>
 								{% endfor %}
 							</ul>
@@ -72,47 +62,40 @@
 					{% endif %}
 					{% if courselist %}
 						{% if courselist|length > 1 or not course %}
-							<li class="dropdown">
-								<a href="#" class="dropdown-toggle"
-									data-toggle="dropdown" role="button"
-									aria-haspopup="true" aria-expanded="false"
-									>
+							<li class="nav-item dropdown">
+								<a href="#" class="nav-link dropdown-toggle" id="courseDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
 									{% if course %}{{ course_name }}{% else %}{% trans "Select course" %}{% endif %}
-									<span class="caret"></span>
 								</a>
-								<ul class="dropdown-menu">
+								<ul class="dropdown-menu" aria-labelledby="courseDropdown">
 									{% for course_obj, course_name in courselist %}
-										<li {% if course_obj.id == course.id %}class="active"{% endif %}>
-											<a
+										<li>
+											<a class="dropdown-item{% if course_obj.id == course.id %} active{% endif %}"
 												href="{% url "feedback:notresponded-course" course_id=course_obj.id %}"
-												title="{% blocktrans with name=course_name %}Show unresponded feedback for {{name}}{% endblocktrans %}"
-												>{{ course_name }}
+												title="{% blocktrans with name=course_name %}Show unresponded feedback for {{name}}{% endblocktrans %}">
+												{{ course_name }}
 											</a>
 										</li>
 									{% endfor %}
 								</ul>
 							</li>
 							{% if course %}
-								<li>
-									<a
-										href="{% url "feedback:notresponded-course" course_id=course.id %}"
-										title="{% blocktrans with name=course_name %}Show unresponded feedback for {{name}}{% endblocktrans %}"
-										>
-										<span class="{% if course_notresponded %}badge{% endif %}">
-											<span class="glyphicon glyphicon-send"></span>
+								<li class="nav-item">
+									<a class="nav-link" href="{% url "feedback:notresponded-course" course_id=course.id %}"
+									   title="{% blocktrans with name=course_name %}Show unresponded feedback for {{name}}{% endblocktrans %}">
+										<span class="{% if course_notresponded %}badge bg-secondary{% endif %}">
+											<i class="bi bi-send"></i>
 											{{ course_notresponded }}
 										</span>
 									</a>
 								</li>
 							{% endif %}
 						{% elif course %}
-							<li>
-								<a
-									href="{% url "feedback:notresponded-course" course_id=course.id %}"
-									title="{% blocktrans with name=course_name %}Show unresponded feedback for {{name}}{% endblocktrans %}"
-									>{{ course_name }}
-									<span class="{% if course_notresponded %}badge{% endif %}">
-										<span class="glyphicon glyphicon-send"></span>
+							<li class="nav-item">
+								<a class="nav-link" href="{% url "feedback:notresponded-course" course_id=course.id %}"
+								   title="{% blocktrans with name=course_name %}Show unresponded feedback for {{name}}{% endblocktrans %}">
+									{{ course_name }}
+									<span class="{% if course_notresponded %}badge bg-secondary{% endif %}">
+										<i class="bi bi-send"></i>
 										{{ course_notresponded }}
 									</span>
 								</a>
@@ -120,70 +103,40 @@
 						{% endif %}
 					{% endif %}
 					{% if course %}
-						<li class="dropdown">
-							<a href="#" class="dropdown-toggle"
-								data-toggle="dropdown" role="button"
-								aria-haspopup="true" aria-expanded="false"
-								>{% trans "More" %} <span class="caret"></span></a>
-							<ul class="dropdown-menu">
-								<li><a href="{% url "feedback:list" course_id=course.id %}?contains_text=on">
-									<i class="glyphicon glyphicon-filter"></i>
-									{% trans "Filter feedback" %}
-								</a></li>
-								<li><a href="{% url "feedback:tags" course_id=course.id %}">
-									<i class="glyphicon glyphicon-tags"></i>
-									{% trans "Manage feedback tags" %}
-								</a></li>
-								<li><a href="{% url "feedback:tags-import" course_id=course.id %}">
-									<i class="glyphicon glyphicon-import"></i>
-									{% trans "Import feedback tags" %}
-								</a></li>
-								<li><a href="{% url "feedback:contexttags" course_id=course.id %}">
-									<i class="glyphicon glyphicon-tag"></i>
-									{% trans "Manage context tags" %}
-								</a></li>
-								<li><a href="{% url "feedback:user-list" course_id=course.id %}">
-									<i class="glyphicon glyphicon-list"></i>
-									{% trans "Student list" %}
-								</a></li>
-								<li><a href="{% url "timeusage:time-usage" course_id=course.id %}">
-									<i class="glyphicon glyphicon-list"></i>
-									{% trans "Time usage" %}
-								</a></li>
-								<li role="separator" class="divider"></li>
-								<li><a href="{% url "feedback:update-studenttags" course_id=course.id %}">
-									<i class="glyphicon glyphicon-tag"></i>
-									{% trans "Update Student tags" %}
-								</a></li>
-								<li><a href="{% url 'core:clear-cache' %}">
-									<i class="glyphicon glyphicon-trash"></i>
-									{% trans "Clear cache" %}
-								</a></li>
-								<li><a href="{% url 'core:servicestatus' %}">
-									<i class="glyphicon glyphicon-flash"></i>
-									{% trans "Service status" %}
-								</a></li>
+						<li class="nav-item dropdown">
+							<a href="#" class="nav-link dropdown-toggle" id="moreDropdown" data-bs-toggle="dropdown" aria-haspopup="true" aria-expanded="false">{% trans "More" %}</a>
+							<ul class="dropdown-menu" aria-labelledby="moreDropdown">
+								<li><a class="dropdown-item" href="{% url "feedback:list" course_id=course.id %}?contains_text=on"><i class="bi bi-funnel me-2"></i>{% trans "Filter feedback" %}</a></li>
+								<li><a class="dropdown-item" href="{% url "feedback:tags" course_id=course.id %}"><i class="bi bi-tags me-2"></i>{% trans "Manage feedback tags" %}</a></li>
+								<li><a class="dropdown-item" href="{% url "feedback:tags-import" course_id=course.id %}"><i class="bi bi-download me-2"></i>{% trans "Import feedback tags" %}</a></li>
+								<li><a class="dropdown-item" href="{% url "feedback:contexttags" course_id=course.id %}"><i class="bi bi-tag me-2"></i>{% trans "Manage context tags" %}</a></li>
+								<li><a class="dropdown-item" href="{% url "feedback:user-list" course_id=course.id %}"><i class="bi bi-people me-2"></i>{% trans "Student list" %}</a></li>
+								<li><a class="dropdown-item" href="{% url "timeusage:time-usage" course_id=course.id %}"><i class="bi bi-clock-history me-2"></i>{% trans "Time usage" %}</a></li>
+								<li><hr class="dropdown-divider"></li>
+								<li><a class="dropdown-item" href="{% url "feedback:update-studenttags" course_id=course.id %}"><i class="bi bi-tag me-2"></i>{% trans "Update Student tags" %}</a></li>
+								<li><a class="dropdown-item" href="{% url 'core:clear-cache' %}"><i class="bi bi-trash me-2"></i>{% trans "Clear cache" %}</a></li>
+								<li><a class="dropdown-item" href="{% url 'core:servicestatus' %}"><i class="bi bi-lightning me-2"></i>{% trans "Service status" %}</a></li>
 							</ul>
 						</li>
 					{% endif %}
 				</ul>
 
 				{# language select #}
-				<form id="language-form" action="{% url 'set_language' %}" method="post" style="display: none;">
+				<form id="language-form" action="{% url 'set_language' %}" method="post" class="d-none">
 					{% csrf_token %}
 					<input name="next" type="hidden" value="{{ request.get_full_path }}" />
 					<input name="language" type="hidden" value="" />
 				</form>
-				<ul id="language-menu" class="nav navbar-nav navbar-right" style="display: none;">
-					<li class="dropdown">
-						<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">{% trans "Language" %} <span class="caret"></span></a>
-						<ul id="language-select" class="dropdown-menu" role="menu">
+				<ul id="language-menu" class="navbar-nav ms-auto d-none">
+					<li class="nav-item dropdown">
+						<a href="#" class="nav-link dropdown-toggle" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">{% trans "Language" %}</a>
+						<ul id="language-select" class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
 							{% get_current_language as LANGUAGE_CODE %}
 							{% get_available_languages as LANGUAGES %}
 							{% get_language_info_list for LANGUAGES as languages %}
 							{% for language in languages %}
-								<li class="{% if language.code == LANGUAGE_CODE %}active{% endif %}" data-value="{{ language.code }}">
-									<a href="#" data-lang="{{ language.code }}">
+								<li>
+									<a class="dropdown-item{% if language.code == LANGUAGE_CODE %} active{% endif %}" href="#" data-lang="{{ language.code }}">
 										<span class="lang-sm lang-lbl-full" lang="{{ language.code }}"></span>
 									</a>
 								</li>

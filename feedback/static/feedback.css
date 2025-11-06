@@ -1,5 +1,5 @@
 body {
-	padding-top: 50px;
+	padding-top: 70px;
 	padding-bottom: 30px;
 }
 
@@ -89,9 +89,8 @@ input[type="checkbox"].combosearch + label {
 .fb-filter-field:has(> #id_feedbackfilter_flags) {
 	width: 100%;
 }
-#id_feedbackfilter_flags .segmented-select {
+#id_feedbackfilter_flags .btn-group {
 	margin: 0.4em 0px;
-	display: flex;
 }
 
 /* Displaying errors */
@@ -111,7 +110,7 @@ input[type="checkbox"].combosearch + label {
 @media (min-width: 750px) {
 	#filter-container {
 		display: grid;
-		grid-template-columns: min(max(300px, 40%), 450px) 1fr;
+		grid-template-columns: min(max(400px, 50%), 550px) 1fr;
 		column-gap: 3em;
 	}
 	#general-filter-pane {
@@ -216,21 +215,11 @@ input[type="checkbox"].combosearch + label {
 	}
 }
 
-/* icons for extra filters toggle button */
-#filter-container #extra-filters-btn:before {
-	position: relative;
-	top: 0.1em;
-	margin-right: 0.3em;
-	display: inline-block;
-	font-family: 'Glyphicons Halflings';
-	line-height: 1;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	content: "\e259";
-}
-#filter-container.expanded #extra-filters-btn:before {
-	content: "\e260";
-}
+/* Extra filters toggle button icons (Bootstrap Icons) */
+#extra-filters-btn .bi { vertical-align: middle; margin-right: 0.25em; }
+#extra-filters-btn .bi-chevron-up { display: none; }
+#filter-container.expanded #extra-filters-btn .bi-chevron-down { display: none; }
+#filter-container.expanded #extra-filters-btn .bi-chevron-up { display: inline-block; }
 
 /* labels in panel headers and footers */
 .panel-heading .label,
@@ -238,26 +227,16 @@ input[type="checkbox"].combosearch + label {
 	font-size: 100%;
 }
 
-/* add selected mark for active radio replacement button */
-.buttons-for-radio button.active:before {
-	position: relative;
-	top: 1px;
-	display: inline-block;
-	font-family: 'Glyphicons Halflings';
-	font-style: normal;
-	font-weight: 400;
-	line-height: 1;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	content: "\e013";
-}
+/* Active radio replacement button icon (inline element injected in JS) */
+.buttons-for-radio button .active-icon { display: none; margin-right: 0.25em; }
+.buttons-for-radio button.active .active-icon { display: inline-block; }
 
 .hover-btn {
 	background: none;
 	border-color: rgba(150, 150, 150, 0.3);
 }
-.hover-btn > .glyphicon,
-.styling-btn-container .btn > .glyphicon {
+.hover-btn > .bi,
+.styling-btn-container .btn > .bi {
 	top: 03px
 }
 .hover-btn:hover {
@@ -269,7 +248,7 @@ input[type="checkbox"].combosearch + label {
 .btn-group > .btn ~ .btn {
 	margin-left: -1px;
 }
-.feedback-response-panel .btn-group > .btn.btn-xs:not(:has( ~ .btn)) {
+.feedback-response-panel .btn-group > .btn.btn-sm:not(:has( ~ .btn)) {
 	border-top-right-radius: 3px;
 	border-bottom-right-radius: 3px;
 }
@@ -359,8 +338,8 @@ input[type="checkbox"].combosearch + label {
 		display: block;
 	}
 	body:has( #zen-mode-cb:checked) .conversation-tag-panel:not(:hover):not(:has( *:focus-visible)) > .colortag:not(.colortag-active) {
-		background-color: white;
-		color: white;
+		background-color: transparent;
+		color: transparent;
 		border: var(--colortag-inactive-color) 1px solid;
 	}
 }
@@ -374,6 +353,7 @@ input[type="checkbox"].combosearch + label {
 }
 .conversation-panel > .panel-heading .panel-title {
 	font-size: 13px;
+	padding-right: 0.5em;
 }
 .conversation-panel > .panel-heading .hover-btn {
 	color: #000;
@@ -403,7 +383,7 @@ input[type="checkbox"].combosearch + label {
 	background-color: #f7f7f7;
 	min-height: 1.5em;
 	position: relative; /* for positioning timestamp */
-	padding-bottom: 0.4em;
+	padding-top: 0.2em;
 }
 .response-message-container {
 	width: auto;
@@ -428,17 +408,17 @@ input[type="checkbox"].combosearch + label {
 }
 
 @media (min-width: 992px) /* from bootstrap */ {
-	body.ok .feedback-message tr .glyphicon,
+	body.ok .feedback-message tr .bi,
 	body.ok .feedback-message tr .label {
 		opacity: 0.2;
 		transition: opacity 200ms linear;
 	}
-	body.ok .feedback-message tr:hover .glyphicon,
+	body.ok .feedback-message tr:hover .bi,
 	body.ok .feedback-message tr:hover .label {
 		opacity: 1;
 	}
 }
-body.ios .feedback-message tr .glyphicon {
+body.ios .feedback-message tr .bi {
 	display: none;
 }
 
@@ -449,6 +429,7 @@ body.ios .feedback-message tr .glyphicon {
 	align-items: center;
 	padding: 0.2em;
 	cursor: pointer;
+	background-color: #f5f5f5;
 }
 .feedback-message > .panel-footer.collapsed {
 	background: transparent;
@@ -463,24 +444,20 @@ body.ios .feedback-message tr .glyphicon {
 	font-size: 0.8em;
 	font-family: Arial, Helvetica, sans-serif;
 }
-.feedback-message > .panel-footer .timestamp:after {
+/* Timestamp toggle icons (Bootstrap Icons via inline <i> elements) */
+.feedback-message > .panel-footer .timestamp .bi {
 	position: relative;
 	top: 1px;
-	display: inline-block;
-	font-family: 'Glyphicons Halflings';
-	font-style: normal;
 	font-size: 11px;
-	font-weight: 400;
-	line-height: 0.7;
+	line-height: 1;
 	margin-left: 0.4em;
-	margin-right: 0.2em;
-	-webkit-font-smoothing: antialiased;
-	-moz-osx-font-smoothing: grayscale;
-	content: "\e260";
+	margin-right: 0.15em; /* tighter than pseudo-element version */
 }
-.feedback-message > .panel-footer.collapsed .timestamp:after {
-	content: "\e259";
-}
+/* Show chevron-down when collapsed (can expand), chevron-up when expanded (can collapse) */
+.feedback-message > .panel-footer .timestamp .bi-chevron-down { display: inline-block; }
+.feedback-message > .panel-footer .timestamp .bi-chevron-up { display: none; }
+.feedback-message > .panel-footer:not(.collapsed) .timestamp .bi-chevron-down { display: none; }
+.feedback-message > .panel-footer:not(.collapsed) .timestamp .bi-chevron-up { display: inline-block; }
 
 .feedback-message > .panel-footer > .feedback-msg-bottom.in {
 	padding-left: 0.3em;
@@ -568,7 +545,7 @@ body.ios .feedback-message tr .glyphicon {
 		display: block;
 	}
 	.hidden-xs-response {
-		display: none;
+		display: block;
 	}
 }
 .popover.style-buttons .popover-content{
@@ -714,34 +691,4 @@ body.ios .feedback-message tr .glyphicon {
 
 #tag-import-preview-container .not-importable {
 	opacity: 0.4;
-}
-
-/* spin animation, src: http://bootsnipp.com/snippets/featured/glyphicon-animate-rotation-and-flip */
-.gly-spin {
-	-webkit-animation: spin 2s infinite linear;
-	-moz-animation: spin 2s infinite linear;
-	-o-animation: spin 2s infinite linear;
-	animation: spin 2s infinite linear;
-}
-@-moz-keyframes spin {
-	0% {   -moz-transform: rotate(0deg); }
-	100% { -moz-transform: rotate(359deg); }
-}
-@-webkit-keyframes spin {
-	0% {   -webkit-transform: rotate(0deg); }
-	100% { -webkit-transform: rotate(359deg); }
-}
-@-o-keyframes spin {
-	0% {   -o-transform: rotate(0deg); }
-	100% { -o-transform: rotate(359deg); }
-}
-@keyframes spin {
-	0% {
-		-webkit-transform: rotate(0deg);
-		transform: rotate(0deg);
-	}
-	100% {
-		-webkit-transform: rotate(359deg);
-		transform: rotate(359deg);
-	}
 }

@@ -1,3 +1,4 @@
+{% load feedback %}
 <div class="fieldWrapper feedback-filter">
 	{{ field.errors }}
 	{% if not hide_label %}
@@ -6,7 +7,7 @@
 				class="{{ label_classes }}"
 			{% endif %}
 			{% if field.help_text %}
-				data-toggle="tooltip" data-placement="top"
+				data-bs-toggle="tooltip" data-bs-placement="top"
 				title="{{field.help_text}}"
 			{% endif %}
 		>
@@ -14,6 +15,6 @@
 		</label>
 	{% endif %}
 	<div class="fb-filter-field {% if input_classes %}{{ input_classes }}{% endif %}">
-		{{ field }}
+		{{ field|as_bs_field }}
 	</div>
 </div>
