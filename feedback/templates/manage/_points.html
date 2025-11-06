@@ -22,9 +22,9 @@
 
     {% with pd=points.module %}
     <div class="points-level-group"
-        data-toggle="tooltip"
-        data-html="true"
-        data-placement="auto bottom"
+        data-bs-toggle="tooltip"
+        data-bs-html="true"
+        data-bs-placement="auto bottom"
         title="{% translate 'Points from module' %}: &lt;span class='text-nowrap'&gt;{{ pd.points }} / {{ pd.max_points }}&lt;/span&gt;{% if pd.points_to_pass %}&lt;br&gt;{% translate 'Points to pass' %}: &lt;span class='text-nowrap'&gt;{{ pd.points_to_pass }}&lt;/span&gt;{% endif %}{% if not pd.passed %}&lt;br&gt;{% translate 'The student has not passed the module.' %}{% endif %}"
     >
         <div class="points-name">
@@ -36,9 +36,9 @@
 
     {% with pd=points.chapter %}
     <div class="points-level-group"
-        data-toggle="tooltip"
-        data-html="true"
-        data-placement="auto bottom"
+        data-bs-toggle="tooltip"
+        data-bs-html="true"
+        data-bs-placement="auto bottom"
         title="{% translate 'Points from chapter' %}: &lt;span class='text-nowrap'&gt;{{ pd.points }} / {{ pd.max_points }}&lt;/span&gt;{% if pd.points_to_pass %}&lt;br&gt;{% translate 'Points to pass' %}: &lt;span class='text-nowrap'&gt;{{ pd.points_to_pass }}&lt;/span&gt;{% endif %}{% if not pd.passed %}&lt;br&gt;{% translate 'The student has not passed all of the exercises in the chapter.' %}{% endif %}"
     >
         <div class="points-name">

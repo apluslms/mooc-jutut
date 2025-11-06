@@ -12,36 +12,36 @@
 	<div class="chapter-info">
 		<a rel="external"
 			class="panel-title"
-			data-toggle="tooltip"
-			data-trigger="hover"
-			data-placement="top"
+			data-bs-toggle="tooltip"
+			data-bs-trigger="hover"
+			data-bs-placement="top"
 			title="{% trans 'Show exercise in A+' %}"
 			href="{{ exercise.html_url }}">
 			{{ exercise.context_name }}
 		</a>
 		<a
-			class="btn btn-xs hover-btn"
-			data-toggle="tooltip"
-			data-trigger="hover"
-			data-placement="top"
+			class="btn btn-sm hover-btn"
+			data-bs-toggle="tooltip"
+			data-bs-trigger="hover"
+			data-bs-placement="top"
 			title="{% trans 'Show all feedback for this exercise' %}"
 			href="{{ conv.all_feedback_for_exercise_url }}">
-			<span class="glyphicon glyphicon-filter" aria-hidden="true"></span>
+			<span class="bi bi-filter" aria-hidden="true"></span>
 		</a>
 		<button
-			class="btn btn-xs hover-btn"
-			data-toggle="tooltip"
-			data-trigger="hover"
-			data-placement="top"
+			class="btn btn-sm hover-btn"
+			data-bs-toggle="tooltip"
+			data-bs-trigger="hover"
+			data-bs-placement="top"
 			title="{% trans 'Copy link to this conversation' %}"
 			data-copy-notification="{% trans 'The link was copied to the clipboard' %}"
 			onclick="copyToClipboard('{{ conv.student_feedback_for_exercise_url }}', this)"
 		>
-			<span class="glyphicon glyphicon-link" aria-hidden="true"></span>
+			<span class="bi bi-link" aria-hidden="true"></span>
 		</button>
 	</div>
 	<div class="feedback-context-container">
-		<div class="btn-toolbar pull-right feedback-context">
+		<div class="btn-toolbar float-end feedback-context">
 			{% for tag in conv.context_tags %}
 				{{ tag }}
 			{% endfor %}

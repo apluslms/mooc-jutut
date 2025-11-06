@@ -12,7 +12,7 @@ $(function () {
       self.replaceWith(content);
     }).fail(function() {
       loader.find('.loader').remove();
-      loader.html('<h1><span class="glyphicon glyphicon-alert" aria-hidden="true"></span> Failed to load data</h1>');
+      loader.html('<h1><span class="bi bi-alert" aria-hidden="true"></span> Failed to load data</h1>');
       loader.addClass('alert alert-danger')
     });
   });

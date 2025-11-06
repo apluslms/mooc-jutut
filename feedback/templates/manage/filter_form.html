@@ -53,16 +53,17 @@
 
 		<div id="filter-action-buttons">
 			<button type="button" id="extra-filters-btn"
-				class="btn btn-default"
-				data-toggle="collapse" data-target=".filter-collapse"
+				class="btn btn-secondary"
 				data-expanded-text="{% trans 'Fewer options' %}"
 				data-collapsed-text="{% trans 'More options' %}"
 				onclick="toggleExtraOptions(this)"
 			>
-				{% trans "More options" %}
+				<span class="bi bi-chevron-down" aria-hidden="true"></span>
+				<span class="bi bi-chevron-up" aria-hidden="true"></span>
+				<span class="btn-label">{% trans "More options" %}</span>
 			</button>
 			<button type="submit" class="btn btn-primary">
-				<span class="glyphicon glyphicon-repeat"></span>
+				<span class="bi bi-repeat"></span>
 				{% trans "Filter" %}
 			</button>
 		</div>

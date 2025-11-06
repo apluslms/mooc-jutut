@@ -32,14 +32,14 @@ function dynamic_forms_textarea() {
   spanbox.append(menu);
 
   var addButton = function(symbol, text, action, style='primary') {
-    var btn = $('<button class="btn btn-'+style+' btn-xs" type="button"><span class="glyphicon glyphicon-'+symbol+'"></span> '+text+'</button>"');
+    var btn = $('<button class="btn btn-'+style+' btn-sm" type="button"><span class="bi bi-'+symbol+'"></span> '+text+'</button>"');
     menu.append(btn);
     btn.on('click', action);
     return btn;
   };
 
   var addLink = function(symbol, text, url, style='primary') {
-    var btn = $('<a class="btn btn-'+style+' btn-xs" rel="button"><span class="glyphicon glyphicon-'+symbol+'"></span> '+text+'</a>"');
+    var btn = $('<a class="btn btn-'+style+' btn-sm" rel="button"><span class="bi bi-'+symbol+'"></span> '+text+'</a>"');
     btn.attr('href', url);
     menu.append(btn);
     return btn;
@@ -62,7 +62,7 @@ function dynamic_forms_textarea() {
       textbox.hide();
       spanbox.show();
     };
-    addButton('edit', 'Edit', turn_edit_on, style='warning');
+    addButton('pencil-square', 'Edit', turn_edit_on, style='warning');
     span.on('dblclick', turn_edit_on);
     base.on('exit_edit', turn_edit_off);
   }
@@ -99,7 +99,7 @@ function dynamic_forms_textarea() {
   }
 
   // mono
-  addButton('font', 'Mono', function() {
+  addButton('fonts', 'Mono', function() {
     $(this).toggleClass('active');
     span.toggleClass('codeblock');
   });
