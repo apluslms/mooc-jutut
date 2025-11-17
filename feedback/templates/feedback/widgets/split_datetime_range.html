@@ -1,0 +1,8 @@
+<div class="d-flex align-items-start gap-3">
+  {% for subwidget in widget.subwidgets %}
+    <div class="d-flex flex-column">
+      <label class="form-label small text-muted mb-1">{% if forloop.first %}From:{% else %}To:{% endif %}</label>
+      {% include subwidget.template_name with widget=subwidget %}
+    </div>
+  {% endfor %}
+</div>

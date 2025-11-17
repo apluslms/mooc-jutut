@@ -11,7 +11,7 @@
 </form>
 <div id="tag-import-preview-container">
 	{% for course_id, tags in course_tags %}
-		<div id="tag-import-preview-{{ course_id }}" class="hidden">
+		<div id="tag-import-preview-{{ course_id }}" class="d-none">
 			{% if tags|length > 0 %}
 				<h3>
 					{% translate 'Tags to be imported' %}

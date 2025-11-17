@@ -258,19 +258,33 @@ $(function() {
   /* update colors that reflect the feedback status */
   function get_bootstrap_classes(classes_str) {
     if (classes_str === undefined) return [];
-    var colors = ['default', 'primary', 'danger', 'warning', 'success', 'info'];
+    var colors = ['secondary', 'primary', 'danger', 'warning', 'success', 'info'];
     var classes = classes_str.split(/\s+/);
     var matches = [];
     classes.forEach(function(class_) {
-      var parts = class_.split('-');
-      if (parts.length == 2 && colors.indexOf(parts[1]) >= 0) {
-        matches.push(class_);
+      // Handle Bootstrap 5 text-bg- classes specifically
+      if (class_.startsWith('text-bg-')) {
+        var color = class_.split('-')[2]; // text-bg-primary -> primary
+        if (colors.indexOf(color) >= 0) {
+          matches.push(class_);
+        }
+      } else {
+        // Handle other Bootstrap classes (btn-, badge-, border-, etc.)
+        var parts = class_.split('-');
+        if (parts.length == 2 && colors.indexOf(parts[1]) >= 0) {
+          matches.push(class_);
+        }
       }
     });
     return matches;
   }
   function replace_bootstrap_classes(classes, color) {
     return classes.map(function(class_) {
+      // Handle Bootstrap 5 text-bg- classes specifically
+      if (class_.startsWith('text-bg-')) {
+        return 'text-bg-' + color;
+      }
+      // Handle other Bootstrap classes (btn-, badge-, border-, etc.)
       var type_ = class_.split('-', 1)[0];
       return type_ + '-' + color;
     });
@@ -281,12 +295,18 @@ $(function() {
       console.log("Invalid element for update_feedback_status_colors: " + this);
       return;
     }
-    color = color[0].split('-')[1];
+    var colorClass = color[0]
+    var extractedColor;
+    if (colorClass.startsWith('text-bg-')) {
+      extractedColor = colorClass.split('-')[2]; // text-bg-primary -> primary
+    } else {
+      extractedColor = colorClass.split('-')[1]; // btn-primary -> primary
+    }
 
     var elems = $(this).closest('.feedback-response-pair').find('.reacts-to-status');
     elems.each(function() {
       var old_classes = get_bootstrap_classes(this.className);
-      var new_classes = replace_bootstrap_classes(old_classes, color);
+      var new_classes = replace_bootstrap_classes(old_classes, extractedColor);
       $(this).removeClass(old_classes.join(' ')).addClass(new_classes.join(' '));
     });
   }
@@ -506,7 +526,13 @@ $(function() {
     // enable showing styling buttons on click when they don't fit
     dom.find('.toggle-styling-buttons').each((i, elem) => {
       const $btn = $(elem);
-      const contentFn = () => $btn.closest('.btn-toolbar').find('.styling-buttons').clone(true)[0];
+      const contentFn = () => {
+        const toolbar = $btn.closest('.btn-toolbar');
+        const clone = toolbar.find('.styling-buttons').clone(true);
+        const wrapper = $('<div class="btn-toolbar" role="toolbar"></div>')
+          .attr('data-textarea-id', toolbar.data('textarea-id'));
+        return wrapper.append(clone)[0];
+      };
       // Ensure no Tooltip remains on this element before creating a Popover
       const tt = bootstrap.Tooltip.getInstance(elem);
       if (tt) try { tt.dispose(); } catch(_) {}
@@ -514,6 +540,25 @@ $(function() {
         trigger: 'click',
         content: contentFn,
         template: '<div class="popover style-buttons" role="tooltip"><div class="popover-arrow"></div><div class="popover-body"></div></div>',
+      });
+      const updatePopover = () => {
+        const inst = bootstrap.Popover.getInstance(elem);
+        if (inst) { try { inst.update(); } catch (_) {} }
+      };
+      let resizeObserver = null;
+      $btn.on('shown.bs.popover', () => {
+        updatePopover();
+        if (typeof ResizeObserver === 'function' && !resizeObserver) {
+          resizeObserver = new ResizeObserver(updatePopover);
+          const target = $btn.closest('.response-message')[0] || elem;
+          resizeObserver.observe(target);
+        }
+      });
+      $btn.on('hidden.bs.popover', () => {
+        if (resizeObserver) {
+          resizeObserver.disconnect();
+          resizeObserver = null;
+        }
       });
       $btn.on('show.bs.popover', () => {
         const inst = bootstrap.Tooltip.getInstance(elem);
@@ -546,9 +591,9 @@ $(function() {
     $(".site-messages").remove();
     const courseId = $(this).val();
     $('#tag-import-preview-container').children().each(function() {
-      $(this).addClass('hidden');
+      $(this).addClass('d-none');
     })
-    $(`#tag-import-preview-${courseId}`).removeClass('hidden');
+    $(`#tag-import-preview-${courseId}`).removeClass('d-none');
   });
 });
 
@@ -751,14 +796,21 @@ $(function() {
 
   /* Replace default popover with fetched discussions preview */
   $('.student-conv-prev-btn').one('show.bs.popover', function(e) {
+    e.preventDefault();
     const btn = e.target;
-    const existingPopover = bootstrap.Popover.getInstance(btn);
-    if (existingPopover) existingPopover.dispose();
-    const tt = bootstrap.Tooltip.getInstance(btn); // dispose tooltip if present
-    if (tt) tt.dispose();
     studentDiscussionPreview(btn)
-      .then(function(newContent) {
-        const popOpts = { ...opts, content: newContent };
+    .then(function(newContent) {
+        // Dispose any existing popover or tooltip on this button
+        const existingPopover = bootstrap.Popover.getInstance(btn);
+        if (existingPopover) existingPopover.dispose();
+        const tt = bootstrap.Tooltip.getInstance(btn);
+        if (tt) tt.dispose();
+
+        const popOpts = {
+          ...opts,
+          content: newContent,
+          placement: 'bottom',
+        };
         const instance = new bootstrap.Popover(btn, popOpts);
         instance.show();
         hideOnFocusOutside(btn);
@@ -767,35 +819,43 @@ $(function() {
 
   /* Replace default popover with points summary */
   $('.display-points-btn').one('show.bs.popover', function(e) {
+    e.preventDefault();
     const btn = e.target;
-    const existingPopover = bootstrap.Popover.getInstance(btn);
-    if (existingPopover) existingPopover.dispose();
-    const tt = bootstrap.Tooltip.getInstance(btn); if (tt) tt.dispose();
     fetchBtnUrlContent(btn, 'points-display')
-      .then(function(newContent) {
-        const popOpts = {
-          ...opts,
-          content: newContent,
-          viewport: {selector: '.feedback-response-panel', padding: 6 },
-        };
-        const instance = new bootstrap.Popover(btn, popOpts);
-        instance.show();
-        hideOnFocusOutside(btn);
-        // Initialize any tooltips that appeared within loaded content
-        $('.points-display [data-bs-toggle="tooltip"]').each(function() {
-          if (!bootstrap.Tooltip.getInstance(this)) new bootstrap.Tooltip(this);
-        });
+    .then(function(newContent) {
+      // Dispose any existing popover or tooltip on this button
+      const existingPopover = bootstrap.Popover.getInstance(btn);
+      if (existingPopover) existingPopover.dispose();
+      const tt = bootstrap.Tooltip.getInstance(btn);
+      if (tt) tt.dispose();
+
+      const popOpts = {
+        ...opts,
+        content: newContent,
+        viewport: {selector: '.feedback-response-panel', padding: 6 },
+      };
+      const instance = new bootstrap.Popover(btn, popOpts);
+      instance.show();
+      hideOnFocusOutside(btn);
+      // Initialize any tooltips that appeared within loaded content
+      $('.points-display [data-bs-toggle="tooltip"]').find('[data-bs-toggle="tooltip"]').each(function() {
+        if (!bootstrap.Tooltip.getInstance(this)) new bootstrap.Tooltip(this);
       });
+    });
   });
 
   /* Replace default popover with response to background questionnaire */
   $('.background-btn').one('show.bs.popover', function(e) {
+    e.preventDefault();
     const btn = e.target;
-    const existingPopover = bootstrap.Popover.getInstance(btn);
-    if (existingPopover) existingPopover.dispose();
-    const tt = bootstrap.Tooltip.getInstance(btn); if (tt) tt.dispose();
     fetchBtnUrlContent(btn, 'background-display')
-      .then(function(newContent) {
+    .then(function(newContent) {
+        // Dispose any existing popover or tooltip on this button
+        const existingPopover = bootstrap.Popover.getInstance(btn);
+        if (existingPopover) existingPopover.dispose();
+        const tt = bootstrap.Tooltip.getInstance(btn);
+        if (tt) tt.dispose();
+
         const popOpts = { ...opts, content: newContent };
         const instance = new bootstrap.Popover(btn, popOpts);
         instance.show();
