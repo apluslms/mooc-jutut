@@ -232,10 +232,7 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
     # use faster template engine
     default_renderer = Jinja2Renderer()
 
-    # following noqa: MC0001 skips DynamicForm.create_form_class_from is too complex (32) error
-    # it was decided during the linter setup that this function would not be refactored at that time.
-    # The "pylint disable" comment for the get_fields method is also related to this.
-    @classmethod
+    @classmethod # pylint: disable-next=too-many-statements
     def create_form_class_from(cls, data: "list of field structs", i18n): # noqa: MC0001
         """
         Construct dynamic form based on data.

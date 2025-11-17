@@ -106,6 +106,7 @@ def as_bs_field(field):
     - Date/DateTime/Time inputs => form-control
     - Checkbox/Radio/Files/Hidden and group widgets => unchanged
     """
+    # pylint: disable-next=import-outside-toplevel
     from django.forms.widgets import (
         Input,
         Select,

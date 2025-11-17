@@ -25,8 +25,8 @@ class PgAggregate(Aggregate):
         elif field_class in [fields.jstore.HStoreField]:
             data_type = self.__data_type or 'integer'
             get_field_oper = self.__get_field_oper or '->'
-        resolved.extra['data_type'] = data_type
-        resolved.extra['get_field_oper'] = get_field_oper
+        resolved.extra['data_type'] = data_type # pylint: disable=possibly-used-before-assignment
+        resolved.extra['get_field_oper'] = get_field_oper # pylint: disable=possibly-used-before-assignment
         return resolved
 
 class PgAvg(PgAggregate):

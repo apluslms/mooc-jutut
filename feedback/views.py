@@ -428,8 +428,8 @@ def get_tag_list(tags, conversation, get_tag_url=None) -> Tuple[FeedbackTag]:
         for tag in tags
     )
 
-
-def get_feedback_dict(feedback, get_form, response_form_class, # pylint: disable=too-many-arguments
+# pylint: disable-next=too-many-positional-arguments too-many-arguments
+def get_feedback_dict(feedback, get_form, response_form_class,
                       get_post_url=None, get_status_url=None,
                       active=True) -> dict:
     form = get_form(feedback)

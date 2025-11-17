@@ -29,8 +29,7 @@ class Command(BaseCommand):
                             type=int, default=200,
                             help="How long to wait between updating two feedbacks in milliseconds")
 
-    # following noqa: MC0001 skips Command.handle is too complex (17) error
-    # it was decided during the linter setup that this function would not be refactored at that time
+    # pylint: disable-next=too-many-locals
     def handle(self, *args, **options): # noqa: MC0001
         wait = options['wait']/1000
         update_meta = options['meta']

@@ -491,8 +491,7 @@ def store_configuration(config):
         f.write("""; Configuration file for MOOC Jutut installer\n\n""")
         config_parser.write(f)
 
-# following noqa: MC0001 skips parse_options is too complex (16) error
-# it was decided during the linter setup that this function would not be refactored at that time
+# pylint: disable-next=too-many-branches too-many-statements too-many-locals
 def parse_options(): # noqa: MC0001
     global OPTS, ORIGINAL_OPTS, PARSER
 
