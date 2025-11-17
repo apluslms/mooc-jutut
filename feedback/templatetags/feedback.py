@@ -25,7 +25,7 @@ def select_from_list(index, list_):
 @register.filter
 def grade_color(grade):
     colors = ['danger', 'warning', 'success']
-    return select_from_list(grade, colors) or 'default'
+    return select_from_list(grade, colors) or 'secondary'
 
 
 @register.filter

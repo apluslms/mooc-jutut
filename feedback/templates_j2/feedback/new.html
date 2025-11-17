@@ -14,11 +14,11 @@
 {% endblock meta %}
 
 {% block content %}
-	<div class="panel panel-default">
-		<div class="panel-heading">
+	<div class="card">
+		<div class="card-header">
 			{{ _("Feedback <i>%(jutut)s</i> for <i>%(aplus)s</i>", jutut=jutut_path, aplus=aplus_path) }}
 		</div>
-		<div id="exercise" class="panel-body">
+		<div id="exercise" class="card-body">
 			{% include "feedback/_form.html" %}
 		</div>
 	</div>

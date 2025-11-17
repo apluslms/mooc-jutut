@@ -9,7 +9,7 @@
 		title="{% if tooltip_points_text %}{{ tooltip_points_text }}{% else %}{% translate 'Points' %}{% endif %}: &lt;span class='text-nowrap'&gt;{{ pd.points }} / {{ pd.max_points }}&lt;/span&gt;{% if pd.points_to_pass %}&lt;br&gt;{% translate 'Points to pass' %}: &lt;span class='text-nowrap'&gt;{{ pd.points_to_pass }}&lt;/span&gt;{% endif %}"
 	{% endif %}
 >
-	<div class="progress-bar progress-bar-striped progress-bar-{% if pd.full_score %}success{% elif pd.passed %}warning{% else %}danger{% endif %}"
+	<div class="progress-bar progress-bar-striped bg-{% if pd.full_score %}success{% elif pd.passed %}warning{% else %}danger{% endif %}"
 		rel="progressbar"
 		aria-valuenow="{{ pd.points }}"
 		aria-valuemin="0" aria-valuemax="{{ pd.max_points }}"

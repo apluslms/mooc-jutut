@@ -49,13 +49,13 @@ def validate_regex(value: str):
 class SplitDateTimeRangeWidget(forms.MultiWidget):
     """Add support to get widgets as parameter"""
     # NOTE: 'wants to be' a reimplementation of django_filters.widgets.DateRangeWidget
-    template_name = 'django_filters/widgets/multiwidget.html'
+    template_name = "feedback/widgets/split_datetime_range.html"
     # suffixes = ['after', 'before']
 
     def __init__(self, attrs=None):
         widget = forms.SplitDateTimeWidget(
-            date_attrs={'type': 'date'},
-            time_attrs={'type': 'time', 'step': '1'},
+            date_attrs={'type': 'date', 'class': 'form-control', 'style': 'width: auto;'},
+            time_attrs={'type': 'time', 'step': '1', 'class': 'form-control', 'style': 'width: auto;'},
         )
         super().__init__((widget, widget), attrs)
 
@@ -63,6 +63,21 @@ class SplitDateTimeRangeWidget(forms.MultiWidget):
         if value:
             return [value.start, value.stop]
         return [None, None]
+
+    def get_context(self, name, value, attrs):
+        """Ensure Bootstrap classes are applied to all sub-widgets"""
+        context = super().get_context(name, value, attrs)
+
+        # Apply form-control class to all nested inputs
+        for widget_data in context['widget']['subwidgets']:
+            # Each subwidget is a SplitDateTimeWidget with its own subwidgets
+            if 'subwidgets' in widget_data.get('widget', {}):
+                for sub_widget in widget_data['widget']['subwidgets']:
+                    existing_class = sub_widget['attrs'].get('class', '')
+                    if 'form-control' not in existing_class:
+                        sub_widget['attrs']['class'] = f"{existing_class} form-control".strip()
+
+        return context
 
 
 class SplitDateTimeRangeField(forms.MultiValueField):

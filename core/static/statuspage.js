@@ -2,7 +2,7 @@ $(function () {
   $('.ajaxload').each(function() {
     console.log("Creating ajax loader for", this);
     var self = $(this)
-    self.html('<div class="text-center row"><div class="loader"></div></div>');
+    self.html('<div class="d-flex align-items-center justify-content-center"><div class="loader"></div></div>');
     var loader = self.find('.row');
     $.get(self.data('url'), function(data) {
       console.log(data);

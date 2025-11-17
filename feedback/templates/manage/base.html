@@ -12,7 +12,7 @@
 
 	<!--<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.10.2/css/all.css" integrity="sha256-piqEf7Ap7CMps8krDQsSOTZgF+MU/0MPyPW2enj5I40=" crossorigin="anonymous" />-->
 	<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.13.1/font/bootstrap-icons.min.css">
-	
+
 	{# dynamic_forms #}
 	<link rel="stylesheet" href="{% static "dynamic_forms.css" %}">
 	{# project additions #}
@@ -127,7 +127,7 @@
 					<input name="next" type="hidden" value="{{ request.get_full_path }}" />
 					<input name="language" type="hidden" value="" />
 				</form>
-				<ul id="language-menu" class="navbar-nav ms-auto d-none">
+				<ul id="language-menu" class="navbar-nav ms-auto" style="display: none;">
 					<li class="nav-item dropdown">
 						<a href="#" class="nav-link dropdown-toggle" id="languageDropdown" data-bs-toggle="dropdown" aria-expanded="false">{% trans "Language" %}</a>
 						<ul id="language-select" class="dropdown-menu dropdown-menu-end" aria-labelledby="languageDropdown">
@@ -137,7 +137,7 @@
 							{% for language in languages %}
 								<li>
 									<a class="dropdown-item{% if language.code == LANGUAGE_CODE %} active{% endif %}" href="#" data-lang="{{ language.code }}">
-										<span class="lang-sm lang-lbl-full" lang="{{ language.code }}"></span>
+										<span class="lang-sm lang-lbl-full d-flex align-items-center gap-1" lang="{{ language.code }}"></span>
 									</a>
 								</li>
 							{% endfor %}

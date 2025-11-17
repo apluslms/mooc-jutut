@@ -7,6 +7,28 @@ body {
 	margin-right: 0.4em;
 }
 
+@media (max-width: 767.98px) {
+  #navbar.show .dropdown-menu {
+    background-color: rgba(var(--bs-dark-rg), var(--bs-bg-opacity));
+    border-color: rgba(255,255,255,.15);
+  }
+  #navbar.show .dropdown-menu .dropdown-item {
+    color: var(--bs-nav-link-hover-color);
+  }
+  #navbar.show .dropdown-menu .dropdown-item:hover,
+  #navbar.show .dropdown-menu .dropdown-item:focus {
+    background-color: #343a40;
+    color: #fff;
+  }
+  #navbar.show .dropdown-divider {
+    border-color: #343a40;
+  }
+}
+
+#id_feedbackfilter_order_by_chosen {
+    width: 200px !important;
+}
+
 #pagination-and-zen {
 	display: flex;
 	justify-content: space-between;
@@ -216,10 +238,9 @@ input[type="checkbox"].combosearch + label {
 }
 
 /* Extra filters toggle button icons (Bootstrap Icons) */
-#extra-filters-btn .bi { vertical-align: middle; margin-right: 0.25em; }
 #extra-filters-btn .bi-chevron-up { display: none; }
 #filter-container.expanded #extra-filters-btn .bi-chevron-down { display: none; }
-#filter-container.expanded #extra-filters-btn .bi-chevron-up { display: inline-block; }
+#filter-container.expanded #extra-filters-btn .bi-chevron-up { display: inline-flex; }
 
 /* labels in panel headers and footers */
 .panel-heading .label,
@@ -282,9 +303,11 @@ input[type="checkbox"].combosearch + label {
 	font-weight: bold;
 	font-size: 14px;
 	color: #fff;
+	text-decoration: none;
 }
 .feedback-response-panel > .panel-heading a.student-name:hover {
 	color: #ddf;
+	text-decoration: underline;
 }
 .feedback-response-panel .student-info > .student-tags > .label.colortag {
 	margin-right: 5px;
@@ -383,7 +406,7 @@ input[type="checkbox"].combosearch + label {
 	background-color: #f7f7f7;
 	min-height: 1.5em;
 	position: relative; /* for positioning timestamp */
-	padding-top: 0.2em;
+	padding-bottom: 0.7em;
 }
 .response-message-container {
 	width: auto;
@@ -488,7 +511,8 @@ body.ios .feedback-message tr .bi {
 }
 .response-message .respond-btn-container {
 	float: right;
-	margin: 0.2em;
+	margin-top: 0.3em;
+	margin-right: 0.2em;
 }
 /* Btn-group styling fix so tooltips don't break styling. */
 .response-message .btn-group .btn ~ .btn {
@@ -497,6 +521,9 @@ body.ios .feedback-message tr .bi {
 .response-message .btn-group > .btn ~ .dropdown-toggle {
 	padding-right: 8px;
 	padding-left: 8px;
+}
+.response-message .btn-group > .btn ~ .dropdown-toggle::after {
+	content: none;
 }
 .response-message .respond-btn-container .dropdown-menu {
 	min-width: auto;
@@ -545,12 +572,16 @@ body.ios .feedback-message tr .bi {
 		display: block;
 	}
 	.hidden-xs-response {
-		display: block;
+		display: none;
 	}
 }
-.popover.style-buttons .popover-content{
+.popover.style-buttons {
+	max-width: fit-content;
+}
+.popover.style-buttons .popover-body {
 	padding: 4px;
 	display: flex;
+	justify-content: center;
 }
 .popover.style-buttons .btn-group.styling-buttons {
 	display: flex;
@@ -567,7 +598,7 @@ body.ios .feedback-message tr .bi {
 	}
 }
 
-.popover > .popover-content {
+.popover > .popover-body {
 	overflow-y: scroll;
 	max-height: 85vh;
 }

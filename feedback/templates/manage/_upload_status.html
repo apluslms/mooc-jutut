@@ -11,7 +11,7 @@
 {% with upl=feedback.response_uploaded %}
 	{% if feedback.responded and not upl.ok %}
 		<span rel="tooltip"
-			class="badge text-bg-{{ upl.code|yesno:"danger,default" }} float-end upload-status"
+			class="badge text-bg-{{ upl.code|yesno:"danger,secondary" }} float-end upload-status"
 			data-updateurl="{{ status_url|default:request.get_full_path }}"
 			data-code="{{ upl.code }}"
 			{% if upl.code %}

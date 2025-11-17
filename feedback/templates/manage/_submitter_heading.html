@@ -19,7 +19,7 @@
 			target="_blank">
 			{{ user.full_name }}
 		</a>
-		<div class="student-tags">
+		<div class="student-tags d-flex gap-1">
 			{% spaceless %}
 			{% for tag in user|studenttags_for_course:course %}
 				{{ tag|colortag }}
@@ -27,7 +27,7 @@
 			{% endspaceless %}
 		</div>
 	</div>
-	<div class="btn-toolbar" role="toolbar" aria-label="{% translate 'Toolbar of buttons related to student' %}">
+	<div class="btn-toolbar gap-2" role="toolbar" aria-label="{% translate 'Toolbar of buttons related to student' %}">
 		<div class="btn-group" role="group" aria-label="{% translate 'Group of buttons for viewing conversations with student' %}">
 			<a class="btn btn-sm hover-btn"
 				data-bs-toggle="tooltip"
@@ -43,7 +43,7 @@
 				data-bs-toggle="popover"
 				data-bs-trigger="focus hover"
 				data-bs-placement="bottom"
-				data-title="{% blocktranslate trimmed with name=user.full_name %}
+				title="{% blocktranslate trimmed with name=user.full_name %}
 					Conversations with {{ name }}
 				{% endblocktranslate %}"
 				data-url="{{ conv.all_feedback_for_student_url }}&contains_text=on&paginate_by=200"
