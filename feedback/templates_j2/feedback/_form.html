@@ -62,9 +62,9 @@
 	{%- endif -%}
 	<div class="history-well mb-2 p-2 border rounded bg-body-secondary">
 		<span class="visually-hidden">{{ sr_text }}</span>
-		<ul class="list-group nav" style="margin-bottom: 0;">
+		<ul class="list-group nav mb-0">
 			{% if older_count > 2 -%}
-				<li class="show-more">
+				<li class="show-more mb-2">
 					{{ glyph("chevron-up") }} {{ _("show more") }} {{ glyph("chevron-down") }}
 				</li>
 			{%- endif %}
@@ -164,7 +164,7 @@
 			{{ _("This feedback has unsaved changes!") }}
 		</div>
 
-		<div class="mb-3">
+		<div>
 			<div class="btn-toolbar gap-2">
 				<input
 					type="submit"
