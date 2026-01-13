@@ -216,7 +216,7 @@ AUTH_LTI_LOGIN = {
 ## Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 LANGUAGE_CODE = 'en'
-TIME_ZONE = 'EET'
+TIME_ZONE = 'Europe/Helsinki'
 USE_TZ = True
 USE_I18N = True # Use localization
 USE_L10N = True # Use localization for dates and times
