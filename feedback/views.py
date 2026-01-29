@@ -589,6 +589,10 @@ def update_context_for_feedbacks( # noqa
             'student_feedback_for_exercise_url': (
                 request.build_absolute_uri(get_all_student_feedbacks_for_exercise_url(conv))
             ),
+            'add_deadline_deviation_url': course.html_url + (
+                'teachers/deadline-deviations/add/?' + \
+                f'submitter={conv.student.api_id}&get_module_of_exercise={conv.exercise.api_id}'
+            ),
             'show_background': course_has_bg_questionnaire and student_may_have_bg_questionnaire(conv.student),
             'context_tags': context_tags,
             'conversation_tags': set(conv.tags.all()),

@@ -460,6 +460,10 @@ msgstr "Kopioi linkki tähän keskusteluun"
 msgid "The link was copied to the clipboard"
 msgstr "Linkki kopioitiin leikepöydälle"
 
+#: feedback/templates/manage/_exercise_heading.html
+msgid "Add deadline deviation"
+msgstr "Lisää määräajan poikkeama"
+
 #: feedback/templates/manage/_feedback_message.html
 msgid "This field was <b>not</b> required"
 msgstr "Tämä kenttä <b>ei</b> ollut pakollinen"
