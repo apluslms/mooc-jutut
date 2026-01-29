@@ -407,8 +407,10 @@ class Feedback(models.Model):
         ('NO', 0, _('No notification')),
         ('NORMAL', 1, _('Normal notification')),
         ('IMPORTANT', 2, _('Important notification')),
+        ('REMOVE', 10, _('Remove notification')),
     )
     NOTIFY_APLUS = {
+        NOTIFY.REMOVE: 'remove',
         NOTIFY.NORMAL: 'normal',
         NOTIFY.IMPORTANT: 'important',
     }
