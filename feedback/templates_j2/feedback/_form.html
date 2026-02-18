@@ -164,17 +164,19 @@
 			{{ _("This feedback has unsaved changes!") }}
 		</div>
 
-		<div>
-			<div class="btn-toolbar gap-2">
-				<input
-					type="submit"
-					value="{{ _('Submit') }}"
-					class="btn btn-primary aplus-submit mr-2">
-				<input
-					type="reset"
-					value="{{ _('Reset changes') }}"
-					class="btn btn-danger only-when-edited">
-			</div>
+		<div id="feedback-received-message" class="alert alert-info" style="display: none">
+			{{ _("Feedback received.") }}
+		</div>
+
+		<div class="btn-toolbar gap-2">
+			<input
+				type="submit"
+				value="{{ _('Submit') }}"
+				class="btn btn-primary aplus-submit mr-2">
+			<input
+				type="reset"
+				value="{{ _('Reset changes') }}"
+				class="btn btn-danger only-when-edited">
 		</div>
 	</form>
 
@@ -182,6 +184,12 @@
 	<script>
 		(function($) {
 			const f = $('#{{ form_id }}');
+			// implement feedback received notification
+			// needs to be only shown when feedback has just been sent by student
+			const feedbackJustReceived = f.closest('.exercise-response').data('aplus-grader-feedback-just-received');
+			if (feedbackJustReceived) {
+				$('#feedback-received-message').show();
+			}
 			// implement show more
 			const c = f.find('.history-well'), m = c.find('.show-more');
 			m.click(function() { c.find('li.initially-hidden').removeClass('initially-hidden').show(); m.hide(); });
