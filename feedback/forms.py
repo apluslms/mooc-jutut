@@ -137,10 +137,9 @@ class ResponseForm(forms.ModelForm):
         new_msg = "".join(new_msg.split())
         if new_msg == '': # empty message always removes notification
             return Feedback.NOTIFY.REMOVE
-        elif old_msg == '' and new_msg != '': # empty to non-empty sends notification
+        if old_msg == '' and new_msg != '': # empty to non-empty sends notification
             return Feedback.NOTIFY.NORMAL
-        else:
-            return Feedback.NOTIFY.NO # editing non-empty message does not change notification status
+        return Feedback.NOTIFY.NO # editing non-empty message does not change notification status
         # FIXME: add support for instance.NOTIFY.IMPORTANT
 
     def save(self): # pylint: disable=arguments-differ

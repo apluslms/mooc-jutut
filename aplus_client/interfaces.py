@@ -21,7 +21,7 @@ def none_on_error(*args, exceptions=None, silent=False):
     def wrap(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except exceptions as e:
+        except exceptions as e: # pylint: disable=catching-non-exception
             if not silent:
                 logger.info("interface %s raised exception %s", func.__name__, e)
             return None

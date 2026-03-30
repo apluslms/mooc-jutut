@@ -85,7 +85,7 @@ def update_student_tags(self): # pylint: disable=unused-argument
             continue
         # check if course is still in progress
         course_api = client.load_data(course.url)
-        if course_api == None:
+        if course_api is None:
             logger.warning("Could not load course data for %s.", course)
             continue
         course_end = datetime.fromisoformat(course_api.get("ending_time"))
