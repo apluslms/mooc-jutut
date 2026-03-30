@@ -274,8 +274,16 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 
         # create
         else:
-            # automatically grade if there is no need for human oversight
-            if not form.requires_manual_check:
+            # automatically grade if there is no need for human oversight,
+            # but not if a previous unread submission exists for this student+exercise
+            # (so the conversation stays visible on the unread feedback page)
+            has_unread_predecessor = Feedback.objects.filter(
+                exercise=exercise,
+                student=data['student'],
+                response_time=None,
+                superseded_by=None,
+            ).exists()
+            if not form.requires_manual_check and not has_unread_predecessor:
                 data['response_grade'] = max_grade
                 data['response_time'] = timezone_now()
 
