@@ -60,6 +60,7 @@
 						name="response_msg"
 						data-texttarget="#{{ form.auto_id|fill_format_string:'edit_box' }}"
 						data-spantarget="#{{ form.auto_id|fill_format_string:'span_box' }}"
+						data-html-sanitizer="sanitizeResponseHTML"
 						placeholder="{{ f.label }}"
 						autocomplete="off"
 						{{ form.disabled|yesno:'disabled,' }}

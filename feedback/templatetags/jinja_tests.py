@@ -2,6 +2,17 @@ from django_jinja import library
 from jinja2 import pass_context
 
 from dynamic_forms.fields import EnchantedBoundField
+from feedback.utils import sanitize_response_message
+
+
+@library.filter(name="sanitize_response")
+def sanitize_response_filter(value):
+    """Sanitize a teacher response message for safe HTML rendering.
+
+    Allows formatting tags (b, i, u, strong, em, code, a, br) and
+    escapes everything else so that text like ``<foo>`` renders literally.
+    """
+    return sanitize_response_message(value)
 
 
 @library.test(name="has_textfields")

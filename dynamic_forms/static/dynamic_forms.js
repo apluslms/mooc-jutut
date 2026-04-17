@@ -13,7 +13,13 @@ function dynamic_forms_textarea() {
     }
     textbox.hide();
     span = $('<span class="textarea"></span>');
-    span.html(base.val() || blankResponse);
+    var rawVal = base.val();
+    var sanitizerFnName = base.data('html-sanitizer');
+    if (sanitizerFnName && typeof window[sanitizerFnName] === 'function' && rawVal) {
+      span.html(window[sanitizerFnName](rawVal));
+    } else {
+      span.html(rawVal || blankResponse);
+    }
     if (base.data('spantarget')) {
       spanbox = $(base.data('spantarget')).first();
       spanbox.show();
