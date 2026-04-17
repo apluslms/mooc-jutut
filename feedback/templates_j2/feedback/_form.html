@@ -35,7 +35,7 @@
 	{% if message %}
 		<li class="list-group-item list-group-item-info staff{% if index > 2 %} initially-hidden{% endif %}">
 			{{ glyph("mortarboard-fill", _("teacher")) }}
-			<span class="text">{{ message|safe }}</span>
+			<span class="text">{{ message|sanitize_response }}</span>
 		</li>
 	{% endif %}
 {%- endmacro -%}
@@ -49,7 +49,7 @@
 		{%- set val = pair[1] -%}
 		{%- if k == f_key and val -%}
 			<li class="list-group-item student{% if index > 2 %} initially-hidden{% endif %}">
-				<span class="text">{{ val|safe }}</span>
+				<span class="text">{{ val }}</span>
 			</li>
 		{%- endif -%}
 	{%- endfor -%}

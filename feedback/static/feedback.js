@@ -91,6 +91,63 @@ $(function() {
     });
   }
 
+  /* Sanitize response message HTML: keep allowed tags, escape everything else.
+   * Must mirror the server-side sanitize_response_message() helper in feedback/utils.py. */
+  const _ALLOWED_RESPONSE_TAGS = new Set(['B', 'I', 'U', 'STRONG', 'EM', 'CODE', 'A', 'BR']);
+  const _ALLOWED_RESPONSE_ATTRS = new Map([['A', new Set(['href', 'title'])]]);
+  const _SAFE_URL_SCHEMES = new Set(['http:', 'https:', 'mailto:']);
+
+  function _sanitizeResponseNode(source, target) {
+    for (const child of source.childNodes) {
+      if (child.nodeType === Node.TEXT_NODE) {
+        target.appendChild(document.createTextNode(child.data));
+      } else if (child.nodeType === Node.ELEMENT_NODE) {
+        const tag = child.tagName; // uppercase in HTML documents
+        if (_ALLOWED_RESPONSE_TAGS.has(tag)) {
+          const el = document.createElement(tag.toLowerCase());
+          const allowedAttrs = _ALLOWED_RESPONSE_ATTRS.get(tag) || new Set();
+          for (const attrName of allowedAttrs) {
+            const val = child.getAttribute(attrName);
+            if (val === null) continue;
+            if (attrName === 'href') {
+              try {
+                const parsed = new URL(val, window.location.href);
+                if (!_SAFE_URL_SCHEMES.has(parsed.protocol)) continue;
+              } catch (_) { continue; }
+            }
+            el.setAttribute(attrName, val);
+          }
+          _sanitizeResponseNode(child, el);
+          target.appendChild(el);
+        } else {
+          // Render the unknown tag as literal text so it is visible
+          let openTag = '<' + child.tagName.toLowerCase();
+          for (const attr of child.attributes) {
+            openTag += ' ' + attr.name + '="' + attr.value
+              .replace(/&/g, '&amp;').replace(/"/g, '&quot;') + '"';
+          }
+          openTag += '>';
+          target.appendChild(document.createTextNode(openTag));
+          // Still process children rather than discarding them
+          _sanitizeResponseNode(child, target);
+          if (child.childNodes.length > 0) {
+            target.appendChild(document.createTextNode('</' + child.tagName.toLowerCase() + '>'));
+          }
+        }
+      }
+    }
+  }
+
+  function sanitizeResponseHTML(text) {
+    const tmp = document.createElement('div');
+    tmp.innerHTML = text;
+    const out = document.createElement('div');
+    _sanitizeResponseNode(tmp, out);
+    return out.innerHTML; // safe HTML string with disallowed tags escaped
+  }
+  // Expose globally so dynamic_forms.js can look it up via data-html-sanitizer
+  window.sanitizeResponseHTML = sanitizeResponseHTML;
+
   /* Buttons for toggling preview state */
   let sStart, sEnd;
   function on_preview_button(e) {
@@ -101,7 +158,10 @@ $(function() {
       sStart = this.selectionStart;
       sEnd = this.selectionEnd;
       ta.hide();
-      ta.after('<span class="textarea preview">' + ta.val() + '</span>');
+      const previewSpan = document.createElement('span');
+      previewSpan.className = 'textarea preview';
+      previewSpan.innerHTML = sanitizeResponseHTML(ta.val());
+      ta.after(previewSpan);
     });
     me.hide();
     me.siblings('.unpreview-button').show().focus();
@@ -717,11 +777,11 @@ async function studentDiscussionPreview(btn) {
     /* clean up response message, inject text into div rather than embedding form */
     const response_msgs = contentDiv.querySelectorAll('.response-message');
     for (const rsp_msg of response_msgs) {
-      const text_content = rsp_msg.querySelector('textarea').innerText;
+      const text_content = rsp_msg.querySelector('textarea').value;
       if (text_content) {
         const textDiv = document.createElement('div');
         textDiv.className = 'display-response';
-        textDiv.innerText = text_content;
+        textDiv.innerHTML = sanitizeResponseHTML(text_content);
         rsp_msg.firstElementChild.replaceWith(textDiv); // replace form with text div
       } else { // no text content, so don't display anything
         rsp_msg.remove();
