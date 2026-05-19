@@ -1,0 +1,32 @@
+#!/bin/execlineb -P
+
+define home /srv/jutut
+define run /run/jutut
+fdmove -c 2 1
+
+# Use python3 from venv, if it exists
+# (-s is undocumented magic, that seems to move _prog_ to end of _then_ or
+# _else_ blocks and thus makes _define_ work)
+ifthenelse -s { test -e /local/venv_jutut/bin/python3 }
+{ define python3 /local/venv_jutut/bin/python3 }
+{ define python3 python3 }
+
+# wait for dependencies
+#if { s6-svwait -t 2000 -U /var/run/s6/services/postgresql/ }
+#if { s6-svwait -t 2000 -U /var/run/s6/services/rabbitmq/ }
+
+# Use container environment
+with-contenv
+
+# user and workdir
+s6-setuidgid jutut
+s6-env HOME=${home}
+cd ${home}
+
+# run daemon
+${python3} -m celery
+ --app jutut
+ beat
+ --pidfile=${run}/celery-beat.pid
+ --loglevel=info
+ --schedule=/local/jutut/celery-beat-schedule

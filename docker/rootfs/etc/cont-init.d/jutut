@@ -1,0 +1,18 @@
+#!/bin/sh
+
+. /usr/local/lib/cont-init-functions.sh
+ENSURE_DIR_MODE=2755
+ENSURE_DIR_USER=jutut
+ENSURE_DIR_GROUP=nogroup
+
+ensure_dir /run/jutut
+ensure_dir /local/jutut
+ensure_dir /local/jutut/static
+ensure_dir /local/jutut/media
+
+# Take this container's IP (v4) address, change the last component to .1 and
+# output it in a JSON list (like ["127.0.0.1"]) to Jutut settings.py.
+# The IP address with the .1 ending should be the host machine's IP address in
+# the Docker network, in other words, the IP address of the client (web browser).
+echo '["'$(hostname -i | cut -s -d. -f1-3)'.1"]' > /var/run/s6/container_environment/JUTUT_INTERNAL_IPS
+
