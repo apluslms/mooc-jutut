@@ -109,7 +109,7 @@ class VirtualFinder(BaseFinder):
     def __init__(self):
         self._storage = VirtualStorage()
 
-    def find(self, path, all=False): # pylint: disable=redefined-builtin
+    def find(self, path, all=False): # pylint: disable=redefined-builtin arguments-differ arguments-renamed
         if self._storage.exists(path):
             abs_path = join(settings.STATIC_ROOT, path)
             return {abs_path} if all else abs_path

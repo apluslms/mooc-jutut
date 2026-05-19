@@ -1,12 +1,11 @@
+# pylint: disable=import-outside-toplevel
+
 import os
 import sys
 import django
-from datetime import timedelta
-from django.utils import timezone
 
 
 def create_default_users():
-    #from django.contrib.auth.models import User
     from accounts.models import JututUser as User
 
     u1 = User.objects.create(
@@ -19,6 +18,7 @@ def create_default_users():
     )
     u1.set_password("root")
     u1.save()
+
 
 if __name__ == '__main__':
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", "jutut.settings")

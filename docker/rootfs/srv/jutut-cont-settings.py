@@ -27,6 +27,7 @@ CACHES = {
 
 CELERY_BROKER_URL = "amqp://"
 
+# pylint: disable-next=undefined-variable
 LOGGING['loggers'].update({
     '': {
         'level': 'INFO',
@@ -48,6 +49,7 @@ LOGGING['loggers'].update({
     }
 })
 
+# pylint: disable-next=undefined-variable
 JUTUT['SERVICE_STATUS'] = (
     #('PostgreSQL', ('s6-svstat', '/run/s6/services/postgresql/')),
     #('RabbitMQ', ('s6-svstat', '/run/s6/services/rabbitmq/')),
