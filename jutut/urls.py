@@ -9,12 +9,12 @@ import timeusage.urls
 
 
 urlpatterns = [
-    re_path(r'^', include(feedback.urls)),
-    re_path(r'^timeusage/', include(timeusage.urls)),
-    re_path(r'^', include(core.urls)),
-    re_path(r'^i18n/', include('django.conf.urls.i18n')),
+    path('', include(feedback.urls)),
+    path('timeusage/', include(timeusage.urls)),
+    path('', include(core.urls)),
+    path('i18n/', include('django.conf.urls.i18n')),
     re_path(r'^admin/', admin.site.urls),
-    re_path(r'^accounts/', include(accounts.urls)),
+    path('accounts/', include(accounts.urls)),
 ]
 
 if settings.ENABLE_DJANGO_DEBUG_TOOLBAR:

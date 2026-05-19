@@ -12,8 +12,8 @@ There is a Docker container image available for local testing and development of
 Requirements
 ------------
 
-* Python 3.8+
-* Django 4.2+
+* Python 3.10+
+* Django 5.2+
 * Postgresql 12+
 
 More details of packages in installation documentation.

@@ -1,5 +1,5 @@
 from django.conf import settings
-from django.urls import re_path
+from django.urls import path
 from django.views.decorators.cache import cache_page
 from django.views.generic import TemplateView
 
@@ -14,16 +14,16 @@ def cache(time=60 * 15):
 
 app_name = CoreConfig.name
 urlpatterns = [
-    re_path(r'^$',
+    path('',
         TemplateView.as_view(template_name="core/frontpage.html"),
         name='fronpage'),
-    re_path(r'^manage/servicestatus/$',
+    path('manage/servicestatus/',
         views.ServiceStatusPage.as_view(),
         name='servicestatus'),
-    re_path(r'^manage/servicestatus/data/$',
+    path('manage/servicestatus/data/',
         cache(10)(views.ServiceStatusData.as_view()),
         name='servicestatus-data'),
-    re_path(r'^manage/clear-cache/$',
+    path('manage/clear-cache/',
         views.ClearCache.as_view(),
         name='clear-cache'),
 ]
