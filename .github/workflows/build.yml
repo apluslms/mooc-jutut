@@ -82,6 +82,8 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: apluslms/run-mooc-jutut
+          flavor: |
+            latest=false
           tags: |
             type=raw,value=latest
             type=match,pattern=(\d+\.\d+)\.\d+$,group=1
