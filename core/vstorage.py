@@ -1,5 +1,5 @@
 from os.path import join, getatime, getctime, getmtime
-from datetime import datetime
+from datetime import datetime, timezone
 from io import StringIO
 
 from django import VERSION as DJANGO_VERSION
@@ -14,7 +14,7 @@ if DJANGO_VERSION >= (1, 10):
     def datetime_from_timestamp(ts):
         # src: django.core.files.storage.FileSystemStorage._datetime_from_timestamp
         if settings.USE_TZ:
-            return datetime.utcfromtimestamp(ts).replace(tzinfo=datetime.timezone.utc)
+            return datetime.utcfromtimestamp(ts).replace(tzinfo=timezone.utc)
         return datetime.fromtimestamp(ts)
 else:
     datetime_from_timestamp = datetime.fromtimestamp
@@ -23,7 +23,7 @@ else:
 class VirtualStorage(Storage):
     def __init__(self):
         map_ = settings.RENDERED_STATIC_FILES
-        # RODO: raise configuration error
+        # TODO: raise configuration error
         if isinstance(map_, dict):
             map_ = map_.items()
         self._map = {k: (v[0] if isinstance(v, (list, tuple)) else v) for k, v in map_}
