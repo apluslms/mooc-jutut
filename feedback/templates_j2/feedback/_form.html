@@ -194,7 +194,9 @@
 			const c = f.find('.history-well'), m = c.find('.show-more');
 			m.click(function() { c.find('li.initially-hidden').removeClass('initially-hidden').show(); m.hide(); });
 			// empty textfields
-			c.next('textarea, input[type="text"]').val("");
+			window.setTimeout(function() {
+				c.next('textarea, input[type="text"]').val("");
+			})
 			// implement edited notification
 			const o = f.find('.only-when-edited'), i = f.serialize();
 			let s = false;
