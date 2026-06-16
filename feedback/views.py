@@ -183,6 +183,13 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
 
     def get_student(self, namespace):
         student = None
+        submitter = None
+
+        students = self.grading_data.submitters
+        if students:
+            if len(students) != 1:
+                raise SuspiciousStudent("Multiple students in submission. Feedback expects only one")
+            submitter = students[0]
 
         # Try to resolve student using uid from query parameters
         uids = self.request.GET.get('uid', '').split('-')
@@ -194,14 +201,30 @@ class FeedbackSubmissionView(CSRFExemptMixin, AplusGraderMixin, FormView):
             except (Student.DoesNotExist, ValueError):
                 pass
 
-        # Fallback to resolve student from grading_data
+        # Resolve and refresh student metadata from grading_data when available.
+        # This keeps student names in sync even when the student already exists.
+        if submitter:
+            if not student:
+                student, created = Student.objects.get_or_create(submitter, namespace=namespace)
+                if not created:
+                    Student.objects.update_object(student, submitter, namespace=namespace)
+                    student.save()
+            elif student.api_id == submitter.id:
+                Student.objects.update_object(student, submitter, namespace=namespace)
+                student.save()
+            else:
+                logger.warning(
+                    (
+                        "UID query parameter (%s) does not match grading data submitter ID (%s); "
+                        "using student resolved from uid"
+                    ),
+                    student.api_id,
+                    submitter.id,
+                )
+
+        # Raise exception if student could not be resolved from either uid query parameter or grading_data submitter
         if not student:
-            students = self.grading_data.submitters
-            if not students:
-                raise SuspiciousStudent("Failed to resolve students")
-            if len(students) != 1:
-                raise SuspiciousStudent("Multiple students in submission. Feedback expects only one")
-            student, _created = Student.objects.get_new_or_updated(students[0], namespace=namespace)
+            raise SuspiciousStudent("Failed to resolve student")
 
         return student
 
