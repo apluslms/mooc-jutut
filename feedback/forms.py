@@ -16,6 +16,7 @@ from .models import (
     ContextTag,
     Course,
 )
+from .cached import CachedTags
 from .tasks import async_response_upload
 
 
@@ -227,5 +228,6 @@ class ImportTagsForm(forms.Form):
                 )
                 for tag in importable_tags
             ])
+            CachedTags.clear(self.target_course)
             self.target_course.save()
         return imported_tag_slugs
