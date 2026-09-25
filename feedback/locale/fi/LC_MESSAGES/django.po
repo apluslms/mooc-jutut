@@ -43,11 +43,11 @@ msgstr "Liput"
 
 #: feedback/filters.py
 msgid "Feedback tags"
-msgstr "Palautetägit"
+msgstr "Palautetagit"
 
 #: feedback/filters.py
 msgid "Student tags"
-msgstr "Opiskelijatägit"
+msgstr "Opiskelijatagit"
 
 #: feedback/filters.py
 msgid "Timestamp"
@@ -254,7 +254,7 @@ msgstr "Kiinnitä"
 
 #: feedback/models.py
 msgid "Pin tag to the beginning of the list of tags."
-msgstr "Kiinnitä tägi luettelon alkuun."
+msgstr "Kiinnitä tagi luettelon alkuun."
 
 #: feedback/models.py feedback/templates/feedback_tags/contexttag_list.html
 msgid "Question key"
@@ -269,7 +269,7 @@ msgid ""
 "Indicate for which response values this tag should be displayed. This can be "
 "a regex pattern."
 msgstr ""
-"Mitä vastausvaihtoehtoja tämä tägi kuvastaa. Tämä voi olla säännöllinen "
+"Mitä vastausvaihtoehtoja tämä tagi kuvastaa. Tämä voi olla säännöllinen "
 "lauseke."
 
 #: feedback/models.py
@@ -278,7 +278,7 @@ msgstr "Väri"
 
 #: feedback/models.py
 msgid "Color that is used as background for this tag"
-msgstr "Tägin taustaväri"
+msgstr "tagin taustaväri"
 
 #: feedback/models.py
 msgid "Content"
@@ -290,9 +290,9 @@ msgid ""
 "writing '{}' where the value is desired. However, it is recommended to "
 "display the value only if it is known to be short, e.g. timespent."
 msgstr ""
-"Sisältö, joka näkyy tägissä. Vastaus itse voidaan esittää tägissä "
+"Sisältö, joka näkyy tagissä. Vastaus itse voidaan esittää tagissä "
 "laittamalla '{}' kohtaan, johon se halutaan. Kuitenkin, vastausta ei kannata "
-"näyttää tägissä ellei sen tiedetä olevan lyhyt, kuten käytetyn ajan arvio."
+"näyttää tagissä ellei sen tiedetä olevan lyhyt, kuten käytetyn ajan arvio."
 
 #: feedback/templates/feedback/avglist.html
 msgid "No feedback yet."
@@ -316,7 +316,7 @@ msgstr "Peruuta"
 #: feedback/templates/feedback_tags/contexttag_confirm_delete.html
 #: feedback/templates/feedback_tags/tag_confirm_delete.html
 msgid "Confirm feedback tag removal"
-msgstr "Vahvista palautetägin poisto"
+msgstr "Vahvista palautetagin poisto"
 
 #: feedback/templates/feedback_tags/contexttag_confirm_delete.html
 #, python-format
@@ -324,7 +324,7 @@ msgid ""
 "Are you sure you want to remove the context tag %(tag)s from course "
 "%(course)s?"
 msgstr ""
-"Oletko varma, että haluat poistaa kontekstitägin %(tag)s kurssilta "
+"Oletko varma, että haluat poistaa kontekstitagin %(tag)s kurssilta "
 "%(course)s?"
 
 #: feedback/templates/feedback_tags/contexttag_confirm_delete.html
@@ -334,11 +334,11 @@ msgstr "Vahvista"
 
 #: feedback/templates/feedback_tags/contexttag_list.html
 msgid "List of context tags"
-msgstr "Luettelo kontekstitägeistä"
+msgstr "Luettelo kontekstitageistä"
 
 #: feedback/templates/feedback_tags/contexttag_list.html
 msgid "Context tag"
-msgstr "Kontekstitägi"
+msgstr "Kontekstitagi"
 
 #: feedback/templates/feedback_tags/contexttag_list.html
 #: feedback/templates/feedback_tags/tag_list.html
@@ -357,7 +357,7 @@ msgstr "poista"
 
 #: feedback/templates/feedback_tags/import_tags.html
 msgid "Import feedback tags from another course"
-msgstr "Tuo palautetägit toiselta kurssilta"
+msgstr "Tuo palautetagit toiselta kurssilta"
 
 #: feedback/templates/feedback_tags/import_tags.html
 msgid "Import"
@@ -365,12 +365,12 @@ msgstr "Tuo"
 
 #: feedback/templates/feedback_tags/import_tags.html
 msgid "Tags to be imported"
-msgstr "Tuotavat tägit"
+msgstr "Tuotavat tagit"
 
 #: feedback/templates/feedback_tags/import_tags.html
 #: feedback/templates/feedback_tags/tag_list.html
 msgid "Feedback tag"
-msgstr "Palautetägi"
+msgstr "Palautetagi"
 
 #: feedback/templates/feedback_tags/import_tags.html
 #: feedback/templates/feedback_tags/tag_list.html
@@ -392,11 +392,11 @@ msgstr "kyllä"
 
 #: feedback/templates/feedback_tags/import_tags.html
 msgid "no (tag with this slug already exists)"
-msgstr "ei (tunnisteella on jo tägi)"
+msgstr "ei (tunnisteella on jo tagi)"
 
 #: feedback/templates/feedback_tags/import_tags.html
 msgid "No feedback tags found for this course."
-msgstr "Kurssille ei löytynyt palautetägejä."
+msgstr "Kurssille ei löytynyt palautetagejä."
 
 #: feedback/templates/feedback_tags/tag_confirm_delete.html
 #, python-format
@@ -404,12 +404,12 @@ msgid ""
 "Are you sure you want to remove feedback tag %(tag)s from course %(course)s? "
 "This tag will be removed from all conversations it was associated with."
 msgstr ""
-"Oletko varma, että haluat poistaa palautetägin %(tag)s kurssilta %(course)s?"
-"Tämä tägi poistetaan kaikista keskusteluista, joihin se oli tägätty."
+"Oletko varma, että haluat poistaa palautetagin %(tag)s kurssilta %(course)s?"
+"Tämä tagi poistetaan kaikista keskusteluista, joihin se oli tagätty."
 
 #: feedback/templates/feedback_tags/tag_list.html
 msgid "List of feedback tags"
-msgstr "Luettelo palautetägeistä"
+msgstr "Luettelo palautetageistä"
 
 #: feedback/templates/manage/_background.html
 #: feedback/templates/manage/_submitter_heading.html
@@ -421,8 +421,8 @@ msgid ""
 "Turns inactive feedback tags invisible. The feedback tag buttons reappear "
 "when hovering over the tag panel."
 msgstr ""
-"Muuttaa epäaktiiviset palautetägit näkymättömiksi. Palautetägipainikkeet "
-"näkyvät, kun hiiri on tägikentän päällä."
+"Muuttaa epäaktiiviset palautetagit näkymättömiksi. Palautetagipainikkeet "
+"näkyvät, kun hiiri on tagikentän päällä."
 
 #: feedback/templates/manage/_conversations_as_list.html
 msgid "Zen mode"
@@ -701,15 +701,15 @@ msgstr "Rajaa palautteita"
 
 #: feedback/templates/manage/base.html
 msgid "Manage feedback tags"
-msgstr "Hallitse palautetägejä"
+msgstr "Hallitse palautetagejä"
 
 #: feedback/templates/manage/base.html
 msgid "Import feedback tags"
-msgstr "Tuo palautetägejä"
+msgstr "Tuo palautetagejä"
 
 #: feedback/templates/manage/base.html
 msgid "Manage context tags"
-msgstr "Hallitse kontekstitägejä"
+msgstr "Hallitse kontekstitagejä"
 
 #: feedback/templates/manage/base.html
 msgid "Student list"
@@ -721,7 +721,7 @@ msgstr "Ajankäyttö"
 
 #: feedback/templates/manage/base.html
 msgid "Update Student tags"
-msgstr "Päivitä opiskelijatägit"
+msgstr "Päivitä opiskelijatagit"
 
 #: feedback/templates/manage/base.html
 msgid "Clear cache"
@@ -782,7 +782,7 @@ msgstr "Ei tunnettuja sivuja."
 
 #: feedback/templates/manage/update_studenttags.html
 msgid "Update student tags"
-msgstr "Päivitä opiskelijatägit"
+msgstr "Päivitä opiskelijatagit"
 
 #: feedback/templates/manage/update_studenttags.html
 #, python-format
@@ -790,24 +790,24 @@ msgid ""
 "The most recent update of students tags for this course was on <b>%(time)s</"
 "b> (%(naturaltime)s)."
 msgstr ""
-"Tämän kurssin opiskelijatägit on päivitetty viimeksi <b>%(time)s</b> "
+"Tämän kurssin opiskelijatagit on päivitetty viimeksi <b>%(time)s</b> "
 "(%(naturaltime)s)."
 
 #: feedback/templates/manage/update_studenttags.html
 msgid "Update tags now"
-msgstr "Päivitä tägit nyt"
+msgstr "Päivitä tagit nyt"
 
 #: feedback/templates/manage/update_studenttags.html
 msgid "New tags"
-msgstr "Uudet tägit"
+msgstr "Uudet tagit"
 
 #: feedback/templates/manage/update_studenttags.html
 msgid "Updated tags"
-msgstr "Päivitetyt tägit"
+msgstr "Päivitetyt tagit"
 
 #: feedback/templates/manage/update_studenttags.html
 msgid "Deleted tags"
-msgstr "Poistetut tägit"
+msgstr "Poistetut tagit"
 
 #: feedback/templates/manage/update_studenttags.html
 msgid "This user is not authenticated using LTI and doesn't have api token."
@@ -901,25 +901,25 @@ msgstr ""
 
 #: feedback/views.py
 msgid "Edit feedback tag"
-msgstr "Muokkaa palautetägiä"
+msgstr "Muokkaa palautetagiä"
 
 #: feedback/views.py
 msgid "Add new feedback tag"
-msgstr "Lisää uusi palautetägi"
+msgstr "Lisää uusi palautetagi"
 
 #: feedback/views.py
 #, python-brace-format
 msgid "Imported successfully tags: {imported_tags}."
-msgstr "Tuotiin onnistuneesti tägit: {imported_tags}."
+msgstr "Tuotiin onnistuneesti tagit: {imported_tags}."
 
 #: feedback/views.py
 msgid "No tags were imported."
-msgstr "Tuotiin 0 tägiä."
+msgstr "Tuotiin 0 tagiä."
 
 #: feedback/views.py
 msgid "Edit context tag"
-msgstr "Muokkaa kontekstitägiä"
+msgstr "Muokkaa kontekstitagiä"
 
 #: feedback/views.py
 msgid "Add new context tag"
-msgstr "Lisää uusi kontekstitägi"
+msgstr "Lisää uusi kontekstitagi"
