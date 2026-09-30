@@ -214,6 +214,9 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
         'fieldHtmlClass': 'class',
         'readonly': 'readonly', # Supported with django 1.10 and later
         # labelHtmlClass - not supported, css selectors should be enough
+        'size': 'size', # HTML size attribute of a text input
+        'rows': 'rows', # number of visible lines of a textarea
+        'cols': 'cols', # visible width in characters of a textarea
     }
     COERCE_FIELD_MAP = {
         forms.ChoiceField: forms.TypedChoiceField,
@@ -362,6 +365,16 @@ class DynamicForm(forms.forms.BaseForm, metaclass=DynamicFormMetaClass):
                         widget_attrs['class'],
                         ignore=cls.IGNORED_CSS_CLASSES,
                     ))
+
+                # Bootstrap's form-control class sets width: 100%, which would
+                # override the HTML size/cols attributes. Mark fields with a
+                # manually set width with a class that undoes the full width.
+                # Note: check the spec, not the widget attrs, because the
+                # Textarea widget injects its own default rows/cols there.
+                if 'size' in prop or 'cols' in prop:
+                    widget_attrs['class'] = ' '.join(
+                        f"{widget_attrs.get('class', '')} form-field-sized".split(),
+                    )
 
                 # add type check for integer choices
                 if type_ == 'integer' and field_class in cls.COERCE_FIELD_MAP:
